@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_color.dart';
 import '../../core/widgets/app_text.dart';
 import '../../data/models/user_profile_model.dart';
+import '../../data/repositories/category_repository.dart';
 import '../profile/viewmodels/profile_viewmodel.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,6 +18,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _refreshVersion = 0;
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refreshHome() async {
+    setState(() => _refreshVersion++);
     await context.read<ProfileViewModel>().refreshProfile();
   }
 
@@ -45,24 +49,24 @@ class _HomeScreenState extends State<HomeScreen> {
               parent: AlwaysScrollableScrollPhysics(),
             ),
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 110),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _HomeHeader(),
-                SizedBox(height: 24),
-                _SearchSection(),
-                SizedBox(height: 24),
-                _BannerCarousel(),
-                SizedBox(height: 24),
-                _CategoriesSection(),
-                SizedBox(height: 24),
-                _BooksSection(
+                const _HomeHeader(),
+                const SizedBox(height: 24),
+                const _SearchSection(),
+                const SizedBox(height: 24),
+                const _BannerCarousel(),
+                const SizedBox(height: 24),
+                _CategoriesSection(refreshVersion: _refreshVersion),
+                const SizedBox(height: 24),
+                const _BooksSection(
                   title: 'Featured',
                   books: _Book.featuredBooks,
                   layout: _BooksSectionLayout.horizontal,
                 ),
-                SizedBox(height: 24),
-                _BooksSection(
+                const SizedBox(height: 24),
+                const _BooksSection(
                   title: 'New Arrivals',
                   books: _Book.newArrivalBooks,
                   layout: _BooksSectionLayout.grid,
@@ -584,15 +588,40 @@ class _BannerCarouselState extends State<_BannerCarousel> {
   }
 }
 
-class _CategoriesSection extends StatelessWidget {
-  const _CategoriesSection();
+class _CategoriesSection extends StatefulWidget {
+  const _CategoriesSection({required this.refreshVersion});
 
-  static const List<String> _categories = [
-    'All',
-    'Fiction',
-    'Science',
-    'History',
-  ];
+  final int refreshVersion;
+
+  @override
+  State<_CategoriesSection> createState() => _CategoriesSectionState();
+}
+
+class _CategoriesSectionState extends State<_CategoriesSection> {
+  late Future<List<String>> _categoriesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoriesFuture = _loadCategories();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CategoriesSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshVersion != widget.refreshVersion) {
+      _categoriesFuture = _loadCategories();
+    }
+  }
+
+  Future<List<String>> _loadCategories() async {
+    try {
+      final categories = await CategoryRepository().getCategories();
+      return ['All', ...categories.map((category) => category.name)];
+    } catch (_) {
+      return const ['All'];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -607,22 +636,29 @@ class _CategoriesSection extends StatelessWidget {
           height: 1,
         ),
         const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          child: Row(
-            children: List.generate(_categories.length, (index) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  right: index == _categories.length - 1 ? 0 : 10,
-                ),
-                child: _CategoryChip(
-                  label: _categories[index],
-                  isSelected: index == 0,
-                ),
-              );
-            }),
-          ),
+        FutureBuilder<List<String>>(
+          future: _categoriesFuture,
+          builder: (context, snapshot) {
+            final categories = snapshot.data ?? const ['All'];
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: List.generate(categories.length, (index) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      right: index == categories.length - 1 ? 0 : 10,
+                    ),
+                    child: _CategoryChip(
+                      label: categories[index],
+                      isSelected: index == 0,
+                    ),
+                  );
+                }),
+              ),
+            );
+          },
         ),
       ],
     );

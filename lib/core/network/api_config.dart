@@ -18,4 +18,5 @@ class ApiConfig {
   static const String getProfile = '/api/v1/users/me';
   static const String updateProfile = '/api/v1/users/me';
   static const String uploadAvatar = '/api/v1/users/me/avatar';
+  static const String categories = '/api/v1/categories';
 }

@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_color.dart';
 import '../../core/widgets/app_text.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
   Future<void> _refreshCart() async {
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    setState(() {});
   }
 
   @override

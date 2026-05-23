@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_color.dart';
 import '../../core/widgets/app_text.dart';
+import '../../data/repositories/category_repository.dart';
+import '../profile/viewmodels/profile_viewmodel.dart';
 
-class ShopScreen extends StatelessWidget {
+class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
 
+  @override
+  State<ShopScreen> createState() => _ShopScreenState();
+}
+
+class _ShopScreenState extends State<ShopScreen> {
+  int _refreshVersion = 0;
+
   Future<void> _refreshShop() async {
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    setState(() => _refreshVersion++);
+    await context.read<ProfileViewModel>().refreshProfile();
   }
 
   @override
@@ -25,18 +36,18 @@ class ShopScreen extends StatelessWidget {
               parent: AlwaysScrollableScrollPhysics(),
             ),
             padding: const EdgeInsets.fromLTRB(20, 28, 20, 110),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _ShopHeader(),
-                SizedBox(height: 28),
-                _ShopSearchSection(),
-                SizedBox(height: 24),
-                _ShopFiltersSection(),
-                SizedBox(height: 24),
-                _ShopResultsToolbar(),
-                SizedBox(height: 16),
-                _ShopBooksGrid(),
+                const _ShopHeader(),
+                const SizedBox(height: 28),
+                const _ShopSearchSection(),
+                const SizedBox(height: 24),
+                _ShopFiltersSection(refreshVersion: _refreshVersion),
+                const SizedBox(height: 24),
+                const _ShopResultsToolbar(),
+                const SizedBox(height: 16),
+                const _ShopBooksGrid(),
               ],
             ),
           ),
@@ -403,16 +414,42 @@ class _ShopSearchSection extends StatelessWidget {
   }
 }
 
-class _ShopFiltersSection extends StatelessWidget {
-  const _ShopFiltersSection();
+class _ShopFiltersSection extends StatefulWidget {
+  const _ShopFiltersSection({required this.refreshVersion});
 
+  final int refreshVersion;
+
+  @override
+  State<_ShopFiltersSection> createState() => _ShopFiltersSectionState();
+}
+
+class _ShopFiltersSectionState extends State<_ShopFiltersSection> {
   static const List<String> _activeFilters = ['Fiction', 'Under \$20'];
-  static const List<String> _categories = [
-    'All',
-    'Fiction',
-    'Science',
-    'History',
-  ];
+
+  late Future<List<String>> _categoriesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _categoriesFuture = _loadCategories();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ShopFiltersSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshVersion != widget.refreshVersion) {
+      _categoriesFuture = _loadCategories();
+    }
+  }
+
+  Future<List<String>> _loadCategories() async {
+    try {
+      final categories = await CategoryRepository().getCategories();
+      return ['All', ...categories.map((category) => category.name)];
+    } catch (_) {
+      return const ['All'];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -434,22 +471,29 @@ class _ShopFiltersSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 26),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          child: Row(
-            children: List.generate(_categories.length, (index) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  right: index == _categories.length - 1 ? 0 : 10,
-                ),
-                child: _CategoryChip(
-                  label: _categories[index],
-                  isSelected: index == 0,
-                ),
-              );
-            }),
-          ),
+        FutureBuilder<List<String>>(
+          future: _categoriesFuture,
+          builder: (context, snapshot) {
+            final categories = snapshot.data ?? const ['All'];
+
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: List.generate(categories.length, (index) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      right: index == categories.length - 1 ? 0 : 10,
+                    ),
+                    child: _CategoryChip(
+                      label: categories[index],
+                      isSelected: index == 0,
+                    ),
+                  );
+                }),
+              ),
+            );
+          },
         ),
       ],
     );
