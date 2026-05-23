@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,9 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_color.dart';
 import '../../core/widgets/app_text.dart';
+import '../../data/models/book_model.dart';
 import '../../data/models/user_profile_model.dart';
+import '../../data/repositories/book_repository.dart';
 import '../../data/repositories/category_repository.dart';
 import '../profile/viewmodels/profile_viewmodel.dart';
 
@@ -19,6 +22,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _refreshVersion = 0;
+  String _selectedCategory = 'All';
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -54,22 +59,33 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const _HomeHeader(),
                 const SizedBox(height: 24),
-                const _SearchSection(),
+                _SearchSection(
+                  onSearch: (query) {
+                    setState(() {
+                      _searchQuery = query;
+                      _refreshVersion++;
+                    });
+                  },
+                ),
+                const SizedBox(height: 24),
+                _CategoriesSection(
+                  refreshVersion: _refreshVersion,
+                  selectedCategory: _selectedCategory,
+                  onCategorySelected: (category) {
+                    setState(() => _selectedCategory = category);
+                  },
+                ),
                 const SizedBox(height: 24),
                 const _BannerCarousel(),
                 const SizedBox(height: 24),
-                _CategoriesSection(refreshVersion: _refreshVersion),
-                const SizedBox(height: 24),
-                const _BooksSection(
-                  title: 'Featured',
-                  books: _Book.featuredBooks,
-                  layout: _BooksSectionLayout.horizontal,
+                _FeaturedSection(
+                  refreshVersion: _refreshVersion,
                 ),
                 const SizedBox(height: 24),
-                const _BooksSection(
-                  title: 'New Arrivals',
-                  books: _Book.newArrivalBooks,
-                  layout: _BooksSectionLayout.grid,
+                _NewArrivalsSection(
+                  refreshVersion: _refreshVersion,
+                  selectedCategory: _selectedCategory,
+                  searchQuery: _searchQuery,
                 ),
               ],
             ),
@@ -115,7 +131,7 @@ class _HomeHeader extends StatelessWidget {
               const SizedBox(height: 3),
               Row(
                 children: [
-                  Expanded(
+                  Flexible(
                     child: AppText.subTitle(
                       displayName,
                       color: AppColors.textPrimary,
@@ -125,7 +141,7 @@ class _HomeHeader extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 4),
                   const Icon(
                     Icons.verified_rounded,
                     color: AppColors.primary400,
@@ -589,9 +605,15 @@ class _BannerCarouselState extends State<_BannerCarousel> {
 }
 
 class _CategoriesSection extends StatefulWidget {
-  const _CategoriesSection({required this.refreshVersion});
+  const _CategoriesSection({
+    required this.refreshVersion,
+    required this.selectedCategory,
+    required this.onCategorySelected,
+  });
 
   final int refreshVersion;
+  final String selectedCategory;
+  final ValueChanged<String> onCategorySelected;
 
   @override
   State<_CategoriesSection> createState() => _CategoriesSectionState();
@@ -628,14 +650,6 @@ class _CategoriesSectionState extends State<_CategoriesSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppText.titleSmall(
-          'Categories',
-          color: AppColors.textPrimary,
-          fontSize: 15,
-          fontWeight: FontWeight.w800,
-          height: 1,
-        ),
-        const SizedBox(height: 16),
         FutureBuilder<List<String>>(
           future: _categoriesFuture,
           builder: (context, snapshot) {
@@ -650,9 +664,12 @@ class _CategoriesSectionState extends State<_CategoriesSection> {
                     padding: EdgeInsets.only(
                       right: index == categories.length - 1 ? 0 : 10,
                     ),
-                    child: _CategoryChip(
-                      label: categories[index],
-                      isSelected: index == 0,
+                    child: GestureDetector(
+                      onTap: () => widget.onCategorySelected(categories[index]),
+                      child: _CategoryChip(
+                        label: categories[index],
+                        isSelected: categories[index] == widget.selectedCategory,
+                      ),
                     ),
                   );
                 }),
@@ -696,7 +713,10 @@ class _CategoryChip extends StatelessWidget {
 }
 
 class _SearchSection extends StatelessWidget {
-  const _SearchSection();
+  const _SearchSection({required this.onSearch});
+
+  final ValueChanged<String> onSearch;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -713,64 +733,135 @@ class _SearchSection extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          const SizedBox(width: 20),
-          SvgPicture.asset(
-            'assets/icons/search.svg',
-            colorFilter: ColorFilter.mode(
-              AppColors.buttonColor,
-              BlendMode.srcIn,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: TextField(
-              cursorColor: AppColors.primary,
-              textInputAction: TextInputAction.search,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Search books',
-                hintStyle: TextStyle(
-                  color: AppColors.textDisabled.withAlpha(190),
-                  fontSize: 13,
+      child: RawAutocomplete<BookModel>(
+        optionsBuilder: (TextEditingValue textEditingValue) async {
+          if (textEditingValue.text.isEmpty) {
+            return const Iterable<BookModel>.empty();
+          }
+          // Fetch live suggestions from API
+          final books = await BookRepository().getBooks(search: textEditingValue.text);
+          return books;
+        },
+        onSelected: (BookModel selection) {
+          onSearch(selection.title);
+        },
+        displayStringForOption: (BookModel option) => option.title,
+        fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
+          return Row(
+            children: [
+              const SizedBox(width: 20),
+              SvgPicture.asset(
+                'assets/icons/search.svg',
+                colorFilter: const ColorFilter.mode(
+                  AppColors.buttonColor,
+                  BlendMode.srcIn,
                 ),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                isCollapsed: true,
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Material(
-            color: AppColors.buttonColor.withValues(alpha: 0.1),
-            shape: const CircleBorder(),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: () {},
-              child: SizedBox(
-                width: 42,
-                height: 42,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SvgPicture.asset(
-                    'assets/icons/spline-pointer.svg',
-                    colorFilter: ColorFilter.mode(
-                      AppColors.buttonColor,
-                      BlendMode.srcIn,
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: textEditingController,
+                  focusNode: focusNode,
+                  onSubmitted: (String value) {
+                    onFieldSubmitted();
+                    onSearch(value);
+                  },
+                  onChanged: (val) {
+                    if (val.isEmpty) onSearch('');
+                  },
+                  cursorColor: AppColors.primary,
+                  textInputAction: TextInputAction.search,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Search books',
+                    hintStyle: TextStyle(
+                      color: AppColors.textDisabled.withAlpha(190),
+                      fontSize: 13,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    isCollapsed: true,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Material(
+                color: AppColors.buttonColor.withValues(alpha: 0.1),
+                shape: const CircleBorder(),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {},
+                  child: SizedBox(
+                    width: 42,
+                    height: 42,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset(
+                        'assets/icons/spline-pointer.svg',
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.buttonColor,
+                          BlendMode.srcIn,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
+              const SizedBox(width: 6),
+            ],
+          );
+        },
+        optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<BookModel> onSelected, Iterable<BookModel> options) {
+          return Align(
+            alignment: Alignment.topLeft,
+            child: Material(
+              elevation: 8.0,
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              clipBehavior: Clip.antiAlias,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width - 40,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  shrinkWrap: true,
+                  itemCount: options.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final BookModel option = options.elementAt(index);
+                    return InkWell(
+                      onTap: () {
+                        onSelected(option);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.history_rounded, size: 16, color: AppColors.textDisabled),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                option.title,
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: 6),
-        ],
+          );
+        },
       ),
     );
   }
@@ -865,56 +956,499 @@ class _HeaderIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.white,
-      shape: const CircleBorder(),
-      elevation: 8,
-      shadowColor: AppColors.textPrimary.withAlpha(18),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: SizedBox(
-          width: 46,
-          height: 46,
-          child: Stack(
-            clipBehavior: Clip.none,
-            alignment: Alignment.center,
-            children: [
-              SvgPicture.asset(
-                iconPath,
-                width: 24,
-                height: 24,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.textPrimary,
-                  BlendMode.srcIn,
+    return SizedBox(
+      width: 46,
+      height: 46,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.center,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(23),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: AppColors.white.withValues(alpha: 0.16),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.white.withValues(alpha: 0.28),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.10),
+                      offset: const Offset(0, 14),
+                      blurRadius: 30,
+                    ),
+                  ],
                 ),
-              ),
-              if (badgeCount != null)
-                Positioned(
-                  right: -2,
-                  top: -4,
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      minWidth: 20,
-                      minHeight: 20,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: AppColors.error,
-                      shape: BoxShape.circle,
-                    ),
-                    child: AppText.caption(
-                      '$badgeCount',
-                      color: AppColors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      height: 1,
+                child: Material(
+                  color: AppColors.transparent,
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: onTap,
+                    child: Center(
+                      child: SvgPicture.asset(
+                        iconPath,
+                        width: 24,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.textPrimary,
+                          BlendMode.srcIn,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-            ],
+              ),
+            ),
           ),
+          if (badgeCount != null)
+            Positioned(
+              right: -2,
+              top: -4,
+              child: IgnorePointer(
+                child: Container(
+                  constraints: const BoxConstraints(
+                    minWidth: 20,
+                    minHeight: 20,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  alignment: Alignment.center,
+                  decoration: const BoxDecoration(
+                    color: AppColors.error,
+                    shape: BoxShape.circle,
+                  ),
+                  child: AppText.caption(
+                    '$badgeCount',
+                    color: AppColors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FeaturedSection extends StatefulWidget {
+  const _FeaturedSection({required this.refreshVersion});
+
+  final int refreshVersion;
+
+  @override
+  State<_FeaturedSection> createState() => _FeaturedSectionState();
+}
+
+class _FeaturedSectionState extends State<_FeaturedSection> {
+  late Future<List<BookModel>> _booksFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _booksFuture = BookRepository().getBooks(featured: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant _FeaturedSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshVersion != widget.refreshVersion) {
+      _booksFuture = BookRepository().getBooks(featured: true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionHeader(title: 'Featured'),
+        const SizedBox(height: 12),
+        FutureBuilder<List<BookModel>>(
+          future: _booksFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(color: AppColors.buttonColor),
+                ),
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text('Error: ${snapshot.error}', style: const TextStyle(color: AppColors.error)),
+                ),
+              );
+            }
+            
+            final books = snapshot.data ?? [];
+            if (books.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: AppText.bodySmall('No featured books.', color: AppColors.textPrimary),
+                ),
+              );
+            }
+            
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                children: List.generate(books.length, (index) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      right: index == books.length - 1 ? 0 : 16,
+                    ),
+                    child: _BookModelFeaturedCard(book: books[index]),
+                  );
+                }),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _BookModelFeaturedCard extends StatelessWidget {
+  const _BookModelFeaturedCard({required this.book});
+
+  final BookModel book;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 130,
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border.withAlpha(130)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textPrimary.withAlpha(20),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _BookModelCover(
+            book: book,
+            height: 156,
+            showFavorite: true,
+            hasShadow: false, // Turn off inner shadow since container has one
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+          AppText.bodySmall(
+            book.title,
+            color: AppColors.textPrimary,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            height: 1.2,
+          ),
+          const SizedBox(height: 3),
+          AppText.caption(
+            book.author,
+            color: AppColors.textPrimary.withAlpha(150),
+            fontSize: 9.5,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 6),
+          AppText.button(
+            '\$${book.price}',
+            color: AppColors.buttonColor,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+          ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NewArrivalsSection extends StatefulWidget {
+  const _NewArrivalsSection({
+    required this.refreshVersion,
+    required this.selectedCategory,
+    required this.searchQuery,
+  });
+
+  final int refreshVersion;
+  final String selectedCategory;
+  final String searchQuery;
+
+  @override
+  State<_NewArrivalsSection> createState() => _NewArrivalsSectionState();
+}
+
+class _NewArrivalsSectionState extends State<_NewArrivalsSection> {
+  late Future<List<BookModel>> _booksFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _booksFuture = BookRepository().getBooks(
+      category: widget.selectedCategory,
+      search: widget.searchQuery,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _NewArrivalsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshVersion != widget.refreshVersion ||
+        oldWidget.selectedCategory != widget.selectedCategory ||
+        oldWidget.searchQuery != widget.searchQuery) {
+      _booksFuture = BookRepository().getBooks(
+        category: widget.selectedCategory,
+        search: widget.searchQuery,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionHeader(title: 'New Arrivals'),
+        const SizedBox(height: 12),
+        FutureBuilder<List<BookModel>>(
+          future: _booksFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(color: AppColors.buttonColor),
+                ),
+              );
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text('Error: ${snapshot.error}', style: const TextStyle(color: AppColors.error)),
+                ),
+              );
+            }
+            
+            final books = snapshot.data ?? [];
+            if (books.isEmpty) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: AppText.bodySmall('No new arrivals.', color: AppColors.textPrimary),
+                ),
+              );
+            }
+            
+            return GridView.builder(
+              itemCount: books.length,
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
+                childAspectRatio: 0.54,
+              ),
+              itemBuilder: (context, index) => _BookModelGridCard(book: books[index]),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _BookModelGridCard extends StatelessWidget {
+  const _BookModelGridCard({required this.book});
+
+  final BookModel book;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border.withAlpha(130)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.textPrimary.withAlpha(34),
+            blurRadius: 30,
+            offset: const Offset(0, 18),
+          ),
+          BoxShadow(
+            color: AppColors.buttonColor.withAlpha(18),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _BookModelCover(book: book, height: 210),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 9, 10, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText.bodySmall(
+                    book.title,
+                    color: AppColors.textPrimary,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  AppText.caption(
+                    book.author,
+                    color: AppColors.textPrimary.withAlpha(150),
+                    fontSize: 8,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppText.button(
+                          '\$${book.price}',
+                          color: AppColors.buttonColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          color: AppColors.buttonColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.add_rounded,
+                          color: AppColors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BookModelCover extends StatelessWidget {
+  const _BookModelCover({
+    required this.book,
+    required this.height,
+    this.showFavorite = false,
+    this.hasShadow = false,
+  });
+
+  final BookModel book;
+  final double height;
+  final bool showFavorite;
+  final bool hasShadow;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: hasShadow
+            ? [
+                BoxShadow(
+                  color: AppColors.textPrimary.withAlpha(26),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ]
+            : null,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned.fill(
+              child: CachedNetworkImage(
+                imageUrl: book.coverUrl,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                placeholder: (context, url) => const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                ),
+              ),
+            ),
+            if (showFavorite)
+              Positioned(
+                right: 6,
+                top: 6,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.textPrimary.withAlpha(26),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.favorite_rounded,
+                    color: AppColors.buttonColor,
+                    size: 16,
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

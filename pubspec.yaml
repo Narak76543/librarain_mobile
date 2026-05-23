@@ -26,6 +26,7 @@ dependencies:
   carousel_slider: ^5.1.2
   image_picker: ^1.0.7
   cached_network_image: ^3.3.1
+  image_cropper: ^12.2.1
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +49,10 @@ flutter:
     - family: NunitoSans
       fonts:
         - asset: assets/fonts/NunitoSans.ttf
+          style: normal
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
           style: normal
   #   - family: Trajan Pro
   #     fonts:

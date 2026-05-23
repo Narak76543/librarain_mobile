@@ -6,7 +6,7 @@ class AppTextStyle {
   AppTextStyle._();
 
   // FONT FAMILY
-  static const String fontFamily = 'NunitoSans';
+  static const String fontFamily = 'Poppins';
 
   // TITLE LARGE
   static const TextStyle titleLarge = TextStyle(

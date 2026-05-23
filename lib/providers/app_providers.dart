@@ -2,6 +2,7 @@ import 'package:provider/provider.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/profile_repository.dart';
 import '../presentation/auth/viewmodels/auth_view_model.dart';
+import '../presentation/cart/viewmodels/cart_viewmodel.dart';
 import '../presentation/profile/viewmodels/profile_viewmodel.dart';
 
 final appProviders = [
@@ -10,5 +11,8 @@ final appProviders = [
   ),
   ChangeNotifierProvider<ProfileViewModel>(
     create: (_) => ProfileViewModel(ProfileRepository()),
+  ),
+  ChangeNotifierProvider<CartViewModel>(
+    create: (_) => CartViewModel(),
   ),
 ];

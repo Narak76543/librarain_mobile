@@ -127,7 +127,7 @@ class _TopBar extends StatelessWidget {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints.tightFor(width: 36, height: 36),
           splashRadius: 20,
-          icon: const Icon(Icons.search_rounded, color: _iconColor, size: 22),
+          icon: const Icon(Icons.search_rounded, color: _iconColor, size: 22, weight: 100),
         ),
       ],
     );
@@ -178,6 +178,7 @@ class _UserCard extends StatelessWidget {
                         Icons.person_outline_rounded,
                         color: _textSecondary,
                         size: 14,
+                        weight: 100,
                       ),
                       SizedBox(width: 6),
                       Text(
@@ -320,7 +321,7 @@ class _MenuRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Icon(icon, color: _iconColor, size: 24),
+              Icon(icon, color: _iconColor, size: 24, weight: 100),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -338,6 +339,7 @@ class _MenuRow extends StatelessWidget {
                 Icons.chevron_right_rounded,
                 color: _chevronColor,
                 size: 22,
+                weight: 100,
               ),
             ],
           ),
@@ -499,6 +501,7 @@ class _SwipeLogoutButtonState extends State<SwipeLogoutButton> {
                             Icons.logout_rounded,
                             color: _logoutColor,
                             size: 24,
+                            weight: 100,
                           ),
                   ),
                 ),

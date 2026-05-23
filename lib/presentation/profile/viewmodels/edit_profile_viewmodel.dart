@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../data/models/user_profile_model.dart';
@@ -86,7 +87,28 @@ class EditProfileViewModel extends ChangeNotifier {
     );
     if (pickedImage == null) return;
 
-    pendingAvatarFile = File(pickedImage.path);
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: pickedImage.path,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Photo',
+          toolbarColor: const Color(0xFF45837B), // AppColors.buttonColor
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: true,
+        ),
+        IOSUiSettings(
+          title: 'Crop Photo',
+          aspectRatioLockEnabled: true,
+          resetAspectRatioEnabled: false,
+        ),
+      ],
+    );
+
+    if (croppedFile == null) return;
+
+    pendingAvatarFile = File(croppedFile.path);
     errorMessage = null;
     notifyListeners();
   }

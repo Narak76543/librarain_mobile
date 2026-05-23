@@ -49,7 +49,7 @@ class _EditProfileView extends StatelessWidget {
     final viewModel = context.watch<EditProfileViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.divider,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -57,9 +57,10 @@ class _EditProfileView extends StatelessWidget {
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                 children: [
                   _AvatarCard(viewModel: viewModel),
+                  const SizedBox(height: 32),
                   const _SectionLabel('PERSONAL INFO'),
                   _FieldCard(
                     children: [
@@ -81,26 +82,28 @@ class _EditProfileView extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
                   const _SectionLabel('CONTACT INFO'),
                   _FieldCard(
                     children: [
                       _ProfileField(
-                        label: 'Phone',
+                        label: 'Phone Number',
                         controller: viewModel.phoneController,
                         keyboardType: TextInputType.phone,
                       ),
                       _ProfileField(
-                        label: 'Telegram',
+                        label: 'Telegram Username',
                         controller: viewModel.telegramController,
                         prefixText: '@',
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
                   const _SectionLabel('ADDRESS'),
                   _FieldCard(
                     children: [
                       _ProfileField(
-                        label: 'Address',
+                        label: 'Home Address',
                         controller: viewModel.addressController,
                         minLines: 3,
                         maxLines: 5,
@@ -108,21 +111,47 @@ class _EditProfileView extends StatelessWidget {
                     ],
                   ),
                   if (viewModel.errorMessage != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      viewModel.errorMessage!,
-                      style: const TextStyle(
-                        color: AppColors.error,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              viewModel.errorMessage!,
+                              style: const TextStyle(
+                                color: AppColors.error,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    offset: const Offset(0, -4),
+                    blurRadius: 16,
+                  ),
+                ],
+              ),
               child: AppButton(
                 label: 'Save Changes',
                 isLoading: viewModel.isLoading,
@@ -141,16 +170,26 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 56,
+    return Container(
+      height: 64,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: [
           IconButton(
             onPressed: () => context.pop(),
-            icon: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary,
-              size: 24,
+            icon: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: AppColors.textPrimary,
+                size: 18,
+              ),
             ),
           ),
           const Expanded(
@@ -160,7 +199,7 @@ class _TopBar extends StatelessWidget {
                 style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -182,120 +221,120 @@ class _AvatarCard extends StatelessWidget {
     final avatarUrl = viewModel.profile?.avatarUrl;
     final pendingAvatarFile = viewModel.pendingAvatarFile;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 26),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () async {
-              await viewModel.pickAvatar();
-              if (!context.mounted) return;
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () async {
+            await viewModel.pickAvatar();
+            if (!context.mounted) return;
 
-              final message = viewModel.errorMessage;
-              if (message != null) {
-                AppSnackbar.showError(context, message);
-              }
-            },
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 88,
-                  height: 88,
-                  padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    color: AppColors.accent,
-                    shape: BoxShape.circle,
-                  ),
-                  child: ClipOval(
-                    child: pendingAvatarFile != null
-                        ? Image.file(pendingAvatarFile, fit: BoxFit.cover)
-                        : avatarUrl == null || avatarUrl.isEmpty
-                        ? const ColoredBox(
-                            color: AppColors.divider,
-                            child: Icon(
-                              Icons.person_rounded,
-                              color: AppColors.textDisabled,
-                              size: 54,
-                            ),
-                          )
-                        : CachedNetworkImage(
-                            imageUrl: avatarUrl,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => const Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.accent,
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => const Icon(
-                              Icons.person_rounded,
-                              color: AppColors.textDisabled,
-                              size: 54,
+            final message = viewModel.errorMessage;
+            if (message != null) {
+              AppSnackbar.showError(context, message);
+            }
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 110,
+                height: 110,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.buttonColor.withValues(alpha: 0.15),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: pendingAvatarFile != null
+                      ? Image.file(pendingAvatarFile, fit: BoxFit.cover)
+                      : avatarUrl == null || avatarUrl.isEmpty
+                      ? const ColoredBox(
+                          color: AppColors.surface,
+                          child: Icon(
+                            Icons.person_rounded,
+                            color: AppColors.textDisabled,
+                            size: 60,
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: avatarUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.buttonColor,
                             ),
                           ),
-                  ),
-                ),
-                if (viewModel.isLoading)
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.40),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.4,
-                          color: AppColors.white,
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.person_rounded,
+                            color: AppColors.textDisabled,
+                            size: 60,
+                          ),
                         ),
+                ),
+              ),
+              if (viewModel.isLoading)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.40),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        color: AppColors.white,
                       ),
                     ),
                   ),
-                Positioned(
-                  right: -2,
-                  bottom: -2,
-                  child: Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: AppColors.accent,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.white, width: 3),
-                    ),
-                    child: const Icon(
-                      Icons.camera_alt_rounded,
-                      color: AppColors.white,
-                      size: 17,
-                    ),
+                ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.buttonColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.white, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.buttonColor.withValues(alpha: 0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt_rounded,
+                    color: AppColors.white,
+                    size: 16,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            pendingAvatarFile == null
-                ? 'Tap to change photo'
-                : 'Photo selected. Save changes to upload.',
-            style: TextStyle(
-              color: AppColors.textDisabled,
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-            ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          pendingAvatarFile == null
+              ? 'Tap to change photo'
+              : 'Photo selected. Save changes to upload.',
+          style: const TextStyle(
+            color: AppColors.buttonColor,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -308,13 +347,14 @@ class _SectionLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 22, 0, 8),
+      padding: const EdgeInsets.fromLTRB(4, 0, 0, 10),
       child: Text(
         title,
-        style: const TextStyle(
-          color: AppColors.textDisabled,
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
+        style: TextStyle(
+          color: AppColors.textPrimary.withValues(alpha: 0.8),
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.2,
         ),
       ),
     );
@@ -331,12 +371,13 @@ class _FieldCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: AppColors.textPrimary.withValues(alpha: 0.03),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -347,8 +388,8 @@ class _FieldCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: index == children.length - 1
                   ? null
-                  : const Border(
-                      bottom: BorderSide(color: AppColors.divider, width: 0.5),
+                  : Border(
+                      bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.4), width: 1),
                     ),
             ),
             child: children[index],
@@ -404,11 +445,12 @@ class _ProfileFieldState extends State<_ProfileField> {
   @override
   Widget build(BuildContext context) {
     final labelColor = _focusNode.hasFocus
-        ? AppColors.accent
+        ? AppColors.buttonColor
         : AppColors.textDisabled;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+    return Container(
+      color: _focusNode.hasFocus ? AppColors.buttonColor.withValues(alpha: 0.02) : Colors.transparent,
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -416,34 +458,35 @@ class _ProfileFieldState extends State<_ProfileField> {
             widget.label,
             style: TextStyle(
               color: labelColor,
-              fontSize: 13,
-              fontWeight: FontWeight.w400,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
           ),
+          const SizedBox(height: 2),
           TextField(
             controller: widget.controller,
             focusNode: _focusNode,
             keyboardType: widget.keyboardType,
             minLines: widget.minLines,
             maxLines: widget.maxLines,
-            cursorColor: AppColors.accent,
+            cursorColor: AppColors.buttonColor,
             style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 15,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w500,
             ),
             decoration: InputDecoration(
               prefixText: widget.prefixText,
               prefixStyle: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 15,
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
               ),
               border: InputBorder.none,
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
               isDense: true,
-              contentPadding: const EdgeInsets.only(top: 5),
+              contentPadding: EdgeInsets.zero,
             ),
           ),
         ],

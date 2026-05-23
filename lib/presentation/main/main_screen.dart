@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../cart/cart_screen.dart';
+import '../cart/viewmodels/cart_viewmodel.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
 import '../shop/shop_screen.dart';
 import 'widgets/floating_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -26,6 +28,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBody: true,
       body: Stack(
         children: [
@@ -39,7 +42,7 @@ class _MainScreenState extends State<MainScreen> {
             bottom: 0,
             child: FloatingNavBar(
               currentIndex: _currentIndex,
-              cartCount: 0,
+              cartCount: context.watch<CartViewModel>().items.length,
               onTap: (index) {
                 setState(() {
                   _currentIndex = index;
