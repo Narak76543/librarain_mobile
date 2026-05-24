@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_color.dart';
 
-const double _navHeight = 68;
+const double _navHeight = 64;
 const double _navRadius = _navHeight / 2;
 const double _navInset = 5;
 const double _selectedHeight = _navHeight - (_navInset * 2);
@@ -34,6 +34,7 @@ class FloatingNavBar extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _FloatingNavItem(
+                      label: 'Home',
                       index: 0,
                       currentIndex: currentIndex,
                       selectedIcon: Icons.home_rounded,
@@ -43,6 +44,7 @@ class FloatingNavBar extends StatelessWidget {
                   ),
                   Expanded(
                     child: _FloatingNavItem(
+                      label: 'Shop',
                       index: 1,
                       currentIndex: currentIndex,
                       selectedIcon: Icons.storefront_rounded,
@@ -52,6 +54,7 @@ class FloatingNavBar extends StatelessWidget {
                   ),
                   Expanded(
                     child: _FloatingNavItem(
+                      label: 'Store',
                       index: 2,
                       currentIndex: currentIndex,
                       selectedIcon: Icons.shopping_bag_rounded,
@@ -69,6 +72,7 @@ class FloatingNavBar extends StatelessWidget {
             width: _navHeight,
             child: SizedBox.expand(
               child: _FloatingNavItem(
+                label: 'Profile',
                 index: 3,
                 currentIndex: currentIndex,
                 selectedIcon: Icons.person_rounded,
@@ -84,7 +88,10 @@ class FloatingNavBar extends StatelessWidget {
 }
 
 class _FloatingNavContainer extends StatelessWidget {
-  const _FloatingNavContainer({required this.child, this.width});
+  const _FloatingNavContainer({
+    required this.child,
+    this.width,
+  });
 
   final Widget child;
   final double? width;
@@ -125,6 +132,7 @@ class _FloatingNavContainer extends StatelessWidget {
 
 class _FloatingNavItem extends StatelessWidget {
   const _FloatingNavItem({
+    required this.label,
     required this.index,
     required this.currentIndex,
     required this.selectedIcon,
@@ -133,6 +141,7 @@ class _FloatingNavItem extends StatelessWidget {
     this.showBadge = false,
   });
 
+  final String label;
   final int index;
   final int currentIndex;
   final IconData selectedIcon;
@@ -157,7 +166,10 @@ class _FloatingNavItem extends StatelessWidget {
             curve: Curves.easeOut,
             width: double.infinity,
             height: _selectedHeight,
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 6,
+              vertical: 6,
+            ),
             decoration: BoxDecoration(
               color: isSelected
                   ? AppColors.buttonColor.withValues(alpha: 0.92)
@@ -165,12 +177,12 @@ class _FloatingNavItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(_selectedRadius),
               boxShadow: isSelected
                   ? [
-                      BoxShadow(
-                        color: AppColors.buttonColor.withValues(alpha: 0.28),
-                        offset: const Offset(0, 8),
-                        blurRadius: 16,
-                      ),
-                    ]
+                BoxShadow(
+                  color: AppColors.buttonColor.withValues(alpha: 0.28),
+                  offset: const Offset(0, 8),
+                  blurRadius: 16,
+                ),
+              ]
                   : null,
             ),
             child: Stack(
@@ -189,16 +201,31 @@ class _FloatingNavItem extends StatelessWidget {
                         color: isSelected
                             ? AppColors.white
                             : AppColors.textPrimary,
-                        size: 24,
+                        size: 22,
                       ),
                     ),
-                    const SizedBox(height: 3),
+
+                    const SizedBox(height: 2),
+
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected
+                            ? AppColors.white
+                            : AppColors.textPrimary,
+                      ),
+                    ),
                   ],
                 ),
+
                 if (showBadge)
                   Positioned(
-                    right: 17,
-                    top: 5,
+                    right: 16,
+                    top: 4,
                     child: Container(
                       width: 8,
                       height: 8,
