@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -67,30 +68,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 22),
               const _UserCard(),
               const SizedBox(height: 20),
-              const _MenuCard(
+              _MenuCard(
                 children: [
-                  _MenuRow(
-                    icon: Icons.inventory_2_outlined,
+                  const _MenuRow(
+                    svgPath: "assets/icons/shopping-cart.svg",
                     title: 'My Orders',
                   ),
                   _MenuRow(
-                    icon: Icons.favorite_border_rounded,
+                    svgPath: "assets/icons/bookmark.svg",
                     title: 'My Wishlist',
+                    onTap: () => context.push(AppRoutes.wishlist),
                   ),
-                  _MenuRow(
-                    icon: Icons.location_on_outlined,
+                  const _MenuRow(
+                    svgPath: "assets/icons/map-pinned.svg",
                     title: 'Shipping Address',
                   ),
-                  _MenuRow(
-                    icon: Icons.notifications_none_rounded,
+                  const _MenuRow(
+                    svgPath: "assets/icons/bell-dot.svg",
                     title: 'Notifications',
                   ),
-                  _MenuRow(
-                    icon: Icons.lock_outline_rounded,
+                  const _MenuRow(
+                    svgPath: "assets/icons/user-round-key.svg",
                     title: 'Change Password',
                   ),
-                  _MenuRow(
-                    icon: Icons.info_outline_rounded,
+                  const _MenuRow(
+                    svgPath: "assets/icons/info.svg",
                     title: 'About App',
                   ),
                 ],
@@ -127,7 +129,7 @@ class _TopBar extends StatelessWidget {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints.tightFor(width: 36, height: 36),
           splashRadius: 20,
-          icon: const Icon(Icons.search_rounded, color: _iconColor, size: 22, weight: 100),
+          icon: SvgPicture.asset("assets/icons/search.svg"),
         ),
       ],
     );
@@ -306,22 +308,33 @@ class _MenuCard extends StatelessWidget {
 }
 
 class _MenuRow extends StatelessWidget {
-  const _MenuRow({required this.icon, required this.title});
+  const _MenuRow({required this.svgPath, required this.title, this.onTap});
 
-  final IconData icon;
+  final String
+  svgPath; // Changed from IconData to String for the SVG asset path
   final String title;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap ?? () {},
       child: SizedBox(
         height: 52,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              Icon(icon, color: _iconColor, size: 24, weight: 100),
+              // Replaced Icon with SvgPicture.asset
+              SvgPicture.asset(
+                svgPath,
+                colorFilter: const ColorFilter.mode(
+                  _iconColor,
+                  BlendMode.srcIn,
+                ),
+                width: 24,
+                height: 24,
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -329,8 +342,8 @@ class _MenuRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    color: _textPrimary,
-                    fontSize: 15,
+                    color: _iconColor,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

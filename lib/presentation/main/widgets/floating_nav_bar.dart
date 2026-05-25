@@ -38,8 +38,9 @@ class FloatingNavBar extends StatelessWidget {
                       label: 'Home',
                       index: 0,
                       currentIndex: currentIndex,
-                      selectedIcon: Icons.home_rounded,
-                      unselectedIcon: Icons.home_outlined,
+                      selectedIcon: Icons.home_rounded, // Fallback
+                      unselectedIcon: Icons.home_outlined, // Fallback
+                      svgAsset: 'assets/icons/house.svg',
                       onTap: onTap,
                     ),
                   ),
@@ -78,8 +79,9 @@ class FloatingNavBar extends StatelessWidget {
                 label: 'Profile',
                 index: 3,
                 currentIndex: currentIndex,
-                selectedIcon: Icons.person_rounded,
-                unselectedIcon: Icons.person_outlined,
+                selectedIcon: Icons.person_rounded, // Fallback
+                unselectedIcon: Icons.person_outlined, // Fallback
+                svgAsset: 'assets/icons/user-round.svg',
                 onTap: onTap,
               ),
             ),

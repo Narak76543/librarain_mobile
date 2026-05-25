@@ -9,6 +9,7 @@ import 'presentation/auth/views/welcome_screen.dart';
 import 'presentation/main/main_screen.dart';
 import 'presentation/onboarding/onboarding_screen.dart';
 import 'presentation/profile/views/edit_profile_screen.dart';
+import 'presentation/profile/views/wishlist_screen.dart';
 
 GoRouter createAppRouter({required bool isLoggedIn}) {
   return GoRouter(
@@ -51,6 +52,10 @@ GoRouter createAppRouter({required bool isLoggedIn}) {
       GoRoute(
         path: AppRoutes.editProfile,
         builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.wishlist,
+        builder: (context, state) => const WishlistScreen(),
       ),
     ],
   );

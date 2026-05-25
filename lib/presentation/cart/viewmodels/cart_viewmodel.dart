@@ -14,10 +14,24 @@ class CartViewModel extends ChangeNotifier {
   List<CartItemModel> _items = [];
   bool _isLoading = false;
   String? _error;
+  String _deliveryWay = 'Pick Up';
+  String _paymentMethod = 'KHQR';
 
   List<CartItemModel> get items => List.unmodifiable(_items);
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String get deliveryWay => _deliveryWay;
+  String get paymentMethod => _paymentMethod;
+
+  void setDeliveryWay(String way) {
+    _deliveryWay = way;
+    notifyListeners();
+  }
+
+  void setPaymentMethod(String method) {
+    _paymentMethod = method;
+    notifyListeners();
+  }
 
   double get subtotal {
     double total = 0.0;

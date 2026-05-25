@@ -23,4 +23,6 @@ class ApiConfig {
   static const String cart = '/api/v1/cart';
   static const String cartItems = '/api/v1/cart/items';
   static const String orders = '/api/v1/orders';
+  static const String wishlist = '/api/v1/wishlist';
+  static const String wishlistToggle = '/api/v1/wishlist/toggle';
 }

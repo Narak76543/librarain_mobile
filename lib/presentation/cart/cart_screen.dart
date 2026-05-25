@@ -45,13 +45,17 @@ class _CartScreenState extends State<CartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _CartHeader(),
-                SizedBox(height: 18),
+                SizedBox(height: 10),
                 _CartItemsList(),
-                SizedBox(height: 24),
+                SizedBox(height: 10),
                 _PromoCodeSection(),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
+                _DeliveryWaySection(),
+                SizedBox(height: 10),
+                _PaymentMethodSection(),
+                SizedBox(height: 10),
                 _OrderSummaryCard(),
-                SizedBox(height: 20),
+                SizedBox(height: 10),
                 _CheckoutButton(),
               ],
             ),
@@ -456,7 +460,7 @@ class _PromoCodeSection extends StatelessWidget {
               'Apply',
               color: AppColors.white,
               fontSize: 13,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -649,6 +653,262 @@ class _CheckoutButton extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DeliveryWaySection extends StatelessWidget {
+  const _DeliveryWaySection();
+
+  @override
+  Widget build(BuildContext context) {
+    final cart = context.watch<CartViewModel>();
+    final isPickUp = cart.deliveryWay == 'Pick Up';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const AppText.bodyLarge(
+          'Delivery Way',
+          color: AppColors.textPrimary,
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _DeliveryCard(
+                icon: Icons.storefront_rounded,
+                title: 'Pick Up',
+                isSelected: isPickUp,
+                onTap: () =>
+                    context.read<CartViewModel>().setDeliveryWay('Pick Up'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _DeliveryCard(
+                icon: Icons.local_shipping_outlined,
+                title: 'Delivery',
+                isSelected: !isPickUp,
+                onTap: () =>
+                    context.read<CartViewModel>().setDeliveryWay('Delivery'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _DeliveryPill(title: 'Grab', isActive: !isPickUp),
+            const SizedBox(width: 8),
+            _DeliveryPill(title: 'VET', isActive: !isPickUp),
+            const SizedBox(width: 8),
+            _DeliveryPill(title: 'J&T', isActive: !isPickUp),
+            const SizedBox(width: 8),
+            _DeliveryPill(title: 'Kapitol', isActive: !isPickUp),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _DeliveryCard extends StatelessWidget {
+  const _DeliveryCard({
+    required this.icon,
+    required this.title,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 70,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.buttonColor.withValues(alpha: 0.05)
+              : AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.buttonColor
+                : AppColors.border.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected
+                  ? AppColors.buttonColor
+                  : AppColors.textPrimary.withValues(alpha: 0.7),
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            AppText.caption(
+              title,
+              color: isSelected ? AppColors.buttonColor : AppColors.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DeliveryPill extends StatelessWidget {
+  const _DeliveryPill({required this.title, required this.isActive});
+
+  final String title;
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: isActive ? AppColors.white : const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isActive
+              ? AppColors.border
+              : AppColors.border.withValues(alpha: 0.3),
+        ),
+      ),
+      child: AppText.caption(
+        title,
+        color: isActive ? AppColors.textPrimary : AppColors.textDisabled,
+        fontWeight: FontWeight.w500,
+      ),
+    );
+  }
+}
+
+class _PaymentMethodSection extends StatelessWidget {
+  const _PaymentMethodSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final cart = context.watch<CartViewModel>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const AppText.bodyLarge(
+          'Payment Method',
+          color: AppColors.textPrimary,
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+        ),
+        const SizedBox(height: 12),
+        _PaymentCard(
+          icon: Icons.qr_code_scanner_rounded,
+          title: 'KHQR',
+          subtitle: 'Scan to pay instantly',
+          isSelected: cart.paymentMethod == 'KHQR',
+          onTap: () => context.read<CartViewModel>().setPaymentMethod('KHQR'),
+        ),
+        const SizedBox(height: 12),
+        _PaymentCard(
+          icon: Icons.payments_outlined,
+          title: 'COD',
+          subtitle: 'Cash on Delivery',
+          isSelected: cart.paymentMethod == 'COD',
+          onTap: () => context.read<CartViewModel>().setPaymentMethod('COD'),
+        ),
+      ],
+    );
+  }
+}
+
+class _PaymentCard extends StatelessWidget {
+  const _PaymentCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppColors.buttonColor.withValues(alpha: 0.05)
+              : AppColors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppColors.buttonColor
+                : AppColors.border.withValues(alpha: 0.5),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppColors.buttonColor.withValues(alpha: 0.15)
+                    : const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected
+                    ? AppColors.buttonColor
+                    : AppColors.textPrimary.withValues(alpha: 0.7),
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppText.bodySmall(
+                    title,
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  const SizedBox(height: 2),
+                  AppText.caption(subtitle, color: AppColors.textDisabled),
+                ],
+              ),
+            ),
+            if (isSelected)
+              const Icon(
+                Icons.check_circle_outline_rounded,
+                color: AppColors.buttonColor,
+                size: 20,
+              ),
+          ],
         ),
       ),
     );

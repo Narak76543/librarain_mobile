@@ -55,7 +55,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.grey[200],
+                color: isSelected ? AppColors.buttonColor : Colors.grey[200],
                 borderRadius: BorderRadius.circular(20),
               ),
               alignment: Alignment.center,
@@ -83,8 +83,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Colors.brown.withValues(alpha: 0.15);
       case 'shipped':
         return Colors.grey.withValues(alpha: 0.25);
-      case 'Cancelled':
-        return AppColors.error;
+      case 'cancelled':
+        return AppColors.error.withValues(alpha: 0.15);
       default:
         return Colors.grey.withValues(alpha: 0.2);
     }
@@ -96,10 +96,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Colors.teal[700]!;
       case 'processing':
       case 'pending':
-        return Colors.brown[600]!;
+        return const Color.fromARGB(255, 184, 240, 79)!;
       case 'shipped':
         return Colors.grey[700]!;
-      case 'Cancelled':
+      case 'cancelled':
         return AppColors.error;
       default:
         return Colors.grey[800]!;
@@ -195,179 +195,246 @@ class _HistoryScreenState extends State<HistoryScreen> {
         title: const Text(
           'History',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            color: AppColors.buttonColor,
           ),
         ),
         backgroundColor: Colors.grey[50],
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
       ),
-      body: Column(
-        children: [
-          _buildFilterChips(viewModel),
-          Expanded(
-            child: viewModel.isLoading && allOrders.isEmpty
-                ? const Center(
-                    child: CircularProgressIndicator(color: AppColors.primary),
-                  )
-                : viewModel.error != null && allOrders.isEmpty
-                ? Center(
-                    child: Text(
-                      viewModel.error!,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  )
-                : orders.isEmpty
-                ? RefreshIndicator(
-                    onRefresh: () =>
-                        context.read<HistoryViewModel>().fetchOrders(),
-                    color: AppColors.primary,
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.3,
-                        ),
-                        const Center(
-                          child: Text(
-                            'No orders found',
-                            style: TextStyle(color: AppColors.textDisabled),
+      body: RefreshIndicator(
+        onRefresh: () => context.read<HistoryViewModel>().fetchOrders(),
+        color: AppColors.buttonColor,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: _buildFilterChips(viewModel)),
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                height: 80,
+                child: ListView.builder(
+                  controller: ScrollController(initialScrollOffset: 30 * 58.0),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 60,
+                  itemBuilder: (context, index) {
+                    final date = DateTime.now()
+                        .subtract(const Duration(days: 30))
+                        .add(Duration(days: index));
+                    final isSelected =
+                        viewModel.selectedDate != null &&
+                        date.year == viewModel.selectedDate!.year &&
+                        date.month == viewModel.selectedDate!.month &&
+                        date.day == viewModel.selectedDate!.day;
+
+                    return GestureDetector(
+                      onTap: () {
+                        viewModel.setDateFilter(date);
+                      },
+                      child: Container(
+                        width: 50,
+                        margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.buttonColor
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.buttonColor
+                                : Colors.grey[300]!,
+                            width: 1,
                           ),
                         ),
-                      ],
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: () =>
-                        context.read<HistoryViewModel>().fetchOrders(),
-                    color: AppColors.primary,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16.0),
-                      itemCount: orders.length,
-                      itemBuilder: (context, index) {
-                        final order = orders[index];
-                        final shortId = order.id.length > 4
-                            ? order.id.substring(order.id.length - 4)
-                            : order.id;
-
-                        final totalItems = order.orderItems.fold<int>(
-                          0,
-                          (prev, item) => prev + item.quantity,
-                        );
-                        final itemText = totalItems == 1
-                            ? '1 item'
-                            : '$totalItems items';
-
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 16.0),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.grey[300]!,
-                              width: 1,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              DateFormat('MMM').format(date).toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            const SizedBox(height: 2),
+                            Text(
+                              date.day.toString(),
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey[800],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              DateFormat('E').format(date).toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            if (viewModel.isLoading && allOrders.isEmpty)
+              const SliverFillRemaining(
+                child: Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                ),
+              )
+            else if (viewModel.error != null && allOrders.isEmpty)
+              SliverFillRemaining(
+                child: Center(
+                  child: Text(
+                    viewModel.error!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              )
+            else if (orders.isEmpty)
+              const SliverFillRemaining(
+                child: Center(
+                  child: Text(
+                    'No orders found',
+                    style: TextStyle(color: AppColors.textDisabled),
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.all(16.0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final order = orders[index];
+                    final shortId = order.id.length > 4
+                        ? order.id.substring(order.id.length - 4)
+                        : order.id;
+
+                    final totalItems = order.orderItems.fold<int>(
+                      0,
+                      (prev, item) => prev + item.quantity,
+                    );
+                    final itemText = totalItems == 1
+                        ? '1 item'
+                        : '$totalItems items';
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey[300]!, width: 1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    children: [
-                                      AppText.bodySmall(
-                                        'Order No. : ',
-                                        color: AppColors.accent,
-                                        fontSize: 10,
-                                      ),
-                                      Text(
-                                        '#$shortId',
-                                        style: const TextStyle(
-                                          color: Colors.black87,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 10,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: _getStatusColor(order.status),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      _capitalize(order.status),
-                                      style: TextStyle(
-                                        color: _getStatusTextColor(
-                                          order.status,
-                                        ),
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  AppText.bodySmall(
-                                    'Order Date : ',
+                                  const AppText.bodySmall(
+                                    'Order No. : ',
                                     color: AppColors.accent,
                                     fontSize: 10,
                                   ),
                                   Text(
-                                    _formatDate(order.createdAt),
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
+                                    '#$shortId',
+                                    style: const TextStyle(
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
                                       fontSize: 10,
                                     ),
                                   ),
                                 ],
                               ),
-                              // const SizedBox(height: 16),
-                              Divider(),
-                              Row(
-                                children: [
-                                  _buildStackedImages(order),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    itemText,
-                                    style: TextStyle(
-                                      color: AppColors.accent,
-                                      fontSize: 10,
-                                    ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getStatusColor(order.status),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  _capitalize(order.status),
+                                  style: TextStyle(
+                                    color: _getStatusTextColor(order.status),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 10,
                                   ),
-                                  const Spacer(),
-                                  Text(
-                                    '\$${order.total}',
-                                    style: const TextStyle(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
-                        );
-                      },
-                    ),
-                  ),
-          ),
-        ],
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const AppText.bodySmall(
+                                'Order Date : ',
+                                color: AppColors.accent,
+                                fontSize: 10,
+                              ),
+                              Text(
+                                _formatDate(order.createdAt),
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Divider(),
+                          Row(
+                            children: [
+                              _buildStackedImages(order),
+                              const SizedBox(width: 16),
+                              Text(
+                                itemText,
+                                style: const TextStyle(
+                                  color: AppColors.accent,
+                                  fontSize: 10,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                '\$${order.total}',
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }, childCount: orders.length),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

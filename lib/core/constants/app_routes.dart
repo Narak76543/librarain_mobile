@@ -12,4 +12,5 @@ class AppRoutes {
   static const String cart = '/main/cart';
   static const String profile = '/main/profile';
   static const String editProfile = '/edit-profile';
+  static const String wishlist = '/wishlist';
 }
