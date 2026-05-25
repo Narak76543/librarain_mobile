@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../core/theme/app_color.dart';
 
@@ -47,19 +48,21 @@ class FloatingNavBar extends StatelessWidget {
                       label: 'Shop',
                       index: 1,
                       currentIndex: currentIndex,
-                      selectedIcon: Icons.storefront_rounded,
-                      unselectedIcon: Icons.storefront_outlined,
+                      selectedIcon: Icons.shopping_cart, // Fallback
+                      unselectedIcon: Icons.shopping_cart_outlined, // Fallback
+                      svgAsset: 'assets/icons/shopping-cart.svg',
                       onTap: onTap,
                     ),
                   ),
                   Expanded(
                     child: _FloatingNavItem(
-                      label: 'Store',
+                      label: 'History',
                       index: 2,
                       currentIndex: currentIndex,
-                      selectedIcon: Icons.shopping_bag_rounded,
-                      unselectedIcon: Icons.shopping_bag_outlined,
-                      showBadge: cartCount > 0,
+                      selectedIcon: Icons.history, // Fallback
+                      unselectedIcon: Icons.history_outlined, // Fallback
+                      svgAsset: 'assets/icons/history.svg',
+                      showBadge: false,
                       onTap: onTap,
                     ),
                   ),
@@ -137,6 +140,7 @@ class _FloatingNavItem extends StatelessWidget {
     required this.currentIndex,
     required this.selectedIcon,
     required this.unselectedIcon,
+    this.svgAsset,
     required this.onTap,
     this.showBadge = false,
   });
@@ -146,6 +150,7 @@ class _FloatingNavItem extends StatelessWidget {
   final int currentIndex;
   final IconData selectedIcon;
   final IconData unselectedIcon;
+  final String? svgAsset;
   final ValueChanged<int> onTap;
   final bool showBadge;
 
@@ -196,13 +201,25 @@ class _FloatingNavItem extends StatelessWidget {
                       duration: const Duration(milliseconds: 220),
                       curve: Curves.easeOut,
                       scale: isSelected ? 1.08 : 1.0,
-                      child: Icon(
-                        isSelected ? selectedIcon : unselectedIcon,
-                        color: isSelected
-                            ? AppColors.white
-                            : AppColors.textPrimary,
-                        size: 22,
-                      ),
+                      child: svgAsset != null
+                          ? SvgPicture.asset(
+                              svgAsset!,
+                              width: 22,
+                              height: 22,
+                              colorFilter: ColorFilter.mode(
+                                isSelected
+                                    ? AppColors.white
+                                    : AppColors.textPrimary,
+                                BlendMode.srcIn,
+                              ),
+                            )
+                          : Icon(
+                              isSelected ? selectedIcon : unselectedIcon,
+                              color: isSelected
+                                  ? AppColors.white
+                                  : AppColors.textPrimary,
+                              size: 22,
+                            ),
                     ),
 
                     const SizedBox(height: 2),

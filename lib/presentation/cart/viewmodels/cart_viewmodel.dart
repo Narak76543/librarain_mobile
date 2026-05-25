@@ -2,11 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../../../data/models/book_model.dart';
 import '../../../data/models/cart_item_model.dart';
+import '../../../data/repositories/cart_repository.dart';
+import '../../../data/repositories/order_repository.dart';
 
 class CartViewModel extends ChangeNotifier {
-  final List<CartItemModel> _items = [];
+  CartViewModel({CartRepository? cartRepository})
+      : _cartRepository = cartRepository ?? CartRepository();
+
+  final CartRepository _cartRepository;
+
+  List<CartItemModel> _items = [];
+  bool _isLoading = false;
+  String? _error;
 
   List<CartItemModel> get items => List.unmodifiable(_items);
+  bool get isLoading => _isLoading;
+  String? get error => _error;
 
   double get subtotal {
     double total = 0.0;
@@ -18,43 +29,107 @@ class CartViewModel extends ChangeNotifier {
     return total;
   }
 
-  void addToCart(BookModel book) {
-    final existingIndex = _items.indexWhere((item) => item.book.id == book.id);
-    if (existingIndex >= 0) {
-      _items[existingIndex].quantity += 1;
-    } else {
-      _items.add(CartItemModel(book: book));
-    }
-    notifyListeners();
-  }
-
-  void removeFromCart(String bookId) {
-    _items.removeWhere((item) => item.book.id == bookId);
-    notifyListeners();
-  }
-
-  void increaseQuantity(String bookId) {
-    final index = _items.indexWhere((item) => item.book.id == bookId);
-    if (index >= 0) {
-      _items[index].quantity += 1;
-      notifyListeners();
+  Future<void> fetchCart() async {
+    _setLoading(true);
+    try {
+      _items = await _cartRepository.getCart();
+      _error = null;
+    } on CartException catch (e) {
+      _error = e.message;
+    } finally {
+      _setLoading(false);
     }
   }
 
-  void decreaseQuantity(String bookId) {
-    final index = _items.indexWhere((item) => item.book.id == bookId);
-    if (index >= 0) {
-      if (_items[index].quantity > 1) {
-        _items[index].quantity -= 1;
-        notifyListeners();
-      } else {
-        removeFromCart(bookId);
+  Future<void> addToCart(BookModel book) async {
+    _setLoading(true);
+    try {
+      await _cartRepository.addToCart(book.id, 1);
+      await fetchCart(); // Refresh cart to get the new state and item IDs
+    } on CartException catch (e) {
+      _error = e.message;
+      _setLoading(false);
+      rethrow;
+    }
+  }
+
+  Future<void> removeFromCart(String itemId) async {
+    _setLoading(true);
+    try {
+      await _cartRepository.removeFromCart(itemId);
+      await fetchCart();
+    } on CartException catch (e) {
+      _error = e.message;
+      _setLoading(false);
+      rethrow;
+    }
+  }
+
+  Future<void> increaseQuantity(String itemId) async {
+    final item = _items.firstWhere((i) => i.id == itemId);
+    _setLoading(true);
+    try {
+      await _cartRepository.updateCartItem(itemId, item.quantity + 1);
+      await fetchCart();
+    } on CartException catch (e) {
+      _error = e.message;
+      _setLoading(false);
+      rethrow;
+    }
+  }
+
+  Future<void> decreaseQuantity(String itemId) async {
+    final item = _items.firstWhere((i) => i.id == itemId);
+    if (item.quantity > 1) {
+      _setLoading(true);
+      try {
+        await _cartRepository.updateCartItem(itemId, item.quantity - 1);
+        await fetchCart();
+      } on CartException catch (e) {
+        _error = e.message;
+        _setLoading(false);
+        rethrow;
       }
+    } else {
+      await removeFromCart(itemId);
     }
   }
 
-  void clearCart() {
-    _items.clear();
+  Future<void> clearCart() async {
+    _setLoading(true);
+    try {
+      await _cartRepository.clearCart();
+      _items.clear();
+      _error = null;
+    } on CartException catch (e) {
+      _error = e.message;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> placeOrder() async {
+    _setLoading(true);
+    try {
+      // The order repository requires its own instance or we can just instantiate it here
+      // To keep it simple without adding a constructor arg, we instantiate it here:
+      final orderRepo = OrderRepository();
+      final success = await orderRepo.placeOrder();
+      if (success) {
+        _items.clear();
+        _error = null;
+      }
+      return success;
+    } on OrderException catch (e) {
+      _error = e.message;
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
     notifyListeners();
   }
 }

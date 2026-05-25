@@ -14,6 +14,14 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CartViewModel>().fetchCart();
+    });
+  }
+
   Future<void> _refreshCart() async {
     setState(() {});
   }
@@ -61,7 +69,7 @@ class _CartHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = context.watch<CartViewModel>();
     final canPop = Navigator.canPop(context);
-    
+
     return Row(
       children: [
         if (canPop) ...[
@@ -95,7 +103,7 @@ class _CartHeader extends StatelessWidget {
           child: AppText.titleLarge(
             'My Cart',
             color: AppColors.textPrimary,
-            fontSize: 20,
+            fontSize: 15,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -124,6 +132,14 @@ class _CartItemsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = context.watch<CartViewModel>();
     final items = cart.items;
+
+    if (cart.isLoading && items.isEmpty) {
+      return Container(
+        height: 200,
+        alignment: Alignment.center,
+        child: const CircularProgressIndicator(color: AppColors.buttonColor),
+      );
+    }
 
     if (items.isEmpty) {
       return Container(
@@ -204,8 +220,10 @@ class _CartItemCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _CartItemCategory(categoryName: item.book.category?.name ?? 'BOOK'),
-                        const SizedBox(height: 5),
+                        _CartItemCategory(
+                          categoryName: item.book.category?.name ?? 'BOOK',
+                        ),
+
                         AppText.bodySmall(
                           item.book.title,
                           color: AppColors.textPrimary,
@@ -214,7 +232,7 @@ class _CartItemCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 2),
+                        Divider(),
                         AppText.caption(
                           item.book.author,
                           color: AppColors.textPrimary.withValues(alpha: 0.6),
@@ -226,8 +244,8 @@ class _CartItemCard extends StatelessWidget {
                         AppText.button(
                           '\$${item.book.price}',
                           color: AppColors.buttonColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
                         ),
                       ],
                     ),
@@ -241,7 +259,7 @@ class _CartItemCard extends StatelessWidget {
               top: 0,
               child: GestureDetector(
                 onTap: () {
-                  context.read<CartViewModel>().removeFromCart(item.book.id);
+                  context.read<CartViewModel>().removeFromCart(item.id);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(5),
@@ -303,9 +321,12 @@ class _QuantityControl extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              context.read<CartViewModel>().decreaseQuantity(item.book.id);
+              context.read<CartViewModel>().decreaseQuantity(item.id);
             },
-            child: const _QuantityButton(icon: Icons.remove_rounded, isPrimary: false),
+            child: const _QuantityButton(
+              icon: Icons.remove_rounded,
+              isPrimary: false,
+            ),
           ),
           const SizedBox(width: 10),
           AppText.button(
@@ -317,9 +338,12 @@ class _QuantityControl extends StatelessWidget {
           const SizedBox(width: 10),
           GestureDetector(
             onTap: () {
-              context.read<CartViewModel>().increaseQuantity(item.book.id);
+              context.read<CartViewModel>().increaseQuantity(item.id);
             },
-            child: const _QuantityButton(icon: Icons.add_rounded, isPrimary: true),
+            child: const _QuantityButton(
+              icon: Icons.add_rounded,
+              isPrimary: true,
+            ),
           ),
         ],
       ),
@@ -348,7 +372,7 @@ class _QuantityButton extends StatelessWidget {
                   color: AppColors.buttonColor.withValues(alpha: 0.3),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
-                )
+                ),
               ]
             : null,
       ),
@@ -447,8 +471,8 @@ class _OrderSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final subtotal = context.watch<CartViewModel>().subtotal;
-    // Assuming a static $5 discount if subtotal > 0 for demo purposes
-    final discount = subtotal > 0 ? 5.0 : 0.0;
+    // Set discount to 0.00 per user request
+    final discount = 0.0;
     final total = (subtotal - discount) > 0 ? (subtotal - discount) : 0.0;
 
     return Container(
@@ -475,7 +499,10 @@ class _OrderSummaryCard extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
           const SizedBox(height: 20),
-          _SummaryRow(label: 'Subtotal', value: '\$${subtotal.toStringAsFixed(2)}'),
+          _SummaryRow(
+            label: 'Subtotal',
+            value: '\$${subtotal.toStringAsFixed(2)}',
+          ),
           const SizedBox(height: 14),
           _SummaryRow(
             label: 'Discount',
@@ -550,39 +577,77 @@ class _CheckoutButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: AppColors.buttonColor,
-          borderRadius: BorderRadius.circular(26),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.buttonColor.withValues(alpha: 0.35),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
+    final cart = context.watch<CartViewModel>();
+
+    return GestureDetector(
+      onTap: cart.isLoading || cart.items.isEmpty
+          ? null
+          : () async {
+              final success = await context.read<CartViewModel>().placeOrder();
+              if (success && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Order placed successfully!')),
+                );
+              } else if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(cart.error ?? 'Failed to place order'),
+                  ),
+                );
+              }
+            },
+      child: SizedBox(
+        width: double.infinity,
+        height: 52,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: cart.isLoading || cart.items.isEmpty
+                ? AppColors.textDisabled
+                : AppColors.buttonColor,
+            borderRadius: BorderRadius.circular(26),
+            boxShadow: cart.isLoading || cart.items.isEmpty
+                ? []
+                : [
+                    BoxShadow(
+                      color: AppColors.buttonColor.withValues(alpha: 0.35),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+          ),
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (cart.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(right: 8.0),
+                    child: SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        color: AppColors.white,
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  ),
+                AppText.button(
+                  cart.isLoading ? 'Processing...' : 'Proceed to Checkout',
+                  color: AppColors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+                if (!cart.isLoading) ...[
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.arrow_forward_rounded,
+                    color: AppColors.white,
+                    size: 18,
+                    weight: 100,
+                  ),
+                ],
+              ],
             ),
-          ],
-        ),
-        child: const Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppText.button(
-                'Proceed to Checkout',
-                color: AppColors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w800,
-              ),
-              SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_rounded,
-                color: AppColors.white,
-                size: 18,
-                weight: 100,
-              ),
-            ],
           ),
         ),
       ),

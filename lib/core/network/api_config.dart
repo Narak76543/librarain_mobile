@@ -3,7 +3,7 @@ class ApiConfig {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.1.19:8000',
+    defaultValue: 'http://192.168.0.198:8000',
 
     // ah san wifi
     // defaultValue: 'http://172.16.53.187:8000',
@@ -20,4 +20,7 @@ class ApiConfig {
   static const String uploadAvatar = '/api/v1/users/me/avatar';
   static const String categories = '/api/v1/categories';
   static const String books = '/api/v1/books';
+  static const String cart = '/api/v1/cart';
+  static const String cartItems = '/api/v1/cart/items';
+  static const String orders = '/api/v1/orders';
 }
