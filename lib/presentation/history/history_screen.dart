@@ -46,14 +46,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         scrollDirection: Axis.horizontal,
         itemCount: _statusFilters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final filter = _statusFilters[index];
           final isSelected = viewModel.selectedStatus == filter;
           return GestureDetector(
             onTap: () => viewModel.setStatusFilter(filter),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.buttonColor : Colors.grey[200],
                 borderRadius: BorderRadius.circular(20),
@@ -96,7 +96,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Colors.teal[700]!;
       case 'processing':
       case 'pending':
-        return const Color.fromARGB(255, 184, 240, 79)!;
+        return const Color.fromARGB(255, 184, 240, 79);
       case 'shipped':
         return Colors.grey[700]!;
       case 'cancelled':
@@ -144,7 +144,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ? Image.network(
                         images[i].bookCover!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Icon(
+                        errorBuilder: (_, _, _) => const Icon(
                           Icons.book,
                           size: 24,
                           color: Colors.grey,

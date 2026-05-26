@@ -1480,48 +1480,104 @@ class _QuickActionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final allActions = [
+      _QuickActionItem(
+        title: 'Search',
+        iconPath: 'assets/icons/shopping-cart.svg',
+        onTap: () {
+          /* Navigate to Search */
+        },
+      ),
+      _QuickActionItem(
+        title: 'My Orders',
+        iconData: Icons.local_fire_department_rounded,
+        iconColor: Colors.deepOrange,
+        onTap: () {},
+      ),
+      _QuickActionItem(
+        title: 'Wishlist',
+        iconPath: 'assets/icons/bookmark.svg',
+        onTap: () => Navigator.of(context).pushNamed('/wishlist'),
+      ),
+      _QuickActionItem(
+        title: 'Categories',
+        iconPath: 'assets/icons/bookmark.svg',
+        onTap: () => Navigator.of(context).pushNamed('/categories'),
+      ),
+      _QuickActionItem(
+        title: 'Featured',
+        iconPath: 'assets/icons/bookmark.svg',
+        onTap: () => Navigator.of(context).pushNamed('/featured'),
+      ),
+      _QuickActionItem(
+        title: 'Promo',
+        iconPath: 'assets/icons/promo.svg',
+        onTap: () => Navigator.of(context).pushNamed('/promo'),
+      ),
+      _QuickActionItem(
+        title: 'Promo2',
+        iconPath: 'assets/icons/promo.svg',
+        onTap: () => Navigator.of(context).pushNamed('/promo'),
+      ),
+    ];
+
+    // 2. Determine which items to display
+    List<Widget> displayedItems;
+
+    if (allActions.length > 6) {
+      // Take the first 4 items and add a "More" item
+      displayedItems = allActions.sublist(0, 5);
+      displayedItems.add(
+        _QuickActionItem(
+          title: 'More',
+          iconData: Icons.grid_view_rounded, // Distinct "More/Menu" icon
+          iconColor: Colors.grey,
+          onTap: () {
+            // Handle opening a bottom sheet, dialog, or navigating to a full menu page
+            _showAllActionsBottomSheet(context, allActions);
+          },
+        ),
+      );
+    } else {
+      displayedItems = allActions;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _SectionHeader(title: 'Quick Action'),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _QuickActionItem(
-              title: 'Orders Summary',
-              iconPath: 'assets/icons/shopping-cart.svg',
-              onTap: () {
-                // Future action: Navigate to Orders Summary
-              },
-            ),
-            _QuickActionItem(
-              title: 'Hot Book',
-              iconData: Icons.local_fire_department_rounded,
-              iconColor: Colors.deepOrange,
-              onTap: () {
-                // Future action: Navigate to Hot Books
-              },
-            ),
-            _QuickActionItem(
-              title: 'Wishlist',
-              iconPath: 'assets/icons/bookmark.svg',
-              onTap: () {
-                // Navigate to Wishlist
-                Navigator.of(context).pushNamed('/wishlist');
-              },
-            ),
-            _QuickActionItem(
-              title: 'Wishlist',
-              iconPath: 'assets/icons/bookmark.svg',
-              onTap: () {
-                // Navigate to Wishlist
-                Navigator.of(context).pushNamed('/wishlist');
-              },
-            ),
-          ],
+
+        // 3. Layout the items in rows of 3
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // Calculate item width dynamically so exactly 3 items fit per row
+            // Adjust the subtraction value based on your desired horizontal spacing
+            final itemWidth = (constraints.maxWidth - 32) / 3;
+
+            return Wrap(
+              spacing: 16, // Horizontal space between items
+              runSpacing: 16, // Vertical space between rows
+              children: displayedItems.map((item) {
+                return SizedBox(width: itemWidth, child: item);
+              }).toList(),
+            );
+          },
         ),
       ],
+    );
+  }
+
+  // Optional: A clean way to show the rest of the items when "More" is tapped
+  void _showAllActionsBottomSheet(BuildContext context, List<Widget> actions) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Wrap(spacing: 16, runSpacing: 16, children: actions),
+        );
+      },
     );
   }
 }
