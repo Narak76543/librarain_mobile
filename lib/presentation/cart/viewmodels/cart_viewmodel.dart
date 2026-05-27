@@ -14,10 +14,24 @@ class CartViewModel extends ChangeNotifier {
   List<CartItemModel> _items = [];
   bool _isLoading = false;
   String? _error;
+  String _deliveryWay = 'Pick Up';
+  String _paymentMethod = 'KHQR';
 
   List<CartItemModel> get items => List.unmodifiable(_items);
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String get deliveryWay => _deliveryWay;
+  String get paymentMethod => _paymentMethod;
+
+  void setDeliveryWay(String way) {
+    _deliveryWay = way;
+    notifyListeners();
+  }
+
+  void setPaymentMethod(String method) {
+    _paymentMethod = method;
+    notifyListeners();
+  }
 
   double get subtotal {
     double total = 0.0;
@@ -108,21 +122,26 @@ class CartViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> placeOrder() async {
+  Future<Map<String, dynamic>?> placeOrder() async {
     _setLoading(true);
     try {
-      // The order repository requires its own instance or we can just instantiate it here
-      // To keep it simple without adding a constructor arg, we instantiate it here:
       final orderRepo = OrderRepository();
-      final success = await orderRepo.placeOrder();
-      if (success) {
+      final orderId = await orderRepo.placeOrder();
+      if (orderId != null) {
+        // Capture details for confirmed screen
+        final details = {
+          'orderId': orderId,
+          'orderTotal': subtotal,
+          'orderItems': _items.map((i) => i.book).toList(),
+        };
         _items.clear();
         _error = null;
+        return details;
       }
-      return success;
+      return null;
     } on OrderException catch (e) {
       _error = e.message;
-      return false;
+      return null;
     } finally {
       _setLoading(false);
     }

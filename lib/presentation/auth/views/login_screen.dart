@@ -6,6 +6,7 @@ import '../../../core/constants/app_texts.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/widgets/app_text.dart';
 import '../viewmodels/auth_view_model.dart';
+import '../../../providers/wishlist_provider.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/primary_button.dart';
@@ -202,6 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
+      context.read<WishlistProvider>().loadWishlist();
       context.go(AppRoutes.main);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

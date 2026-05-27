@@ -81,11 +81,11 @@ class _ShopScreenState extends State<ShopScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const _ShopHeader(),
-                const SizedBox(height: 28),
+                const SizedBox(height: 10),
                 _ShopSearchSection(
                   onSearch: (query) => _updateFilter(query: query),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
                 _ShopFiltersSection(
                   refreshVersion: _refreshVersion,
                   selectedCategory: _selectedCategory,
@@ -97,7 +97,7 @@ class _ShopScreenState extends State<ShopScreen> {
                     }
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
                 FutureBuilder<List<BookModel>>(
                   future: _booksFuture,
                   builder: (context, snapshot) {
@@ -115,21 +115,29 @@ class _ShopScreenState extends State<ShopScreen> {
                           const Center(
                             child: Padding(
                               padding: EdgeInsets.all(40),
-                              child: CircularProgressIndicator(color: AppColors.buttonColor),
+                              child: CircularProgressIndicator(
+                                color: AppColors.buttonColor,
+                              ),
                             ),
                           )
                         else if (snapshot.hasError)
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.all(24.0),
-                              child: Text('Error loading books', style: const TextStyle(color: AppColors.error)),
+                              child: Text(
+                                'Error loading books',
+                                style: const TextStyle(color: AppColors.error),
+                              ),
                             ),
                           )
                         else if (books.isEmpty)
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.all(40.0),
-                              child: AppText.bodyMedium('No books found.', color: AppColors.textDisabled),
+                              child: AppText.bodyMedium(
+                                'No books found.',
+                                color: AppColors.textDisabled,
+                              ),
                             ),
                           )
                         else
@@ -187,13 +195,39 @@ class _ShopResultsToolbar extends StatelessWidget {
         PopupMenuButton<String>(
           offset: const Offset(0, 40),
           color: AppColors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           onSelected: onSortChanged,
           itemBuilder: (context) => const [
-            PopupMenuItem(value: 'newest', child: Text('Newest', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
-            PopupMenuItem(value: 'price_asc', child: Text('Price: Low to High', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
-            PopupMenuItem(value: 'price_desc', child: Text('Price: High to Low', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
-            PopupMenuItem(value: 'rating', child: Text('Rating', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
+            PopupMenuItem(
+              value: 'newest',
+              child: Text(
+                'Newest',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'price_asc',
+              child: Text(
+                'Price: Low to High',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'price_desc',
+              child: Text(
+                'Price: High to Low',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'rating',
+              child: Text(
+                'Rating',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
           ],
           child: Container(
             height: 34,
@@ -389,7 +423,10 @@ class _ShopBookCover extends StatelessWidget {
                 left: 8,
                 top: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     borderRadius: BorderRadius.circular(8),
@@ -454,117 +491,147 @@ class _ShopSearchSection extends StatelessWidget {
           if (textEditingValue.text.isEmpty) {
             return const Iterable<BookModel>.empty();
           }
-          final books = await BookRepository().getBooks(search: textEditingValue.text);
+          final books = await BookRepository().getBooks(
+            search: textEditingValue.text,
+          );
           return books;
         },
         onSelected: (BookModel selection) {
           onSearch(selection.title);
         },
         displayStringForOption: (BookModel option) => option.title,
-        fieldViewBuilder: (BuildContext context, TextEditingController textEditingController, FocusNode focusNode, VoidCallback onFieldSubmitted) {
-          return Row(
-            children: [
-              const SizedBox(width: 20),
-              SvgPicture.asset(
-                'assets/icons/search.svg',
-                colorFilter: const ColorFilter.mode(AppColors.buttonColor, BlendMode.srcIn),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: textEditingController,
-                  focusNode: focusNode,
-                  onSubmitted: (String value) {
-                    onFieldSubmitted();
-                    onSearch(value);
-                  },
-                  onChanged: (val) {
-                    if (val.isEmpty) onSearch('');
-                  },
-                  cursorColor: AppColors.primary,
-                  textInputAction: TextInputAction.search,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Search books, authors, ISBN...',
-                    hintStyle: TextStyle(
-                      color: AppColors.textDisabled.withAlpha(190),
-                      fontSize: 13,
+        fieldViewBuilder:
+            (
+              BuildContext context,
+              TextEditingController textEditingController,
+              FocusNode focusNode,
+              VoidCallback onFieldSubmitted,
+            ) {
+              return Row(
+                children: [
+                  const SizedBox(width: 20),
+                  SvgPicture.asset(
+                    'assets/icons/search.svg',
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.buttonColor,
+                      BlendMode.srcIn,
                     ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    isCollapsed: true,
                   ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Material(
-                color: AppColors.buttonColor.withValues(alpha: 0.1),
-                shape: const CircleBorder(),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () {},
-                  child: SizedBox(
-                    width: 42,
-                    height: 42,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SvgPicture.asset(
-                        'assets/icons/spline-pointer.svg',
-                        colorFilter: const ColorFilter.mode(AppColors.buttonColor, BlendMode.srcIn),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: textEditingController,
+                      focusNode: focusNode,
+                      onSubmitted: (String value) {
+                        onFieldSubmitted();
+                        onSearch(value);
+                      },
+                      onChanged: (val) {
+                        if (val.isEmpty) onSearch('');
+                      },
+                      cursorColor: AppColors.primary,
+                      textInputAction: TextInputAction.search,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Search books, authors, ISBN...',
+                        hintStyle: TextStyle(
+                          color: AppColors.textDisabled.withAlpha(190),
+                          fontSize: 11,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        isCollapsed: true,
                       ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 6),
-            ],
-          );
-        },
-        optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<BookModel> onSelected, Iterable<BookModel> options) {
-          return Align(
-            alignment: Alignment.topLeft,
-            child: Material(
-              elevation: 8.0,
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
-              clipBehavior: Clip.antiAlias,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width - 40,
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  shrinkWrap: true,
-                  itemCount: options.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final BookModel option = options.elementAt(index);
-                    return InkWell(
-                      onTap: () => onSelected(option),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.history_rounded, size: 16, color: AppColors.textDisabled),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                option.title,
-                                style: const TextStyle(color: AppColors.textPrimary, fontSize: 14, fontWeight: FontWeight.w500),
-                              ),
+                  const SizedBox(width: 12),
+                  Material(
+                    color: Colors.transparent,
+                    shape: const CircleBorder(),
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () {},
+                      child: SizedBox(
+                        width: 42,
+                        height: 42,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SvgPicture.asset(
+                            'assets/icons/scan-line.svg',
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.buttonColor,
+                              BlendMode.srcIn,
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ],
+              );
+            },
+        optionsViewBuilder:
+            (
+              BuildContext context,
+              AutocompleteOnSelected<BookModel> onSelected,
+              Iterable<BookModel> options,
+            ) {
+              return Align(
+                alignment: Alignment.topLeft,
+                child: Material(
+                  elevation: 8.0,
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  clipBehavior: Clip.antiAlias,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width - 40,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      shrinkWrap: true,
+                      itemCount: options.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final BookModel option = options.elementAt(index);
+                        return InkWell(
+                          onTap: () => onSelected(option),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20.0,
+                              vertical: 12.0,
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.history_rounded,
+                                  size: 16,
+                                  color: AppColors.textDisabled,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    option.title,
+                                    style: const TextStyle(
+                                      color: AppColors.textPrimary,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            },
       ),
     );
   }
@@ -632,7 +699,8 @@ class _ShopFiltersSectionState extends State<_ShopFiltersSection> {
                   ),
                   child: _ActiveFilterChip(
                     label: widget.activeFilters[index],
-                    onRemove: () => widget.onRemoveFilter(widget.activeFilters[index]),
+                    onRemove: () =>
+                        widget.onRemoveFilter(widget.activeFilters[index]),
                   ),
                 );
               }),
@@ -658,7 +726,8 @@ class _ShopFiltersSectionState extends State<_ShopFiltersSection> {
                       onTap: () => widget.onCategorySelected(categories[index]),
                       child: _CategoryChip(
                         label: categories[index],
-                        isSelected: categories[index] == widget.selectedCategory,
+                        isSelected:
+                            categories[index] == widget.selectedCategory,
                       ),
                     ),
                   );
@@ -699,8 +768,8 @@ class _ActiveFilterChip extends StatelessWidget {
             AppText.button(
               label,
               color: AppColors.buttonColor,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               height: 1,
             ),
             const SizedBox(width: 8),
@@ -738,8 +807,8 @@ class _CategoryChip extends StatelessWidget {
       child: AppText.button(
         label,
         color: isSelected ? AppColors.white : AppColors.textPrimary,
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
         height: 1,
       ),
     );

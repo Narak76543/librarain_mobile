@@ -84,10 +84,21 @@ class OrderRepository {
     return 'Order operation failed';
   }
 
-  Future<bool> placeOrder() async {
+  Future<String?> placeOrder() async {
     try {
       final response = await _dio.post<dynamic>(ApiConfig.orders);
-      return response.statusCode == 201 || response.statusCode == 200;
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = response.data;
+        if (data != null && data['data'] != null) {
+          final orderData = data['data'];
+          if (orderData['id'] != null) {
+            return orderData['id'].toString();
+          }
+        }
+        // Fallback if ID is not directly returned but creation succeeded
+        return 'NEW_ORDER';
+      }
+      return null;
     } on DioException catch (e) {
       throw OrderException(
         _getErrorMessage(e),
@@ -111,6 +122,39 @@ class OrderRepository {
         }
       }
       return [];
+    } on DioException catch (e) {
+      throw OrderException(
+        _getErrorMessage(e),
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  Future<OrderSummaryModel> getOrderSummary(String orderId) async {
+    try {
+      final response = await _dio.get<dynamic>(ApiConfig.orderSummary(orderId));
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data != null && data['data'] != null) {
+          return OrderSummaryModel.fromJson(data['data']);
+        }
+      }
+      throw const OrderException('Failed to load order summary');
+    } on DioException catch (e) {
+      throw OrderException(
+        _getErrorMessage(e),
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  Future<void> cancelOrder(String orderId) async {
+    try {
+      // Assuming a PATCH request to cancel the order
+      final response = await _dio.patch<dynamic>(ApiConfig.cancelOrder(orderId));
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw const OrderException('Failed to cancel order');
+      }
     } on DioException catch (e) {
       throw OrderException(
         _getErrorMessage(e),
