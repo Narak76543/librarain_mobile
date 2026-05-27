@@ -10,6 +10,9 @@ import 'presentation/main/main_screen.dart';
 import 'presentation/onboarding/onboarding_screen.dart';
 import 'presentation/profile/views/edit_profile_screen.dart';
 import 'presentation/profile/views/wishlist_screen.dart';
+import 'presentation/history/history_screen.dart';
+import 'presentation/orders/views/order_summary_screen.dart';
+import 'presentation/orders/views/order_confirmed_screen.dart';
 
 GoRouter createAppRouter({required bool isLoggedIn}) {
   return GoRouter(
@@ -56,6 +59,28 @@ GoRouter createAppRouter({required bool isLoggedIn}) {
       GoRoute(
         path: AppRoutes.wishlist,
         builder: (context, state) => const WishlistScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.orders,
+        builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.orderConfirmed,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return OrderConfirmedScreen(
+            orderId:    extra['orderId'].toString(),
+            orderTotal: extra['orderTotal'] as double,
+            orderItems: extra['orderItems'] as List,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/orders/:id/summary',
+        builder: (context, state) {
+          final orderId = state.pathParameters['id']!;
+          return OrderSummaryScreen(orderId: orderId);
+        },
       ),
     ],
   );

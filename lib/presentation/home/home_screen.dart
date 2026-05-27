@@ -3,6 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_color.dart';
@@ -1482,31 +1483,31 @@ class _QuickActionSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final allActions = [
       _QuickActionItem(
-        title: 'Search',
-        iconPath: 'assets/icons/shopping-cart.svg',
+        title: 'Orders Summary',
+        iconPath: 'assets/images/to-do-list.png',
         onTap: () {
-          /* Navigate to Search */
+          context.push('/orders');
         },
       ),
       _QuickActionItem(
         title: 'My Orders',
-        iconData: Icons.local_fire_department_rounded,
-        iconColor: Colors.deepOrange,
+        iconPath: 'assets/images/sold.png',
+        // iconColor: Colors.deepOrange,
         onTap: () {},
       ),
       _QuickActionItem(
         title: 'Wishlist',
-        iconPath: 'assets/icons/bookmark.svg',
+        iconPath: 'assets/images/list.png',
         onTap: () => Navigator.of(context).pushNamed('/wishlist'),
       ),
       _QuickActionItem(
         title: 'Categories',
-        iconPath: 'assets/icons/bookmark.svg',
+        iconPath: 'assets/images/shopping-bag.png',
         onTap: () => Navigator.of(context).pushNamed('/categories'),
       ),
       _QuickActionItem(
         title: 'Featured',
-        iconPath: 'assets/icons/bookmark.svg',
+        iconPath: 'assets/images/jigsaw.png',
         onTap: () => Navigator.of(context).pushNamed('/featured'),
       ),
       _QuickActionItem(
@@ -1530,7 +1531,7 @@ class _QuickActionSection extends StatelessWidget {
       displayedItems.add(
         _QuickActionItem(
           title: 'More',
-          iconData: Icons.grid_view_rounded, // Distinct "More/Menu" icon
+          iconPath: 'assets/images/application.png',
           iconColor: Colors.grey,
           onTap: () {
             // Handle opening a bottom sheet, dialog, or navigating to a full menu page
@@ -1623,15 +1624,17 @@ class _QuickActionItem extends StatelessWidget {
             ),
             child: Center(
               child: iconPath != null
-                  ? SvgPicture.asset(
-                      iconPath!,
-                      width: 26,
-                      height: 26,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.buttonColor,
-                        BlendMode.srcIn,
-                      ),
-                    )
+                  ?
+                    // ? SvgPicture.asset(
+                    //     iconPath!,
+                    //     width: 26,
+                    //     height: 26,
+                    //     colorFilter: const ColorFilter.mode(
+                    //       AppColors.buttonColor,
+                    //       BlendMode.srcIn,
+                    //     ),
+                    //   )
+                    Image.asset(iconPath!, width: 52, height: 52)
                   : Icon(
                       iconData,
                       size: 28,

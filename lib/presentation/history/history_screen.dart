@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_s2_flutter/core/widgets/app_text.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -333,101 +334,106 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ? '1 item'
                         : '$totalItems items';
 
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16.0),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey[300]!, width: 1),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const AppText.bodySmall(
-                                    'Order No. : ',
-                                    color: AppColors.accent,
-                                    fontSize: 10,
+                    return GestureDetector(
+                      onTap: () {
+                        context.push('/orders/${order.id}/summary');
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.grey[300]!, width: 1),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const AppText.bodySmall(
+                                      'Order No. : ',
+                                      color: AppColors.accent,
+                                      fontSize: 10,
+                                    ),
+                                    Text(
+                                      '#$shortId',
+                                      style: const TextStyle(
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
                                   ),
-                                  Text(
-                                    '#$shortId',
-                                    style: const TextStyle(
-                                      color: Colors.black87,
+                                  decoration: BoxDecoration(
+                                    color: _getStatusColor(order.status),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    _capitalize(order.status),
+                                    style: TextStyle(
+                                      color: _getStatusTextColor(order.status),
                                       fontWeight: FontWeight.w500,
                                       fontSize: 10,
                                     ),
                                   ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 4,
                                 ),
-                                decoration: BoxDecoration(
-                                  color: _getStatusColor(order.status),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  _capitalize(order.status),
-                                  style: TextStyle(
-                                    color: _getStatusTextColor(order.status),
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const AppText.bodySmall(
-                                'Order Date : ',
-                                color: AppColors.accent,
-                                fontSize: 10,
-                              ),
-                              Text(
-                                _formatDate(order.createdAt),
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(),
-                          Row(
-                            children: [
-                              _buildStackedImages(order),
-                              const SizedBox(width: 16),
-                              Text(
-                                itemText,
-                                style: const TextStyle(
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const AppText.bodySmall(
+                                  'Order Date : ',
                                   color: AppColors.accent,
                                   fontSize: 10,
                                 ),
-                              ),
-                              const Spacer(),
-                              Text(
-                                '\$${order.total}',
-                                style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
+                                Text(
+                                  _formatDate(order.createdAt),
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 10,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                            const Divider(),
+                            Row(
+                              children: [
+                                _buildStackedImages(order),
+                                const SizedBox(width: 16),
+                                Text(
+                                  itemText,
+                                  style: const TextStyle(
+                                    color: AppColors.accent,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                const Spacer(),
+                                Text(
+                                  '\$${order.total}',
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }, childCount: orders.length),

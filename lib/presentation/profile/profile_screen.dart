@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_routes.dart';
 import '../../data/models/user_profile_model.dart';
@@ -48,6 +49,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.go(AppRoutes.login);
   }
 
+  Future<void> _linkTelegram() async {
+    final profile = context.read<ProfileViewModel>().profile;
+    if (profile == null) return;
+    
+    final url = Uri.parse('https://t.me/librarian_postman_bot?start=${profile.userId}');
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open Telegram')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,6 +88,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const _MenuRow(
                     svgPath: "assets/icons/shopping-cart.svg",
                     title: 'My Orders',
+                  ),
+                  _MenuRow(
+                    svgPath: "assets/icons/bell-dot.svg",
+                    title: 'Link Telegram Alerts',
+                    onTap: _linkTelegram,
                   ),
                   _MenuRow(
                     svgPath: "assets/icons/bookmark.svg",

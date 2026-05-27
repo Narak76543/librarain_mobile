@@ -13,4 +13,7 @@ class AppRoutes {
   static const String profile = '/main/profile';
   static const String editProfile = '/edit-profile';
   static const String wishlist = '/wishlist';
+  static const String orders = '/orders';
+  static const String orderConfirmed = '/orders/confirmed';
+  static String orderSummary(String id) => '/orders/$id/summary';
 }

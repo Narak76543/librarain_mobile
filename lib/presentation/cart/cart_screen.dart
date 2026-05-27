@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/constants/app_routes.dart';
 
 import '../../core/theme/app_color.dart';
 import '../../core/widgets/app_text.dart';
@@ -587,11 +590,9 @@ class _CheckoutButton extends StatelessWidget {
       onTap: cart.isLoading || cart.items.isEmpty
           ? null
           : () async {
-              final success = await context.read<CartViewModel>().placeOrder();
-              if (success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Order placed successfully!')),
-                );
+              final orderDetails = await context.read<CartViewModel>().placeOrder();
+              if (orderDetails != null && context.mounted) {
+                context.push(AppRoutes.orderConfirmed, extra: orderDetails);
               } else if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

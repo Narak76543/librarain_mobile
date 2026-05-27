@@ -122,21 +122,26 @@ class CartViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> placeOrder() async {
+  Future<Map<String, dynamic>?> placeOrder() async {
     _setLoading(true);
     try {
-      // The order repository requires its own instance or we can just instantiate it here
-      // To keep it simple without adding a constructor arg, we instantiate it here:
       final orderRepo = OrderRepository();
-      final success = await orderRepo.placeOrder();
-      if (success) {
+      final orderId = await orderRepo.placeOrder();
+      if (orderId != null) {
+        // Capture details for confirmed screen
+        final details = {
+          'orderId': orderId,
+          'orderTotal': subtotal,
+          'orderItems': _items.map((i) => i.book).toList(),
+        };
         _items.clear();
         _error = null;
+        return details;
       }
-      return success;
+      return null;
     } on OrderException catch (e) {
       _error = e.message;
-      return false;
+      return null;
     } finally {
       _setLoading(false);
     }
