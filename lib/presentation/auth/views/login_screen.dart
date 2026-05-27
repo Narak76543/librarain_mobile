@@ -155,8 +155,6 @@ import '../widgets/primary_button.dart';
 //   }
 // }
 
-
-
 //============== Visut-- Version ================
 
 import 'package:flutter/material.dart';
@@ -178,8 +176,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final _emailController = TextEditingController(text: 'svisut123@gmail.com');
-  final _passwordController = TextEditingController(text: '123123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   bool obscurePassword = true;
 
@@ -233,34 +231,26 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 30),
 
-                // TOP ICON
-                Container(
-                  width: 62,
-                  height: 62,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF005B5B),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: const Icon(
-                    Icons.shield_moon_outlined,
-                    color: Colors.white,
-                    size: 30,
-                  ),
+                // TOP LOGO
+                Image.asset(
+                  'assets/images/app_logo.png',
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.contain,
                 ),
-
                 const SizedBox(height: 24),
 
                 // TITLE
                 const Text(
-                  "Sign In",
+                  'Sign In',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 22,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF1E1E1E),
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
 
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
@@ -329,8 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 8),
 
                 // FORGOT PASSWORD
-                Align(
-                  alignment: Alignment.centerRight,
+                Center(
                   child: GestureDetector(
                     onTap: () => context.go(AppRoutes.forgotPassword),
                     child: const Text(
@@ -338,7 +327,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF5E5E5E),
+                        color: Color(0xFF1E1E1E),
                       ),
                     ),
                   ),
@@ -354,61 +343,68 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: authViewModel.isLoading ? null : _submit,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF005B5B),
+                      foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(24),
                       ),
                     ),
                     child: authViewModel.isLoading
                         ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2.5,
-                      ),
-                    )
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
                         : const Text(
-                      "Continue",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                            "Continue",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // DIVIDER
+                Row(
+                  children: [
+                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        "Don't have an account yet?",
+                        style: TextStyle(fontSize: 13, color: Color(0xFF9A9A9A)),
                       ),
                     ),
-                  ),
+                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                  ],
                 ),
 
                 const SizedBox(height: 18),
-
-                // DON'T HAVE ACCOUNT
-                const Text(
-                  "Don't have an account yet?",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF9A9A9A),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
 
                 // CREATE ACCOUNT BUTTON
                 SizedBox(
                   width: double.infinity,
                   height: 54,
-                  child: OutlinedButton(
+                  child: ElevatedButton(
                     onPressed: () => context.push(AppRoutes.register),
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF5F5F5),
-                      side: BorderSide.none,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF5F5F7),
+                      foregroundColor: const Color(0xFF1E1E1E),
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(24),
                       ),
                     ),
                     child: const Text(
                       "Create an account",
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1E1E1E),
                       ),
@@ -416,20 +412,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
                 // APPLE BUTTON
                 _socialButton(
-                  onTap: (){},
+                  onTap: () {},
                   icon: Icons.apple,
                   text: "Sign in with Apple",
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
                 // GOOGLE BUTTON
                 _socialButton(
-                  onTap: (){},
+                  onTap: () {},
                   image: "assets/icons/google.png",
                   text: "Sign in with Google",
                 ),
@@ -440,12 +436,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 RichText(
                   textAlign: TextAlign.center,
                   text: const TextSpan(
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF9A9A9A),
-                    ),
+                    style: TextStyle(fontSize: 11, color: Color(0xFF9A9A9A)),
                     children: [
-                      TextSpan(text: "By clicking “Continue”, I have read and agree\nwith the "),
+                      TextSpan(
+                        text:
+                            "By clicking “Continue”, I have read and agree\nwith the ",
+                      ),
                       TextSpan(
                         text: "Term Sheet",
                         style: TextStyle(
@@ -483,26 +479,31 @@ class _LoginScreenState extends State<LoginScreen> {
     String? Function(String?)? validator,
   }) {
     return Container(
-      height: 58,
+      height: 54,
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F7),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: TextFormField(
         controller: controller,
         obscureText: obscure,
         validator: validator,
+        style: const TextStyle(fontSize: 14, color: Color(0xFF1E1E1E)),
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
-          hintStyle: const TextStyle(
-            color: Color(0xFF9A9A9A),
-            fontSize: 14,
-          ),
-          prefixIcon: Icon(
-            icon,
-            color: const Color(0xFF9A9A9A),
-            size: 22,
+          hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: const Color(0xFF005B5B),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: Colors.white, size: 16),
+            ),
           ),
           suffixIcon: suffix,
           contentPadding: const EdgeInsets.symmetric(vertical: 18),
@@ -520,35 +521,21 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity,
         height: 54,
         decoration: BoxDecoration(
           color: const Color(0xFFF5F5F7),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(24),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icon != null)
-              Icon(
-                icon,
-                size: 22,
-                color: Colors.black,
-              ),
-
-            if (image != null)
-              Image.asset(
-                image,
-                width: 22,
-                height: 22,
-              ),
-
-            const SizedBox(width: 12),
-
+            if (icon != null) Icon(icon, size: 22, color: const Color(0xFF1E1E1E)),
+            if (image != null) Image.asset(image, width: 22, height: 22),
+            const SizedBox(width: 10),
             Text(
               text,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Color(0xFF1E1E1E),
               ),
@@ -558,4 +545,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-  }
+}

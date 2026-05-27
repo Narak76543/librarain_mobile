@@ -1511,14 +1511,14 @@ class _QuickActionSection extends StatelessWidget {
         onTap: () => Navigator.of(context).pushNamed('/featured'),
       ),
       _QuickActionItem(
-        title: 'Promo',
-        iconPath: 'assets/icons/promo.svg',
-        onTap: () => Navigator.of(context).pushNamed('/promo'),
+        title: 'Nompang',
+        iconPath: 'assets/images/jigsaw.png',
+        onTap: () => Navigator.of(context).pushNamed('/featured'),
       ),
       _QuickActionItem(
-        title: 'Promo2',
-        iconPath: 'assets/icons/promo.svg',
-        onTap: () => Navigator.of(context).pushNamed('/promo'),
+        title: 'Nompang',
+        iconPath: 'assets/images/jigsaw.png',
+        onTap: () => Navigator.of(context).pushNamed('/featured'),
       ),
     ];
 
@@ -1534,7 +1534,6 @@ class _QuickActionSection extends StatelessWidget {
           iconPath: 'assets/images/application.png',
           iconColor: Colors.grey,
           onTap: () {
-            // Handle opening a bottom sheet, dialog, or navigating to a full menu page
             _showAllActionsBottomSheet(context, allActions);
           },
         ),

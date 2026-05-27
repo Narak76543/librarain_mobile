@@ -67,115 +67,230 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authViewModel = context.watch<AuthViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const AuthHeader(title: AppTexts.createAccount),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Form(
-                key: _formKey,
-                child: Column(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const SizedBox(height: 50),
+
+                // TOP LOGO
+                Image.asset(
+                  'assets/images/app_logo.png',
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.contain,
+                ),
+
+                const SizedBox(height: 32),
+
+                // TITLE
+                const Text(
+                  'Create Account',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF1E1E1E),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                const Text(
+                  "Join us to start exploring our library",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF808080),
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                // NAME
+                _buildTextField(
+                  controller: _nameController,
+                  hint: "Full Name",
+                  icon: Icons.person_outline,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return AppTexts.fullNameRequired;
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // EMAIL
+                _buildTextField(
+                  controller: _emailController,
+                  hint: "E-mail",
+                  icon: Icons.email_outlined,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return AppTexts.emailRequired;
+                    if (!value.contains('@')) return AppTexts.invalidEmail;
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // PHONE
+                _buildTextField(
+                  controller: _phoneController,
+                  hint: "Phone Number",
+                  icon: Icons.phone_outlined,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return AppTexts.phoneRequired;
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // PASSWORD
+                _buildTextField(
+                  controller: _passwordController,
+                  hint: "Password",
+                  icon: Icons.lock_outline,
+                  obscure: true,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) return AppTexts.passwordRequired;
+                    if (value.length < 6) return AppTexts.passwordMinLength;
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 32),
+
+                // SIGN UP BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: authViewModel.isLoading ? null : _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF005B5B),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      shadowColor: const Color(0xFF005B5B).withOpacity(0.5),
+                    ),
+                    child: authViewModel.isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : const Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // DIVIDER
+                Row(
                   children: [
-                    AuthTextField(
-                      controller: _nameController,
-                      hintText: AppTexts.fullName,
-                      icon: Icons.person_outline,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return AppTexts.fullNameRequired;
-                        }
-                        return null;
-                      },
+                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        "Already have an account?",
+                        style: TextStyle(fontSize: 13, color: Color(0xFF9A9A9A)),
+                      ),
                     ),
-
-                    const SizedBox(height: 14),
-
-                    AuthTextField(
-                      controller: _emailController,
-                      hintText: AppTexts.email,
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return AppTexts.emailRequired;
-                        }
-
-                        if (!value.contains('@')) {
-                          return AppTexts.invalidEmail;
-                        }
-
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    AuthTextField(
-                      controller: _phoneController,
-                      hintText: AppTexts.phone,
-                      icon: Icons.phone_outlined,
-                      keyboardType: TextInputType.phone,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return AppTexts.phoneRequired;
-                        }
-
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    AuthTextField(
-                      controller: _passwordController,
-                      hintText: AppTexts.password,
-                      icon: Icons.lock_outline,
-                      obscureText: true,
-                      textInputAction: TextInputAction.done,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return AppTexts.passwordRequired;
-                        }
-
-                        if (value.length < 6) {
-                          return AppTexts.passwordMinLength;
-                        }
-
-                        return null;
-                      },
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    PrimaryButton(
-                      title: AppTexts.signUp,
-                      isLoading: authViewModel.isLoading,
-                      onPressed: _submit,
-                    ),
-
-                    const SizedBox(height: 16),
-                    const AppText.caption(
-                      AppTexts.dividerOr,
-                      color: AppColors.textDisabled,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    PrimaryButton(
-                      title: AppTexts.login,
-                      isOutlined: true,
-                      onPressed: () => context.push(AppRoutes.login),
-                    ),
+                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
                   ],
                 ),
-              ),
+
+                const SizedBox(height: 18),
+
+                // LOGIN BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: () => context.push(AppRoutes.login),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF5F5F7),
+                      foregroundColor: const Color(0xFF1E1E1E),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                    child: const Text(
+                      "Sign In",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1E1E1E),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+              ],
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    Widget? suffix,
+    bool obscure = false,
+    String? Function(String?)? validator,
+  }) {
+    return Container(
+      height: 54,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F7),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        validator: validator,
+        style: const TextStyle(fontSize: 14, color: Color(0xFF1E1E1E)),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: hint,
+          hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                color: const Color(0xFF005B5B),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: Colors.white, size: 16),
+            ),
+          ),
+          suffixIcon: suffix,
+          contentPadding: const EdgeInsets.symmetric(vertical: 18),
         ),
       ),
     );
