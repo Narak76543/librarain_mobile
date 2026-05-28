@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_routes.dart';
@@ -271,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 _buildTextField(
                   controller: _emailController,
                   hint: "E-mail",
-                  icon: Icons.email_outlined,
+                  iconPath: 'assets/icons/mail.svg',
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return AppTexts.emailRequired;
@@ -286,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 _buildTextField(
                   controller: _passwordController,
                   hint: "Password",
-                  icon: Icons.lock_outline,
+                  iconPath: 'assets/icons/lock-keyhole.svg',
                   obscure: obscurePassword,
                   suffix: IconButton(
                     splashRadius: 20,
@@ -377,7 +378,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        "Don't have an account yet?",
+                        "Don't have any account yet?",
                         style: TextStyle(fontSize: 13, color: Color(0xFF9A9A9A)),
                       ),
                     ),
@@ -473,7 +474,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
-    required IconData icon,
+    required String iconPath,
     Widget? suffix,
     bool obscure = false,
     String? Function(String?)? validator,
@@ -495,15 +496,7 @@ class _LoginScreenState extends State<LoginScreen> {
           hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
           prefixIcon: Padding(
             padding: const EdgeInsets.all(12.0),
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: const Color(0xFF005B5B),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: Colors.white, size: 16),
-            ),
+            child: SvgPicture.asset(iconPath,colorFilter: ColorFilter.mode(AppColors.buttonColor, BlendMode.srcIn),),
           ),
           suffixIcon: suffix,
           contentPadding: const EdgeInsets.symmetric(vertical: 18),
