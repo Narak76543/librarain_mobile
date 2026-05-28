@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -226,6 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
+          
           child: Form(
             key: _formKey,
             child: Column(
@@ -233,11 +235,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 30),
 
                 // TOP LOGO
-                Image.asset(
-                  'assets/images/app_logo.png',
+                Container(
                   width: 80,
                   height: 80,
-                  fit: BoxFit.contain,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(image: AssetImage('assets/images/app_logo.png')),
+                    borderRadius: BorderRadius.circular(24),
+                    color: Colors.transparent,
+                    // fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(height: 24),
 
