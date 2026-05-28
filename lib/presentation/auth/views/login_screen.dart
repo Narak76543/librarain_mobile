@@ -414,11 +414,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // APPLE BUTTON
+                // Telegram BUTTON
                 _socialButton(
                   onTap: () {},
-                  icon: Icons.apple,
-                  text: "Sign in with Apple",
+                  image: 'assets/images/telegram.png',
+                  text: "Sign in with Telegram",
                 ),
 
                 const SizedBox(height: 16),

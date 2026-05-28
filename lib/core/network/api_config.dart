@@ -3,7 +3,7 @@ class ApiConfig {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.1.9:8000',
+    defaultValue: 'http://172.16.13.35:8000',
 
     // ah san wifi
     // defaultValue: 'http://172.16.53.187:8000',
