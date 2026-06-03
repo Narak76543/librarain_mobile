@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_color.dart';
+import '../../../core/widgets/app_text.dart';
 import '../../../data/models/order_model.dart';
 import '../../../providers/order_provider.dart';
 import '../../../data/repositories/invoice_repository.dart';
@@ -54,30 +56,30 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   Color _getStatusBgColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return const Color(0xFFECFDF5);
+        return AppColors.successLight;
       case 'processing':
-        return const Color(0xFFFEF3C7);
+        return AppColors.warningLight;
       case 'delivered':
-        return const Color(0xFFECFDF5);
+        return AppColors.successLight;
       case 'cancelled':
-        return const Color(0xFFFEF2F2);
+        return AppColors.errorLight;
       default:
-        return const Color(0xFFF3F4F6);
+        return AppColors.divider;
     }
   }
 
   Color _getStatusTextColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return const Color(0xFF059669);
+        return AppColors.success;
       case 'processing':
-        return const Color(0xFFB45309);
+        return AppColors.warning;
       case 'delivered':
-        return const Color(0xFF059669);
+        return AppColors.success;
       case 'cancelled':
-        return const Color(0xFFDC2626);
+        return AppColors.error;
       default:
-        return const Color(0xFF374151);
+        return AppColors.textPrimary;
     }
   }
 
@@ -92,9 +94,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     final summary = provider.summary;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.transparent,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
@@ -104,13 +106,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           ),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: const AppText.subTitle(
           'Order Summary',
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
+          color: AppColors.textPrimary,
+          fontWeight: FontWeight.w600,
         ),
         actions: [
           IconButton(
@@ -141,7 +140,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: AppColors.buttonColor,
@@ -150,21 +149,15 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     ),
                     child: Column(
                       children: [
-                        Text(
+                        AppText.bodySmall(
                           '#${summary.shortId}',
-                          style: const TextStyle(
-                            color: AppColors.buttonColor,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          color: AppColors.buttonColor,
+                          fontWeight: FontWeight.w600,
                         ),
                         const SizedBox(height: 4),
-                        Text(
+                        AppText.bodySmall(
                           'Ordered on ${summary.createdAt}',
-                          style: const TextStyle(
-                            color: AppColors.textDisabled,
-                            fontSize: 12,
-                          ),
+                          color: AppColors.textDisabled,
                         ),
                         const SizedBox(height: 12),
                         Container(
@@ -180,13 +173,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                               width: 0.1,
                             ),
                           ),
-                          child: Text(
+                          child: AppText.bodySmall(
                             _capitalize(summary.status),
-                            style: TextStyle(
-                              color: _getStatusTextColor(summary.status),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                            ),
+                            color: _getStatusTextColor(summary.status),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -208,13 +198,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        const AppText.bodyMedium(
                           'Customer Info',
-                          style: TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                          ),
+                          color: AppColors.textPrimary,
+                          fontWeight: FontWeight.w700,
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -225,13 +212,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                               size: 20,
                             ),
                             const SizedBox(width: 12),
-                            Text(
+                            AppText.bodySmall(
                               summary.customerName,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ],
                         ),
@@ -244,12 +228,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                               size: 20,
                             ),
                             const SizedBox(width: 12),
-                            Text(
+                            AppText.bodySmall(
                               summary.customerEmail,
-                              style: const TextStyle(
-                                color: AppColors.textDisabled,
-                                fontSize: 12,
-                              ),
+                              color: AppColors.textDisabled,
                             ),
                           ],
                         ),
@@ -262,12 +243,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                               size: 20,
                             ),
                             const SizedBox(width: 12),
-                            Text(
+                            AppText.bodySmall(
                               summary.customerPhone,
-                              style: const TextStyle(
-                                color: AppColors.textDisabled,
-                                fontSize: 12,
-                              ),
+                              color: AppColors.textDisabled,
                             ),
                           ],
                         ),
@@ -280,7 +258,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: AppColors.buttonColor,
@@ -293,13 +271,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            const AppText.bodyMedium(
                               'Items Ordered',
-                              style: TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -307,16 +282,13 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF3F4F6),
+                                color: AppColors.divider,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
+                              child: AppText.bodySmall(
                                 '${summary.itemCount} items',
-                                style: const TextStyle(
-                                  color: AppColors.textDisabled,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                                color: AppColors.textDisabled,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
@@ -342,22 +314,18 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                             fit: BoxFit.cover,
                                             placeholder: (context, url) =>
                                                 Container(
-                                                  color: const Color(
-                                                    0xFFF3F4F6,
-                                                  ),
+                                                  color: AppColors.divider,
                                                 ),
                                             errorWidget:
                                                 (context, url, error) =>
                                                     Container(
-                                                      color: const Color(
-                                                        0xFFF3F4F6,
-                                                      ),
+                                                      color: AppColors.divider,
                                                     ),
                                           )
                                         : Container(
                                             width: 60,
                                             height: 80,
-                                            color: const Color(0xFFF3F4F6),
+                                            color: AppColors.divider,
                                           ),
                                   ),
                                   const SizedBox(width: 16),
@@ -366,53 +334,38 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        AppText.caption(
                                           item.categoryName?.toUpperCase() ??
                                               'BOOK',
-                                          style: const TextStyle(
-                                            color: AppColors.buttonColor,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                          ),
+                                          color: AppColors.buttonColor,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                         const SizedBox(height: 4),
-                                        Text(
+                                        AppText.bodyMedium(
                                           item.bookTitle ?? 'Unknown',
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            color: AppColors.textPrimary,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w600,
                                         ),
                                         const SizedBox(height: 2),
-                                        Text(
+                                        AppText.caption(
                                           item.bookAuthor ?? 'Unknown',
-                                          style: const TextStyle(
-                                            color: AppColors.textDisabled,
-                                            fontSize: 11,
-                                          ),
+                                          color: AppColors.textDisabled,
                                         ),
                                         const SizedBox(height: 8),
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
+                                            AppText.bodySmall(
                                               'Qty: x${item.quantity}',
-                                              style: const TextStyle(
-                                                color: AppColors.textDisabled,
-                                                fontSize: 12,
-                                              ),
+                                              color: AppColors.textDisabled,
                                             ),
-                                            Text(
+                                            AppText.bodyMedium(
                                               '\$${item.subtotal.toStringAsFixed(2)}',
-                                              style: const TextStyle(
-                                                color: AppColors.buttonColor,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
-                                              ),
+                                              color: AppColors.buttonColor,
+                                              fontWeight: FontWeight.w700,
                                             ),
                                           ],
                                         ),
@@ -427,7 +380,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                   child: Divider(
                                     height: 0.5,
                                     thickness: 0.5,
-                                    color: Color(0xFFE5E7EB),
+                                    color: AppColors.border,
                                   ),
                                 ),
                             ],
@@ -442,7 +395,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: AppColors.buttonColor,
@@ -454,19 +407,13 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            const AppText.bodyMedium(
                               'Subtotal',
-                              style: TextStyle(
-                                color: AppColors.textDisabled,
-                                fontSize: 13,
-                              ),
+                              color: AppColors.textDisabled,
                             ),
-                            Text(
+                            AppText.bodyMedium(
                               '\$${summary.subtotal.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 13,
-                              ),
+                              color: AppColors.textPrimary,
                             ),
                           ],
                         ),
@@ -494,22 +441,16 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            const AppText.bodySmall(
                               'Delivery',
-                              style: TextStyle(
-                                color: AppColors.textDisabled,
-                                fontSize: 12,
-                              ),
+                              color: AppColors.textDisabled,
                             ),
-                            Text(
+                            AppText.bodySmall(
                               summary.delivery == 0
                                   ? 'FREE'
                                   : '\$${summary.delivery.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: AppColors.buttonColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
+                              color: AppColors.buttonColor,
+                              fontWeight: FontWeight.w500,
                             ),
                           ],
                         ),
@@ -518,27 +459,21 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                           child: Divider(
                             height: 1,
                             thickness: 1,
-                            color: Color(0xFFE5E7EB),
+                            color: AppColors.border,
                           ),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            const AppText.bodyMedium(
                               'Total',
-                              style: TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w600,
                             ),
-                            Text(
+                            AppText.bodyMedium(
                               '\$${summary.total.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: AppColors.buttonColor,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              color: AppColors.buttonColor,
+                              fontWeight: FontWeight.w700,
                             ),
                           ],
                         ),
@@ -548,101 +483,224 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   const SizedBox(height: 12),
 
                   // Section 5 - Delivery Info
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.buttonColor,
-                        width: 0.3,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFECFDF5),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.local_shipping_outlined,
-                                color: AppColors.buttonColor,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Cash on Delivery',
-                                  style: TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  'Pay when you receive',
-                                  style: TextStyle(
-                                    color: AppColors.textDisabled,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                  Builder(
+                    builder: (context) {
+                      final isKhqr = summary.paymentMethod == 'KHQR';
+                      final paymentIcon = isKhqr ? Icons.qr_code_scanner_rounded : Icons.payments_outlined;
+                      final paymentTitle = isKhqr ? 'KHQR Payment' : 'Cash on Delivery';
+                      final paymentSubtitle = isKhqr ? 'Scanned and paid' : 'Pay when you receive';
+                      final paymentBg = isKhqr ? AppColors.primary50 : AppColors.successLight;
+                      final paymentIconColor = isKhqr ? AppColors.primary600 : AppColors.buttonColor;
 
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Divider(height: 1, thickness: 1),
+                      final isDelivery = summary.deliveryWay == 'Delivery';
+                      final deliveryIcon = isDelivery ? Icons.local_shipping_outlined : Icons.storefront_rounded;
+                      final deliveryTitle = isDelivery ? 'Delivery' : 'Store Pick Up';
+                      final deliverySubtitle = isDelivery ? 'Via ${summary.deliveryPartner ?? 'Standard Carrier'}' : 'Collect from our store';
+                      final deliveryBg = isDelivery ? AppColors.successLight : AppColors.divider;
+                      final deliveryIconColor = isDelivery ? AppColors.buttonColor : AppColors.textDisabled;
+
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.buttonColor,
+                            width: 0.3,
+                          ),
                         ),
-                        Row(
+                        child: Column(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFF3F4F6),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.access_time_rounded,
-                                color: AppColors.textDisabled,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
                               children: [
-                                Text(
-                                  'Estimated Delivery',
-                                  style: TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: paymentBg,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    paymentIcon,
+                                    color: paymentIconColor,
+                                    size: 20,
                                   ),
                                 ),
-                                SizedBox(height: 2),
-                                Text(
-                                  '3-5 business days',
-                                  style: TextStyle(
-                                    color: AppColors.textDisabled,
-                                    fontSize: 11,
-                                  ),
+                                const SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AppText.bodySmall(
+                                      paymentTitle,
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    AppText.caption(
+                                      paymentSubtitle,
+                                      color: AppColors.textDisabled,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: Divider(height: 1, thickness: 1, color: AppColors.divider),
+                            ),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: deliveryBg,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    deliveryIcon,
+                                    color: deliveryIconColor,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    AppText.bodySmall(
+                                      deliveryTitle,
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    AppText.caption(
+                                      deliverySubtitle,
+                                      color: AppColors.textDisabled,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            if (isDelivery && summary.deliveryAddress != null && summary.deliveryAddress!.isNotEmpty) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Divider(height: 1, thickness: 1),
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.warningLight,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.location_on_rounded,
+                                      color: AppColors.warning,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const AppText.bodySmall(
+                                          'Delivery Address',
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        AppText.caption(
+                                          summary.deliveryAddress!,
+                                          color: AppColors.textDisabled,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ] else if (!isDelivery) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Divider(height: 1, thickness: 1, color: AppColors.divider),
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.buttonColor.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.location_on_rounded,
+                                      color: AppColors.buttonColor,
+                                      size: 20,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const AppText.bodySmall(
+                                          'BookStore Main Shop Address',
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        const AppText.caption(
+                                          'St 123, Phnom Penh, Cambodia',
+                                          color: AppColors.textDisabled,
+                                        ),
+                                        const SizedBox(height: 10),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            final url = Uri.parse('https://maps.app.goo.gl/X6JSrKwfBJzKY34aA');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(content: Text('Could not open Maps link')),
+                                                );
+                                              }
+                                            }
+                                          },
+                                          child: Container(
+                                            height: 32,
+                                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                                            decoration: BoxDecoration(
+                                              border: Border.all(color: AppColors.buttonColor, width: 1),
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                            child: const Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.map_outlined,
+                                                  color: AppColors.buttonColor,
+                                                  size: 14,
+                                                ),
+                                                SizedBox(width: 6),
+                                                AppText.caption(
+                                                  'View on Google Maps',
+                                                  color: AppColors.buttonColor,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
-                      ],
-                    ),
+                      );
+                    }
                   ),
                   const SizedBox(height: 24),
 
@@ -668,26 +726,26 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             final confirm = await showDialog<bool>(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text(
+                title: const AppText.bodyLarge(
                   'Cancel Order',
-                  style: TextStyle(fontWeight: FontWeight.normal),
+                  fontWeight: FontWeight.w600,
                 ),
-                content: const Text(
+                content: const AppText.bodyMedium(
                   'Are you sure you want to cancel this order?',
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => context.pop(false),
-                    child: const Text(
+                    child: const AppText.button(
                       'No',
-                      style: TextStyle(color: AppColors.textDisabled),
+                      color: AppColors.textDisabled,
                     ),
                   ),
                   TextButton(
                     onPressed: () => context.pop(true),
-                    child: const Text(
+                    child: const AppText.button(
                       'Yes, Cancel',
-                      style: TextStyle(color: Color(0xFFEF4444)),
+                      color: AppColors.error,
                     ),
                   ),
                 ],
@@ -702,14 +760,14 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Order cancelled successfully'),
-                      backgroundColor: Color(0xFF059669),
+                      backgroundColor: AppColors.success,
                     ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(provider.errorMessage),
-                      backgroundColor: const Color(0xFFEF4444),
+                      backgroundColor: AppColors.error,
                     ),
                   );
                 }
@@ -717,19 +775,16 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             }
           },
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Color(0xFFFEE2E2), width: 1.5),
+            side: const BorderSide(color: AppColors.errorLight, width: 1.5),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.transparent,
           ),
-          child: const Text(
+          child: const AppText.bodySmall(
             'Cancel Order',
-            style: TextStyle(
-              color: Color(0xFFEF4444),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
+            color: AppColors.error,
+            fontWeight: FontWeight.w500,
           ),
         ),
       );
@@ -748,13 +803,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               borderRadius: BorderRadius.circular(24),
             ),
           ),
-          child: const Text(
+          child: const AppText.bodyMedium(
             'Reorder',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
+            color: AppColors.white,
+            fontWeight: FontWeight.w500,
           ),
         ),
       );
@@ -776,7 +828,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : const Icon(Icons.picture_as_pdf_outlined),
-          label: Text(_isDownloading ? 'Downloading...' : 'Download Invoice'),
+          label: AppText.button(
+            _isDownloading ? 'Downloading...' : 'Download Invoice',
+            color: AppColors.primary,
+          ),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.primary,
             side: const BorderSide(color: AppColors.primary),
@@ -790,9 +845,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
+            const AppText.bodyMedium(
               'Need help? ',
-              style: TextStyle(color: AppColors.textDisabled, fontSize: 13),
+              color: AppColors.textDisabled,
             ),
             GestureDetector(
               onTap: () {
@@ -802,8 +857,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 'Contact Support',
                 style: TextStyle(
                   color: AppColors.buttonColor,
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
+                  fontFamily: 'Poppins',
                   decoration: TextDecoration.underline,
                 ),
               ),

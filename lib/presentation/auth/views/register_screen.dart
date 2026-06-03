@@ -6,9 +6,6 @@ import '../../../core/constants/app_texts.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/widgets/app_text.dart';
 import '../viewmodels/auth_view_model.dart';
-import '../widgets/auth_header.dart';
-import '../widgets/auth_text_field.dart';
-import '../widgets/primary_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -82,8 +79,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    image: DecorationImage(image: AssetImage('assets/images/app_logo.png')),
-                    borderRadius: BorderRadius.circular(24)
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/app_logo.png'),
+                    ),
+                    borderRadius: BorderRadius.circular(24),
                   ),
                 ),
 
@@ -105,10 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const Text(
                   "Join us to start exploring our library",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Color(0xFF808080),
-                  ),
+                  style: TextStyle(fontSize: 15, color: Color(0xFF808080)),
                 ),
 
                 const SizedBox(height: 40),
@@ -119,7 +115,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hint: "Full Name",
                   icon: Icons.person_outline,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) return AppTexts.fullNameRequired;
+                    if (value == null || value.trim().isEmpty)
+                      return AppTexts.fullNameRequired;
                     return null;
                   },
                 ),
@@ -132,7 +129,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hint: "E-mail",
                   icon: Icons.email_outlined,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) return AppTexts.emailRequired;
+                    if (value == null || value.trim().isEmpty)
+                      return AppTexts.emailRequired;
                     if (!value.contains('@')) return AppTexts.invalidEmail;
                     return null;
                   },
@@ -146,7 +144,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hint: "Phone Number",
                   icon: Icons.phone_outlined,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) return AppTexts.phoneRequired;
+                    if (value == null || value.trim().isEmpty)
+                      return AppTexts.phoneRequired;
                     return null;
                   },
                 ),
@@ -160,7 +159,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   icon: Icons.lock_outline,
                   obscure: true,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty) return AppTexts.passwordRequired;
+                    if (value == null || value.trim().isEmpty)
+                      return AppTexts.passwordRequired;
                     if (value.length < 6) return AppTexts.passwordMinLength;
                     return null;
                   },
@@ -208,15 +208,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // DIVIDER
                 Row(
                   children: [
-                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                    const Expanded(
+                      child: Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                    ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         "Already have an account?",
-                        style: TextStyle(fontSize: 13, color: Color(0xFF9A9A9A)),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF9A9A9A),
+                        ),
                       ),
                     ),
-                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                    const Expanded(
+                      child: Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                    ),
                   ],
                 ),
 

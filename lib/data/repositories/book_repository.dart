@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/network/api_config.dart';
 import '../models/book_model.dart';
+import '../models/category_model.dart';
 
 class BookRepository {
   BookRepository({Dio? dio})
@@ -104,6 +105,47 @@ class BookRepository {
     } on DioException catch (e) {
       final errorData = e.response?.data;
       throw Exception('DioError: ${e.message}. Data: $errorData');
+    }
+  }
+
+  Future<Map<String, dynamic>> getBooksPaginated({
+    String? search,
+    String? category,
+    String? sort,
+    double? minPrice,
+    double? maxPrice,
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    final params = <String, dynamic>{'limit': limit, 'offset': offset};
+    if (search != null && search.isNotEmpty) params['search'] = search;
+    if (category != null && category.isNotEmpty) params['category'] = category;
+    if (sort != null && sort.isNotEmpty) params['sort'] = sort;
+    if (minPrice != null) params['min_price'] = minPrice;
+    if (maxPrice != null) params['max_price'] = maxPrice;
+
+    final res = await _dio.get(ApiConfig.books, queryParameters: params);
+    return {
+      'total': res.data['data']['total'] as int,
+      'books': (res.data['data']['books'] as List)
+          .map((b) => BookModel.fromJson(b as Map<String, dynamic>))
+          .toList(),
+    };
+  }
+
+  Future<List<CategoryModel>> getCategories() async {
+    final res = await _dio.get(ApiConfig.categories);
+    return (res.data['data'] as List)
+        .map((c) => CategoryModel.fromJson(c as Map<String, dynamic>))
+        .toList();
+  }
+  Future<BookModel> getBookById(String id) async {
+    try {
+      final res = await _dio.get('${ApiConfig.books}/$id');
+      return BookModel.fromJson(res.data['data'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      final errorData = e.response?.data;
+      throw Exception('DioError fetching book details: ${e.message}. Data: $errorData');
     }
   }
 }

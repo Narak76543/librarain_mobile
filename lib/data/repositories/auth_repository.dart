@@ -243,11 +243,16 @@ class AuthRepository {
     }
   }
 
-  Future<bool> forgotPassword({required String email}) async {
+  Future<bool> forgotPassword({required String email, String? channel}) async {
     try {
+      final Map<String, dynamic> requestData = {'email': email};
+      if (channel != null) {
+        requestData['channel'] = channel;
+      }
+
       final response = await _dio.post<dynamic>(
         ApiConfig.forgotPassword,
-        data: {'email': email},
+        data: requestData,
       );
 
       final statusCode = response.statusCode ?? 0;

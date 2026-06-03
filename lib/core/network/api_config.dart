@@ -3,10 +3,12 @@ class ApiConfig {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://172.16.13.35:8000',
+    defaultValue: 'http://192.168.1.4:8000',
+  );
 
-    // ah san wifi
-    // defaultValue: 'http://172.16.53.187:8000',
+  static const String telegramBotUsername = String.fromEnvironment(
+    'TELEGRAM_BOT_USERNAME',
+    defaultValue: 'librarian_postman_bot',
   );
 
   static const String register = '/api/v1/auth/register';
@@ -15,6 +17,7 @@ class ApiConfig {
   static const String forgotPassword = '/api/v1/auth/forgot-password';
   static const String verifyOtp = '/api/v1/auth/verify-otp';
   static const String resetPassword = '/api/v1/auth/reset-password';
+  static const String changePassword = '/api/v1/auth/change-password';
   static const String getProfile = '/api/v1/users/me';
   static const String updateProfile = '/api/v1/users/me';
   static const String uploadAvatar = '/api/v1/users/me/avatar';

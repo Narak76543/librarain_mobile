@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_routes.dart';
 
@@ -590,7 +591,29 @@ class _CheckoutButton extends StatelessWidget {
       onTap: cart.isLoading || cart.items.isEmpty
           ? null
           : () async {
-              final orderDetails = await context.read<CartViewModel>().placeOrder();
+              if (cart.deliveryWay == 'Delivery') {
+                if (cart.deliveryPartner == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please select a delivery partner'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                  return;
+                }
+                if (cart.deliveryAddress == null || cart.deliveryAddress!.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter your delivery address'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                  return;
+                }
+              }
+              final orderDetails = await context
+                  .read<CartViewModel>()
+                  .placeOrder();
               if (orderDetails != null && context.mounted) {
                 context.push(AppRoutes.orderConfirmed, extra: orderDetails);
               } else if (context.mounted) {
@@ -645,7 +668,7 @@ class _CheckoutButton extends StatelessWidget {
                 if (!cart.isLoading) ...[
                   const SizedBox(width: 8),
                   const Icon(
-                    Icons.arrow_forward_rounded,
+                     Icons.arrow_forward_ios,
                     color: AppColors.white,
                     size: 18,
                     weight: 100,
@@ -660,13 +683,42 @@ class _CheckoutButton extends StatelessWidget {
   }
 }
 
-class _DeliveryWaySection extends StatelessWidget {
+class _DeliveryWaySection extends StatefulWidget {
   const _DeliveryWaySection();
+
+  @override
+  State<_DeliveryWaySection> createState() => _DeliveryWaySectionState();
+}
+
+class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
+  late final TextEditingController _addressController;
+
+  @override
+  void initState() {
+    super.initState();
+    final initialAddress = context.read<CartViewModel>().deliveryAddress ?? '';
+    _addressController = TextEditingController(text: initialAddress);
+  }
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartViewModel>();
     final isPickUp = cart.deliveryWay == 'Pick Up';
+
+    // Synchronize controller text when viewmodel updates (like auto detect)
+    if (cart.deliveryAddress != _addressController.text) {
+      final cursorPosition = _addressController.selection;
+      _addressController.text = cart.deliveryAddress ?? '';
+      try {
+        _addressController.selection = cursorPosition;
+      } catch (_) {}
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -685,8 +737,10 @@ class _DeliveryWaySection extends StatelessWidget {
                 icon: Icons.storefront_rounded,
                 title: 'Pick Up',
                 isSelected: isPickUp,
-                onTap: () =>
-                    context.read<CartViewModel>().setDeliveryWay('Pick Up'),
+                onTap: () {
+                  context.read<CartViewModel>().setDeliveryWay('Pick Up');
+                  _addressController.clear();
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -704,15 +758,217 @@ class _DeliveryWaySection extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            _DeliveryPill(title: 'Grab', isActive: !isPickUp),
+            _DeliveryPill(
+              title: 'Grab',
+              isActive: !isPickUp,
+              isSelected: !isPickUp && cart.deliveryPartner == 'Grab',
+              onTap: () => context.read<CartViewModel>().setDeliveryPartner('Grab'),
+            ),
             const SizedBox(width: 8),
-            _DeliveryPill(title: 'VET', isActive: !isPickUp),
+            _DeliveryPill(
+              title: 'VET',
+              isActive: !isPickUp,
+              isSelected: !isPickUp && cart.deliveryPartner == 'VET',
+              onTap: () => context.read<CartViewModel>().setDeliveryPartner('VET'),
+            ),
             const SizedBox(width: 8),
-            _DeliveryPill(title: 'J&T', isActive: !isPickUp),
+            _DeliveryPill(
+              title: 'J&T',
+              isActive: !isPickUp,
+              isSelected: !isPickUp && cart.deliveryPartner == 'J&T',
+              onTap: () => context.read<CartViewModel>().setDeliveryPartner('J&T'),
+            ),
             const SizedBox(width: 8),
-            _DeliveryPill(title: 'Kapitol', isActive: !isPickUp),
+            _DeliveryPill(
+              title: 'Kapitol',
+              isActive: !isPickUp,
+              isSelected: !isPickUp && cart.deliveryPartner == 'Kapitol',
+              onTap: () => context.read<CartViewModel>().setDeliveryPartner('Kapitol'),
+            ),
           ],
         ),
+        const SizedBox(height: 12),
+        if (isPickUp) ...[
+          // Pick Up info card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.textPrimary.withValues(alpha: 0.03),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.buttonColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.location_on_rounded,
+                        color: AppColors.buttonColor,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppText.bodySmall(
+                            'BookStore Main Shop',
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                          SizedBox(height: 2),
+                          AppText.caption(
+                            'St 123, Phnom Penh, Cambodia',
+                            color: AppColors.textDisabled,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                GestureDetector(
+                  onTap: () async {
+                    final url = Uri.parse('https://maps.app.goo.gl/X6JSrKwfBJzKY34aA');
+                    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Could not open Maps link')),
+                        );
+                      }
+                    }
+                  },
+                  child: Container(
+                    height: 40,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.buttonColor, width: 1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.map_outlined,
+                            color: AppColors.buttonColor,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          AppText.button(
+                            'View on Google Maps',
+                            color: AppColors.buttonColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ] else ...[
+          // Delivery input text field
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.textPrimary.withValues(alpha: 0.03),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const AppText.bodySmall(
+                  'Delivery Address',
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _addressController,
+                  onChanged: (val) => context.read<CartViewModel>().setDeliveryAddress(val),
+                  cursorColor: AppColors.buttonColor,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 2,
+                  minLines: 1,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your delivery location',
+                    hintStyle: TextStyle(
+                      color: AppColors.textDisabled.withValues(alpha: 0.8),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFFF9FAFB),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.buttonColor),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    suffixIcon: IconButton(
+                      icon: const Icon(
+                        Icons.my_location_rounded,
+                        color: AppColors.buttonColor,
+                        size: 20,
+                      ),
+                      onPressed: () async {
+                        await context.read<CartViewModel>().autoDetectLocation();
+                        if (mounted && context.read<CartViewModel>().error != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(context.read<CartViewModel>().error!),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -773,28 +1029,52 @@ class _DeliveryCard extends StatelessWidget {
 }
 
 class _DeliveryPill extends StatelessWidget {
-  const _DeliveryPill({required this.title, required this.isActive});
+  const _DeliveryPill({
+    required this.title,
+    required this.isActive,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   final String title;
   final bool isActive;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      decoration: BoxDecoration(
-        color: isActive ? AppColors.white : const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isActive
-              ? AppColors.border
-              : AppColors.border.withValues(alpha: 0.3),
+    final Color bgColor;
+    final Color borderColor;
+    final Color textColor;
+
+    if (!isActive) {
+      bgColor = const Color(0xFFF9FAFB);
+      borderColor = AppColors.border.withValues(alpha: 0.3);
+      textColor = AppColors.textDisabled;
+    } else if (isSelected) {
+      bgColor = AppColors.buttonColor.withValues(alpha: 0.05);
+      borderColor = AppColors.buttonColor;
+      textColor = AppColors.buttonColor;
+    } else {
+      bgColor = AppColors.white;
+      borderColor = AppColors.border;
+      textColor = AppColors.textPrimary;
+    }
+
+    return GestureDetector(
+      onTap: isActive ? onTap : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor),
         ),
-      ),
-      child: AppText.caption(
-        title,
-        color: isActive ? AppColors.textPrimary : AppColors.textDisabled,
-        fontWeight: FontWeight.w500,
+        child: AppText.caption(
+          title,
+          color: textColor,
+          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+        ),
       ),
     );
   }

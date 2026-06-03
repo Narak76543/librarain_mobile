@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../../../data/models/book_model.dart';
@@ -15,16 +16,34 @@ class CartViewModel extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   String _deliveryWay = 'Pick Up';
+  String? _deliveryPartner;
+  String? _deliveryAddress;
   String _paymentMethod = 'KHQR';
 
   List<CartItemModel> get items => List.unmodifiable(_items);
   bool get isLoading => _isLoading;
   String? get error => _error;
   String get deliveryWay => _deliveryWay;
+  String? get deliveryPartner => _deliveryPartner;
+  String? get deliveryAddress => _deliveryAddress;
   String get paymentMethod => _paymentMethod;
 
   void setDeliveryWay(String way) {
     _deliveryWay = way;
+    if (way == 'Pick Up') {
+      _deliveryPartner = null;
+      _deliveryAddress = null;
+    }
+    notifyListeners();
+  }
+
+  void setDeliveryPartner(String? partner) {
+    _deliveryPartner = partner;
+    notifyListeners();
+  }
+
+  void setDeliveryAddress(String address) {
+    _deliveryAddress = address;
     notifyListeners();
   }
 
@@ -122,20 +141,110 @@ class CartViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> autoDetectLocation() async {
+    _setLoading(true);
+    try {
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ));
+      
+      double? lat;
+      double? lng;
+      String? formattedAddress;
+
+      // 1. Query Google Geolocation API using the provided API Key
+      try {
+        final geoResponse = await dio.post<dynamic>(
+          'https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyBMomse-7qenHBhXCe6iaq8UUCgY6LQ2jc',
+          data: {},
+        );
+        if (geoResponse.statusCode == 200 && geoResponse.data != null) {
+          final location = geoResponse.data['location'];
+          if (location != null) {
+            lat = double.tryParse(location['lat'].toString());
+            lng = double.tryParse(location['lng'].toString());
+          }
+        }
+      } catch (e) {
+        debugPrint('Google Geolocation failed: $e');
+      }
+
+      // 2. Query Google Geocoding API if we successfully retrieved coordinates
+      if (lat != null && lng != null) {
+        try {
+          final geocodeResponse = await dio.get<dynamic>(
+            'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=AIzaSyBMomse-7qenHBhXCe6iaq8UUCgY6LQ2jc',
+          );
+          if (geocodeResponse.statusCode == 200 && geocodeResponse.data != null) {
+            final results = geocodeResponse.data['results'] as List?;
+            if (results != null && results.isNotEmpty) {
+              formattedAddress = results[0]['formatted_address'] as String?;
+            }
+          }
+        } catch (e) {
+          debugPrint('Google Geocoding failed: $e');
+        }
+      }
+
+      // 3. Fallback to free IP-based API if Google APIs failed to resolve a readable address
+      if (formattedAddress == null || formattedAddress.isEmpty) {
+        try {
+          final fallbackResponse = await dio.get<dynamic>('http://ip-api.com/json');
+          if (fallbackResponse.statusCode == 200 && fallbackResponse.data != null) {
+            final data = fallbackResponse.data;
+            final city = data['city'] as String?;
+            final region = data['regionName'] as String?;
+            final country = data['country'] as String?;
+            final latVal = data['lat'];
+            final lonVal = data['lon'];
+            
+            if (city != null && country != null) {
+              formattedAddress = '$city, $region, $country ($latVal, $lonVal) (IP-based)';
+            }
+          }
+        } catch (e) {
+          debugPrint('Fallback IP Geolocation failed: $e');
+        }
+      }
+
+      if (formattedAddress != null && formattedAddress.isNotEmpty) {
+        _deliveryAddress = formattedAddress;
+        _error = null;
+      } else {
+        _error = 'Could not automatically detect location. Please type manually.';
+      }
+    } catch (e) {
+      _error = 'Location detection failed: $e';
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<Map<String, dynamic>?> placeOrder() async {
     _setLoading(true);
     try {
       final orderRepo = OrderRepository();
-      final orderId = await orderRepo.placeOrder();
+      final orderId = await orderRepo.placeOrder(
+        deliveryWay: _deliveryWay,
+        deliveryPartner: _deliveryPartner,
+        deliveryAddress: _deliveryWay == 'Delivery' ? _deliveryAddress : null,
+        paymentMethod: _paymentMethod,
+      );
       if (orderId != null) {
         // Capture details for confirmed screen
         final details = {
           'orderId': orderId,
           'orderTotal': subtotal,
           'orderItems': _items.map((i) => i.book).toList(),
+          'deliveryWay': _deliveryWay,
+          'deliveryPartner': _deliveryPartner,
+          'deliveryAddress': _deliveryWay == 'Delivery' ? _deliveryAddress : null,
+          'paymentMethod': _paymentMethod,
         };
         _items.clear();
         _error = null;
+        _deliveryAddress = null; // Clear address on success
         return details;
       }
       return null;

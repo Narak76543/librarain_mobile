@@ -14,12 +14,12 @@ class ForgotPasswordViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<bool> submit(String email) async {
+  Future<bool> submit(String email, {String? channel}) async {
     _setLoading(true);
     _errorMessage = null;
 
     try {
-      final result = await _authRepository.forgotPassword(email: email);
+      final result = await _authRepository.forgotPassword(email: email, channel: channel);
 
       if (!result) {
         _errorMessage = AppTexts.forgotPasswordFailed;

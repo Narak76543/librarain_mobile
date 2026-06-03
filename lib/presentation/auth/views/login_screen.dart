@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
@@ -6,12 +5,8 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_texts.dart';
 import '../../../core/theme/app_color.dart';
-import '../../../core/widgets/app_text.dart';
 import '../viewmodels/auth_view_model.dart';
 import '../../../providers/wishlist_provider.dart';
-import '../widgets/auth_header.dart';
-import '../widgets/auth_text_field.dart';
-import '../widgets/primary_button.dart';
 
 // class LoginScreen extends StatefulWidget {
 //   const LoginScreen({super.key});
@@ -159,15 +154,6 @@ import '../widgets/primary_button.dart';
 
 //============== Visut-- Version ================
 
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-
-import '../../../core/constants/app_routes.dart';
-import '../../../core/constants/app_texts.dart';
-import '../../../core/theme/app_color.dart';
-import '../viewmodels/auth_view_model.dart';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -227,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
-          
+
           child: Form(
             key: _formKey,
             child: Column(
@@ -239,7 +225,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    image: DecorationImage(image: AssetImage('assets/images/app_logo.png')),
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/app_logo.png'),
+                    ),
                     borderRadius: BorderRadius.circular(24),
                     color: Colors.transparent,
                     // fit: BoxFit.cover,
@@ -380,15 +368,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 // DIVIDER
                 Row(
                   children: [
-                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                    const Expanded(
+                      child: Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                    ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         "Don't have any account yet?",
-                        style: TextStyle(fontSize: 13, color: Color(0xFF9A9A9A)),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF9A9A9A),
+                        ),
                       ),
                     ),
-                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                    const Expanded(
+                      child: Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                    ),
                   ],
                 ),
 
@@ -502,7 +497,13 @@ class _LoginScreenState extends State<LoginScreen> {
           hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
           prefixIcon: Padding(
             padding: const EdgeInsets.all(12.0),
-            child: SvgPicture.asset(iconPath,colorFilter: ColorFilter.mode(AppColors.buttonColor, BlendMode.srcIn),),
+            child: SvgPicture.asset(
+              iconPath,
+              colorFilter: ColorFilter.mode(
+                AppColors.buttonColor,
+                BlendMode.srcIn,
+              ),
+            ),
           ),
           suffixIcon: suffix,
           contentPadding: const EdgeInsets.symmetric(vertical: 18),
@@ -528,7 +529,8 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icon != null) Icon(icon, size: 22, color: const Color(0xFF1E1E1E)),
+            if (icon != null)
+              Icon(icon, size: 22, color: const Color(0xFF1E1E1E)),
             if (image != null) Image.asset(image, width: 22, height: 22),
             const SizedBox(width: 10),
             Text(

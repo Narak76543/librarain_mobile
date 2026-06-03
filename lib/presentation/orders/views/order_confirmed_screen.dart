@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_color.dart';
+import '../../../core/widgets/app_text.dart';
 
 class OrderConfirmedScreen extends StatelessWidget {
   const OrderConfirmedScreen({
@@ -12,11 +13,26 @@ class OrderConfirmedScreen extends StatelessWidget {
     required this.orderId,
     required this.orderTotal,
     required this.orderItems,
+    this.deliveryWay = 'Pick Up',
+    this.deliveryPartner,
+    this.paymentMethod = 'COD',
   });
 
   final String orderId;
   final double orderTotal;
   final List<dynamic> orderItems;
+  final String deliveryWay;
+  final String? deliveryPartner;
+  final String paymentMethod;
+
+  String _formatCurrentDate() {
+    final now = DateTime.now();
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${months[now.month - 1]} ${now.day}, ${now.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +46,11 @@ class OrderConfirmedScreen extends StatelessWidget {
           icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
           onPressed: () => context.go(AppRoutes.main),
         ),
-        title: const Text(
+        title: const AppText.titleSmall(
           'BookStore',
-          style: TextStyle(
-            color: AppColors.buttonColor,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
+          color: AppColors.buttonColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
         ),
       ),
       body: SingleChildScrollView(
@@ -54,8 +68,8 @@ class OrderConfirmedScreen extends StatelessWidget {
                   Container(
                     width: 130,
                     height: 130,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFECFDF5),
+                    decoration: BoxDecoration(
+                      color: AppColors.buttonColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -78,21 +92,18 @@ class OrderConfirmedScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            const AppText.titleLarge(
               'Order Placed! 🎉',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-              ),
+              color: AppColors.textPrimary,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
             ),
             const SizedBox(height: 8),
-            const Text(
+            const AppText.bodyMedium(
               'Your order has been confirmed',
-              style: TextStyle(
-                color: AppColors.textDisabled,
-                fontSize: 14,
-              ),
+              color: AppColors.textDisabled,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
             ),
             const SizedBox(height: 32),
 
@@ -102,48 +113,75 @@ class OrderConfirmedScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.textPrimary.withValues(alpha: 0.03),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
-                  Text(
+                  AppText.titleSmall(
                     'ORDER #${orderId.length > 8 ? orderId.substring(0, 8).toUpperCase() : orderId.toUpperCase()}',
-                    style: const TextStyle(
-                      color: AppColors.buttonColor,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    color: AppColors.buttonColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'May 25, 2026',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  AppText.titleSmall(
+                    _formatCurrentDate(),
+                    color: AppColors.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(height: 1, thickness: 1, color: AppColors.border.withValues(alpha: 0.5)),
                   ),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Estimated Delivery', style: TextStyle(color: AppColors.textDisabled, fontSize: 13)),
-                      Text('3-5 business days', style: TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w700)),
+                      AppText.bodyMedium(
+                        deliveryWay == 'Delivery' ? 'Estimated Delivery' : 'Collect Location',
+                        color: AppColors.textDisabled,
+                        fontSize: 13,
+                      ),
+                      AppText.bodyMedium(
+                        deliveryWay == 'Delivery'
+                            ? '3-5 business days (via ${deliveryPartner ?? 'Grab'})'
+                            : 'Store Pick Up',
+                        color: AppColors.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Payment Method', style: TextStyle(color: AppColors.textDisabled, fontSize: 13)),
+                      const AppText.bodyMedium(
+                        'Payment Method',
+                        color: AppColors.textDisabled,
+                        fontSize: 13,
+                      ),
                       Row(
                         children: [
-                          Icon(Icons.local_shipping_outlined, color: AppColors.textPrimary, size: 16),
-                          SizedBox(width: 6),
-                          Text('Cash on Delivery', style: TextStyle(color: AppColors.textPrimary, fontSize: 13, fontWeight: FontWeight.w700)),
+                          Icon(
+                            paymentMethod == 'KHQR' ? Icons.qr_code_scanner_rounded : Icons.payments_outlined,
+                            color: AppColors.textPrimary,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          AppText.bodyMedium(
+                            paymentMethod == 'KHQR' ? 'KHQR Payment' : 'Cash on Delivery',
+                            color: AppColors.textPrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ],
                       ),
                     ],
@@ -160,18 +198,23 @@ class OrderConfirmedScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
+                border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.textPrimary.withValues(alpha: 0.03),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  const AppText.bodyLarge(
                     'Items Ordered',
-                    style: TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    color: AppColors.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -183,15 +226,15 @@ class OrderConfirmedScreen extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(height: 1, thickness: 1, color: AppColors.border.withValues(alpha: 0.5)),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Total Paid', style: TextStyle(color: AppColors.textDisabled, fontSize: 14)),
-                      Text('\$${orderTotal.toStringAsFixed(2)}', style: const TextStyle(color: AppColors.buttonColor, fontSize: 20, fontWeight: FontWeight.w700)),
+                      const AppText.bodyMedium('Total Paid', color: AppColors.textDisabled, fontSize: 13, fontWeight: FontWeight.w500),
+                      AppText.titleLarge('\$${orderTotal.toStringAsFixed(2)}', color: AppColors.buttonColor, fontSize: 18, fontWeight: FontWeight.w800),
                     ],
                   ),
                 ],
@@ -200,24 +243,32 @@ class OrderConfirmedScreen extends StatelessWidget {
             const SizedBox(height: 32),
 
             // Buttons
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.push(AppRoutes.orderSummary(orderId));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonColor,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                child: const Text(
-                  'View Order Details',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+            GestureDetector(
+              onTap: () {
+                context.push(AppRoutes.orderSummary(orderId));
+              },
+              child: SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.buttonColor,
+                    borderRadius: BorderRadius.circular(26),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.buttonColor.withValues(alpha: 0.35),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: AppText.button(
+                      'View Order Details',
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ),
@@ -232,27 +283,22 @@ class OrderConfirmedScreen extends StatelessWidget {
                 },
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppColors.buttonColor, width: 1.5),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
                   backgroundColor: Colors.transparent,
                 ),
-                child: const Text(
+                child: const AppText.button(
                   'Continue Shopping',
-                  style: TextStyle(
-                    color: AppColors.buttonColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  color: AppColors.buttonColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
+            const AppText.bodySmall(
               'A confirmation email has been sent to your inbox.',
-              style: TextStyle(
-                color: AppColors.textDisabled,
-                fontSize: 12,
-                fontStyle: FontStyle.italic,
-              ),
+              color: AppColors.textDisabled,
+              fontSize: 11,
               textAlign: TextAlign.center,
             ),
           ],
@@ -264,11 +310,15 @@ class OrderConfirmedScreen extends StatelessWidget {
   Widget _buildCover(dynamic item, {bool isOverlay = false, int remaining = 0}) {
     String? coverUrl;
     if (item is Map) {
-      coverUrl = item['book_cover'] ?? item['bookCover'];
+      coverUrl = item['cover_url'] ?? item['book_cover'] ?? item['bookCover'];
     } else {
       try {
-        coverUrl = item.bookCover;
-      } catch (_) {}
+        coverUrl = item.coverUrl;
+      } catch (_) {
+        try {
+          coverUrl = item.bookCover;
+        } catch (_) {}
+      }
     }
 
     return Container(
@@ -294,14 +344,12 @@ class OrderConfirmedScreen extends StatelessWidget {
               Container(
                 color: Colors.black.withValues(alpha: 0.6),
                 child: Center(
-                  child: Text(
+                  child: AppText.bodyMedium(
                     '+$remaining more',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

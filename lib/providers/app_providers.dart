@@ -8,6 +8,8 @@ import '../presentation/history/viewmodels/history_viewmodel.dart';
 import '../data/repositories/order_repository.dart';
 import '../../providers/wishlist_provider.dart';
 import '../../providers/order_provider.dart';
+import '../../providers/shop_provider.dart';
+import '../../providers/book_detail_provider.dart';
 
 final appProviders = [
   ChangeNotifierProvider<AuthViewModel>(
@@ -27,5 +29,11 @@ final appProviders = [
   ),
   ChangeNotifierProvider<OrderProvider>(
     create: (_) => OrderProvider(),
+  ),
+  ChangeNotifierProvider<ShopProvider>(
+    create: (_) => ShopProvider(),
+  ),
+  ChangeNotifierProvider<BookDetailProvider>(
+    create: (_) => BookDetailProvider(),
   ),
 ];

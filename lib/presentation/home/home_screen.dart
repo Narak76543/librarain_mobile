@@ -1586,9 +1586,9 @@ class _QuickActionItem extends StatelessWidget {
   const _QuickActionItem({
     required this.title,
     this.iconPath,
-    this.iconData,
     this.iconColor,
     required this.onTap,
+    this.iconData,
   });
 
   final String title;
@@ -1623,17 +1623,7 @@ class _QuickActionItem extends StatelessWidget {
             ),
             child: Center(
               child: iconPath != null
-                  ?
-                    // ? SvgPicture.asset(
-                    //     iconPath!,
-                    //     width: 26,
-                    //     height: 26,
-                    //     colorFilter: const ColorFilter.mode(
-                    //       AppColors.buttonColor,
-                    //       BlendMode.srcIn,
-                    //     ),
-                    //   )
-                    Image.asset(iconPath!, width: 52, height: 52)
+                  ? Image.asset(iconPath!, width: 52, height: 52)
                   : Icon(
                       iconData,
                       size: 28,

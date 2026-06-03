@@ -10,6 +10,7 @@ class UserProfileModel {
     this.lastNameLocal,
     this.phone,
     this.telegram,
+    this.email,
     this.address,
     this.avatarUrl,
   });
@@ -22,6 +23,7 @@ class UserProfileModel {
   final String? lastNameLocal;
   final String? phone;
   final String? telegram;
+  final String? email;
   final String? address;
   final String? avatarUrl;
 
@@ -80,6 +82,7 @@ class UserProfileModel {
           ?.toString(),
       phone: json['phone']?.toString(),
       telegram: json['telegram']?.toString(),
+      email: json['email']?.toString(),
       address: json['address']?.toString(),
       avatarUrl: (json['avatar_url'] ?? json['avatarUrl'] ?? json['avatar'])
           ?.toString(),
@@ -96,6 +99,7 @@ class UserProfileModel {
       'last_name_local': lastNameLocal,
       'phone': phone,
       'telegram': telegram,
+      'email': email,
       'address': address,
       'avatar_url': avatarUrl,
     };
@@ -110,6 +114,7 @@ class UserProfileModel {
     String? lastNameLocal,
     String? phone,
     String? telegram,
+    String? email,
     String? address,
     String? avatarUrl,
   }) {
@@ -122,6 +127,7 @@ class UserProfileModel {
       lastNameLocal: lastNameLocal ?? this.lastNameLocal,
       phone: phone ?? this.phone,
       telegram: telegram ?? this.telegram,
+      email: email ?? this.email,
       address: address ?? this.address,
       avatarUrl: avatarUrl ?? this.avatarUrl,
     );
