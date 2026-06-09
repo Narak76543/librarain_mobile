@@ -51,7 +51,10 @@ class _ChangePasswordView extends StatelessWidget {
     final telegram = profile?.telegram;
 
     if (email == null || email.isEmpty) {
-      AppSnackbar.showError(context, 'No email address linked to this profile.');
+      AppSnackbar.showError(
+        context,
+        'No email address linked to this profile.',
+      );
       return;
     }
 
@@ -81,7 +84,10 @@ class _ChangePasswordView extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 ListTile(
-                  leading: const Icon(Icons.email_outlined, color: AppColors.buttonColor),
+                  leading: const Icon(
+                    Icons.email_outlined,
+                    color: AppColors.buttonColor,
+                  ),
                   title: const AppText.bodyMedium(
                     'Email Address',
                     color: AppColors.textPrimary,
@@ -131,7 +137,11 @@ class _ChangePasswordView extends StatelessWidget {
     );
   }
 
-  Future<void> _sendOtp(BuildContext context, String email, String channel) async {
+  Future<void> _sendOtp(
+    BuildContext context,
+    String email,
+    String channel,
+  ) async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -141,7 +151,10 @@ class _ChangePasswordView extends StatelessWidget {
     );
 
     try {
-      final success = await AuthRepository().forgotPassword(email: email, channel: channel);
+      final success = await AuthRepository().forgotPassword(
+        email: email,
+        channel: channel,
+      );
       if (!context.mounted) return;
       Navigator.pop(context); // pop loading dialog
 
@@ -154,7 +167,10 @@ class _ChangePasswordView extends StatelessWidget {
     } catch (e) {
       if (!context.mounted) return;
       Navigator.pop(context); // pop loading dialog
-      AppSnackbar.showError(context, e.toString().replaceAll('Exception: ', ''));
+      AppSnackbar.showError(
+        context,
+        e.toString().replaceAll('Exception: ', ''),
+      );
     }
   }
 
@@ -168,12 +184,16 @@ class _ChangePasswordView extends StatelessWidget {
         child: Column(
           children: [
             const _TopBar(),
+            AppText.bodyLarge('Security Update', fontWeight: FontWeight.w500),
+            AppText.bodySmall(
+              "Protect your account by creating a unique \n password that you don't use elsewhere.",
+              textAlign: TextAlign.center,
+            ),
             Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
                 children: [
-                  const _SectionLabel('UPDATE PASSWORD'),
                   _FieldCard(
                     children: [
                       _PasswordField(
@@ -220,11 +240,17 @@ class _ChangePasswordView extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: AppColors.error.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: AppColors.error,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: AppText.bodyMedium(
@@ -336,7 +362,7 @@ class _FieldCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
         boxShadow: [
@@ -430,35 +456,52 @@ class _PasswordFieldState extends State<_PasswordField> {
           Row(
             children: [
               Expanded(
-                child: TextField(
-                  controller: widget.controller,
-                  focusNode: _focusNode,
-                  obscureText: widget.obscureText,
-                  cursorColor: AppColors.buttonColor,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey.shade100,
+                    border: Border.all(width: 0.8, color: Colors.grey),
                   ),
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 10,
+                          ),
+                          child: TextField(
+                            controller: widget.controller,
+                            focusNode: _focusNode,
+                            obscureText: widget.obscureText,
+                            cursorColor: AppColors.buttonColor,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: widget.onToggleVisibility,
+                        icon: Icon(
+                          widget.obscureText
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.textDisabled,
+                          size: 20,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              IconButton(
-                onPressed: widget.onToggleVisibility,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(
-                  widget.obscureText
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                  color: AppColors.textDisabled,
-                  size: 20,
                 ),
               ),
             ],
