@@ -3,7 +3,7 @@ class ApiConfig {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://172.16.63.202:8000',
+    defaultValue: 'http://172.20.10.4:8000',
   );
 
   static const String telegramBotUsername = String.fromEnvironment(
