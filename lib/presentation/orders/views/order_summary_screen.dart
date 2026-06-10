@@ -486,18 +486,38 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   Builder(
                     builder: (context) {
                       final isKhqr = summary.paymentMethod == 'KHQR';
-                      final paymentIcon = isKhqr ? Icons.qr_code_scanner_rounded : Icons.payments_outlined;
-                      final paymentTitle = isKhqr ? 'KHQR Payment' : 'Cash on Delivery';
-                      final paymentSubtitle = isKhqr ? 'Scanned and paid' : 'Pay when you receive';
-                      final paymentBg = isKhqr ? AppColors.primary50 : AppColors.successLight;
-                      final paymentIconColor = isKhqr ? AppColors.primary600 : AppColors.buttonColor;
+                      final paymentIcon = isKhqr
+                          ? Icons.qr_code_scanner_rounded
+                          : Icons.payments_outlined;
+                      final paymentTitle = isKhqr
+                          ? 'KHQR Payment'
+                          : 'Cash on Delivery';
+                      final paymentSubtitle = isKhqr
+                          ? 'Scanned and paid'
+                          : 'Pay when you receive';
+                      final paymentBg = isKhqr
+                          ? AppColors.primary50
+                          : AppColors.successLight;
+                      final paymentIconColor = isKhqr
+                          ? AppColors.primary600
+                          : AppColors.buttonColor;
 
                       final isDelivery = summary.deliveryWay == 'Delivery';
-                      final deliveryIcon = isDelivery ? Icons.local_shipping_outlined : Icons.storefront_rounded;
-                      final deliveryTitle = isDelivery ? 'Delivery' : 'Store Pick Up';
-                      final deliverySubtitle = isDelivery ? 'Via ${summary.deliveryPartner ?? 'Standard Carrier'}' : 'Collect from our store';
-                      final deliveryBg = isDelivery ? AppColors.successLight : AppColors.divider;
-                      final deliveryIconColor = isDelivery ? AppColors.buttonColor : AppColors.textDisabled;
+                      final deliveryIcon = isDelivery
+                          ? Icons.local_shipping_outlined
+                          : Icons.storefront_rounded;
+                      final deliveryTitle = isDelivery
+                          ? 'Delivery'
+                          : 'Store Pick Up';
+                      final deliverySubtitle = isDelivery
+                          ? 'Via ${summary.deliveryPartner ?? 'Standard Carrier'}'
+                          : 'Collect from our store';
+                      final deliveryBg = isDelivery
+                          ? AppColors.successLight
+                          : AppColors.divider;
+                      final deliveryIconColor = isDelivery
+                          ? AppColors.buttonColor
+                          : AppColors.textDisabled;
 
                       return Container(
                         padding: const EdgeInsets.all(16),
@@ -545,7 +565,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             ),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Divider(height: 1, thickness: 1, color: AppColors.divider),
+                              child: Divider(
+                                height: 1,
+                                thickness: 1,
+                                color: AppColors.divider,
+                              ),
                             ),
                             Row(
                               children: [
@@ -579,7 +603,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                 ),
                               ],
                             ),
-                            if (isDelivery && summary.deliveryAddress != null && summary.deliveryAddress!.isNotEmpty) ...[
+                            if (isDelivery &&
+                                summary.deliveryAddress != null &&
+                                summary.deliveryAddress!.isNotEmpty) ...[
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 8.0),
                                 child: Divider(height: 1, thickness: 1),
@@ -602,7 +628,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const AppText.bodySmall(
                                           'Delivery Address',
@@ -622,7 +649,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                             ] else if (!isDelivery) ...[
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Divider(height: 1, thickness: 1, color: AppColors.divider),
+                                child: Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: AppColors.divider,
+                                ),
                               ),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -630,7 +661,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: AppColors.buttonColor.withValues(alpha: 0.1),
+                                      color: AppColors.buttonColor.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -642,7 +675,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         const AppText.bodySmall(
                                           'BookStore Main Shop Address',
@@ -657,21 +691,39 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                         const SizedBox(height: 10),
                                         GestureDetector(
                                           onTap: () async {
-                                            final url = Uri.parse('https://maps.app.goo.gl/X6JSrKwfBJzKY34aA');
-                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                            final url = Uri.parse(
+                                              'https://maps.app.goo.gl/X6JSrKwfBJzKY34aA',
+                                            );
+                                            if (!await launchUrl(
+                                              url,
+                                              mode: LaunchMode
+                                                  .externalApplication,
+                                            )) {
                                               if (context.mounted) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(content: Text('Could not open Maps link')),
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Could not open Maps link',
+                                                    ),
+                                                  ),
                                                 );
                                               }
                                             }
                                           },
                                           child: Container(
                                             height: 32,
-                                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                            ),
                                             decoration: BoxDecoration(
-                                              border: Border.all(color: AppColors.buttonColor, width: 1),
-                                              borderRadius: BorderRadius.circular(16),
+                                              border: Border.all(
+                                                color: AppColors.buttonColor,
+                                                width: 1,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
                                             ),
                                             child: const Row(
                                               mainAxisSize: MainAxisSize.min,
@@ -700,7 +752,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                           ],
                         ),
                       );
-                    }
+                    },
                   ),
                   const SizedBox(height: 24),
 
@@ -815,7 +867,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (button != null) button,
+        ?button,
         if (button != null) const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _isDownloading

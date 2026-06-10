@@ -41,8 +41,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _linkTelegram() async {
     final profile = context.read<ProfileViewModel>().profile;
     if (profile == null) return;
-    
-    final url = Uri.parse('https://t.me/${ApiConfig.telegramBotUsername}?start=${profile.userId}');
+
+    final url = Uri.parse(
+      'https://t.me/${ApiConfig.telegramBotUsername}?start=${profile.userId}',
+    );
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -187,7 +189,7 @@ class _UserCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText.titleMedium(
+                    AppText.bodyMedium(
                       displayName,
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,

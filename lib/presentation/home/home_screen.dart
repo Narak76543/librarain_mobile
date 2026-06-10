@@ -14,6 +14,7 @@ import '../../data/repositories/book_repository.dart';
 import '../../data/repositories/category_repository.dart';
 import '../../shared/widgets/wishlist_heart.dart';
 import '../profile/viewmodels/profile_viewmodel.dart';
+import '../../core/constants/app_routes.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -1483,42 +1484,34 @@ class _QuickActionSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final allActions = [
       _QuickActionItem(
-        title: 'Orders Summary',
-        iconPath: 'assets/images/to-do-list.png',
-        onTap: () {
-          context.push('/orders');
-        },
-      ),
-      _QuickActionItem(
         title: 'My Orders',
-        iconPath: 'assets/images/sold.png',
-        // iconColor: Colors.deepOrange,
-        onTap: () {},
+        iconPath: 'assets/images/to-do-list.png',
+        onTap: () => context.push(AppRoutes.orders),
       ),
       _QuickActionItem(
         title: 'Wishlist',
         iconPath: 'assets/images/list.png',
-        onTap: () => Navigator.of(context).pushNamed('/wishlist'),
+        onTap: () => context.push(AppRoutes.wishlist),
       ),
       _QuickActionItem(
-        title: 'Categories',
+        title: 'Cart',
         iconPath: 'assets/images/shopping-bag.png',
-        onTap: () => Navigator.of(context).pushNamed('/categories'),
+        onTap: () => context.push(AppRoutes.cart),
       ),
       _QuickActionItem(
-        title: 'Featured',
-        iconPath: 'assets/images/jigsaw.png',
-        onTap: () => Navigator.of(context).pushNamed('/featured'),
+        title: 'Shipping',
+        iconData: Icons.local_shipping_outlined,
+        onTap: () => context.push(AppRoutes.shippingAddress),
       ),
       _QuickActionItem(
-        title: 'Nompang',
-        iconPath: 'assets/images/jigsaw.png',
-        onTap: () => Navigator.of(context).pushNamed('/featured'),
+        title: 'Password',
+        iconData: Icons.lock_outline,
+        onTap: () => context.push(AppRoutes.changePassword),
       ),
       _QuickActionItem(
-        title: 'Nompang',
-        iconPath: 'assets/images/jigsaw.png',
-        onTap: () => Navigator.of(context).pushNamed('/featured'),
+        title: 'Profile',
+        iconData: Icons.person_outline,
+        onTap: () => context.push(AppRoutes.editProfile),
       ),
     ];
 
@@ -1586,9 +1579,9 @@ class _QuickActionItem extends StatelessWidget {
   const _QuickActionItem({
     required this.title,
     this.iconPath,
+    this.iconData,
     this.iconColor,
     required this.onTap,
-    this.iconData,
   });
 
   final String title;

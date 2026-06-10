@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_s2_flutter/presentation/shop/views/shop_location_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import '../../core/constants/app_routes.dart';
-
 import '../../core/theme/app_color.dart';
 import '../../core/widgets/app_text.dart';
 import '../../data/models/cart_item_model.dart';
@@ -601,7 +599,8 @@ class _CheckoutButton extends StatelessWidget {
                   );
                   return;
                 }
-                if (cart.deliveryAddress == null || cart.deliveryAddress!.trim().isEmpty) {
+                if (cart.deliveryAddress == null ||
+                    cart.deliveryAddress!.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Please enter your delivery address'),
@@ -668,7 +667,7 @@ class _CheckoutButton extends StatelessWidget {
                 if (!cart.isLoading) ...[
                   const SizedBox(width: 8),
                   const Icon(
-                     Icons.arrow_forward_ios,
+                    Icons.arrow_forward_ios,
                     color: AppColors.white,
                     size: 18,
                     weight: 100,
@@ -762,28 +761,32 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
               title: 'Grab',
               isActive: !isPickUp,
               isSelected: !isPickUp && cart.deliveryPartner == 'Grab',
-              onTap: () => context.read<CartViewModel>().setDeliveryPartner('Grab'),
+              onTap: () =>
+                  context.read<CartViewModel>().setDeliveryPartner('Grab'),
             ),
             const SizedBox(width: 8),
             _DeliveryPill(
               title: 'VET',
               isActive: !isPickUp,
               isSelected: !isPickUp && cart.deliveryPartner == 'VET',
-              onTap: () => context.read<CartViewModel>().setDeliveryPartner('VET'),
+              onTap: () =>
+                  context.read<CartViewModel>().setDeliveryPartner('VET'),
             ),
             const SizedBox(width: 8),
             _DeliveryPill(
               title: 'J&T',
               isActive: !isPickUp,
               isSelected: !isPickUp && cart.deliveryPartner == 'J&T',
-              onTap: () => context.read<CartViewModel>().setDeliveryPartner('J&T'),
+              onTap: () =>
+                  context.read<CartViewModel>().setDeliveryPartner('J&T'),
             ),
             const SizedBox(width: 8),
             _DeliveryPill(
               title: 'Kapitol',
               isActive: !isPickUp,
               isSelected: !isPickUp && cart.deliveryPartner == 'Kapitol',
-              onTap: () => context.read<CartViewModel>().setDeliveryPartner('Kapitol'),
+              onTap: () =>
+                  context.read<CartViewModel>().setDeliveryPartner('Kapitol'),
             ),
           ],
         ),
@@ -796,7 +799,9 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: AppColors.border.withValues(alpha: 0.5),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.textPrimary.withValues(alpha: 0.03),
@@ -845,21 +850,22 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
                 ),
                 const SizedBox(height: 14),
                 GestureDetector(
-                  onTap: () async {
-                    final url = Uri.parse('https://maps.app.goo.gl/X6JSrKwfBJzKY34aA');
-                    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Could not open Maps link')),
-                        );
-                      }
-                    }
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ShopLocationScreen(),
+                      ),
+                    );
                   },
                   child: Container(
                     height: 40,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.buttonColor, width: 1),
+                      border: Border.all(
+                        color: AppColors.buttonColor,
+                        width: 1,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(
@@ -872,8 +878,8 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
                             size: 16,
                           ),
                           const SizedBox(width: 8),
-                          AppText.button(
-                            'View on Google Maps',
+                          const AppText.button(
+                            'View Route to Shop',
                             color: AppColors.buttonColor,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -886,6 +892,8 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
               ],
             ),
           ),
+          const SizedBox(height: 10),
+          // ShopLocationScreen(),
         ] else ...[
           // Delivery input text field
           Container(
@@ -893,7 +901,9 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: AppColors.border.withValues(alpha: 0.5),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.textPrimary.withValues(alpha: 0.03),
@@ -914,7 +924,8 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
                 const SizedBox(height: 10),
                 TextField(
                   controller: _addressController,
-                  onChanged: (val) => context.read<CartViewModel>().setDeliveryAddress(val),
+                  onChanged: (val) =>
+                      context.read<CartViewModel>().setDeliveryAddress(val),
                   cursorColor: AppColors.buttonColor,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
@@ -934,17 +945,26 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
                     fillColor: const Color(0xFFF9FAFB),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+                      borderSide: BorderSide(
+                        color: AppColors.border.withValues(alpha: 0.8),
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+                      borderSide: BorderSide(
+                        color: AppColors.border.withValues(alpha: 0.8),
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.buttonColor),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonColor,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     suffixIcon: IconButton(
                       icon: const Icon(
                         Icons.my_location_rounded,
@@ -952,11 +972,16 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
                         size: 20,
                       ),
                       onPressed: () async {
-                        await context.read<CartViewModel>().autoDetectLocation();
-                        if (mounted && context.read<CartViewModel>().error != null) {
+                        await context
+                            .read<CartViewModel>()
+                            .autoDetectLocation();
+                        if (mounted &&
+                            context.read<CartViewModel>().error != null) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(context.read<CartViewModel>().error!),
+                              content: Text(
+                                context.read<CartViewModel>().error!,
+                              ),
                               backgroundColor: AppColors.error,
                             ),
                           );

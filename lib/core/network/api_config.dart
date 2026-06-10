@@ -3,7 +3,7 @@ class ApiConfig {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.1.4:8000',
+    defaultValue: 'http://172.16.63.202:8000',
   );
 
   static const String telegramBotUsername = String.fromEnvironment(
@@ -31,4 +31,10 @@ class ApiConfig {
   static String orderInvoice(String id) => '/api/v1/orders/$id/invoice';
   static const String wishlist = '/api/v1/wishlist';
   static const String wishlistToggle = '/api/v1/wishlist/toggle';
+
+  // ==== Location Section ======
+  static const double shopLat = 11.5564;
+  static const double shopLng = 104.9282;
+  static const String shopName = "Librarain HQ";
+  static const String shopAddress = "123 Norodom Blvd, Phnom Penh";
 }

@@ -115,8 +115,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hint: "Full Name",
                   icon: Icons.person_outline,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
+                    if (value == null || value.trim().isEmpty) {
                       return AppTexts.fullNameRequired;
+                    }
                     return null;
                   },
                 ),
@@ -129,8 +130,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hint: "E-mail",
                   icon: Icons.email_outlined,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
+                    if (value == null || value.trim().isEmpty) {
                       return AppTexts.emailRequired;
+                    }
                     if (!value.contains('@')) return AppTexts.invalidEmail;
                     return null;
                   },
@@ -144,8 +146,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hint: "Phone Number",
                   icon: Icons.phone_outlined,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
+                    if (value == null || value.trim().isEmpty) {
                       return AppTexts.phoneRequired;
+                    }
                     return null;
                   },
                 ),
@@ -159,8 +162,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   icon: Icons.lock_outline,
                   obscure: true,
                   validator: (value) {
-                    if (value == null || value.trim().isEmpty)
+                    if (value == null || value.trim().isEmpty) {
                       return AppTexts.passwordRequired;
+                    }
                     if (value.length < 6) return AppTexts.passwordMinLength;
                     return null;
                   },
