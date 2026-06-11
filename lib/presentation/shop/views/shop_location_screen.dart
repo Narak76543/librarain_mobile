@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobile_s2_flutter/core/network/api_config.dart';
 import 'package:mobile_s2_flutter/core/theme/app_color.dart';
 import 'package:mobile_s2_flutter/core/utils/location_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 
 class ShopLocationScreen extends StatefulWidget {
   const ShopLocationScreen({super.key});
@@ -42,23 +42,43 @@ class _ShopLocationScreenState extends State<ShopLocationScreen> {
   Future<void> _loadUserLocation() async {
     setState(() => _isLoading = true);
     try {
-      // Request permission
-      LocationPermission perm = await Geolocator.checkPermission();
-      if (perm == LocationPermission.denied) {
-        perm = await Geolocator.requestPermission();
-      }
-      if (perm == LocationPermission.deniedForever) {
-        setState(() {
-          _errorMessage = 'Location permission denied. Enable in settings.';
-          _isLoading = false;
-        });
-        return;
-      }
+      final prefs = await SharedPreferences.getInstance();
+      final shippingLat = prefs.getDouble('shipping_lat');
+      final shippingLng = prefs.getDouble('shipping_lng');
 
-      // Get position
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
+      Position position;
+      if (shippingLat != null && shippingLng != null) {
+        position = Position(
+          latitude: shippingLat,
+          longitude: shippingLng,
+          timestamp: DateTime.now(),
+          accuracy: 0.0,
+          altitude: 0.0,
+          altitudeAccuracy: 0.0,
+          heading: 0.0,
+          headingAccuracy: 0.0,
+          speed: 0.0,
+          speedAccuracy: 0.0,
+        );
+      } else {
+        // Request permission
+        LocationPermission perm = await Geolocator.checkPermission();
+        if (perm == LocationPermission.denied) {
+          perm = await Geolocator.requestPermission();
+        }
+        if (perm == LocationPermission.deniedForever) {
+          setState(() {
+            _errorMessage = 'Location permission denied. Enable in settings.';
+            _isLoading = false;
+          });
+          return;
+        }
+
+        // Get position
+        position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+      }
 
       // Calculate distance
       final distance = LocationUtils.calculateDistance(
@@ -108,30 +128,73 @@ class _ShopLocationScreenState extends State<ShopLocationScreen> {
   }
 
   Future<void> _drawRoute(LatLng from, LatLng to) async {
-    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
-    final points = PolylinePoints(apiKey: apiKey);
-    final result = await points.getRouteBetweenCoordinates(
-      request: PolylineRequest(
-        origin: PointLatLng(from.latitude, from.longitude),
-        destination: PointLatLng(to.latitude, to.longitude),
-        mode: TravelMode.driving,
-      ),
-    );
+    try {
+      final dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
+      final url =
+          'http://router.project-osrm.org/route/v1/driving/${from.longitude},${from.latitude};${to.longitude},${to.latitude}?overview=full&geometries=polyline';
+      final response = await dio.get<dynamic>(url);
 
-    if (result.points.isNotEmpty) {
-      setState(() {
-        _polylines = {
-          Polyline(
-            polylineId: const PolylineId('route'),
-            points: result.points
-                .map((p) => LatLng(p.latitude, p.longitude))
-                .toList(),
-            color: const Color(0xFF059669),
-            width: 4,
-          ),
-        };
-      });
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        if (data['routes'] != null && data['routes'].isNotEmpty) {
+          final geometry = data['routes'][0]['geometry'] as String;
+          final points = _decodePolyline(geometry);
+
+          if (points.isNotEmpty) {
+            setState(() {
+              _polylines = {
+                Polyline(
+                  polylineId: const PolylineId('route'),
+                  points: points
+                      .map((p) => LatLng(p.latitude, p.longitude))
+                      .toList(),
+                  color: AppColors.buttonColor,
+                  width: 4,
+                ),
+              };
+            });
+            return;
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('OSRM routing failed: $e');
     }
+  }
+
+  List<LatLng> _decodePolyline(String encoded) {
+    List<LatLng> polyline = [];
+    int index = 0, len = encoded.length;
+    int lat = 0, lng = 0;
+
+    while (index < len) {
+      int b, shift = 0, result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lat += dlat;
+
+      shift = 0;
+      result = 0;
+      do {
+        b = encoded.codeUnitAt(index++) - 63;
+        result |= (b & 0x1f) << shift;
+        shift += 5;
+      } while (b >= 0x20);
+      int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+      lng += dlng;
+
+      polyline.add(LatLng((lat / 1E5).toDouble(), (lng / 1E5).toDouble()));
+    }
+    return polyline;
   }
 
   void _fitBounds(LatLng user, LatLng shop) async {

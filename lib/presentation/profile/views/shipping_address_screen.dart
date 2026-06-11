@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/theme/app_color.dart';
 import '../../../core/widgets/app_text.dart';
@@ -22,6 +24,11 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
   final _profileRepository = ProfileRepository();
   bool _isLoading = false;
   bool _isDetecting = false;
+  
+  GoogleMapController? _mapController;
+  LatLng? _selectedLocation;
+  Set<Marker> _markers = {};
+  static const LatLng _defaultLocation = LatLng(11.5564, 104.9282); // Phnom Penh
 
   @override
   void initState() {
@@ -34,6 +41,56 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
   void dispose() {
     _addressController.dispose();
     super.dispose();
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+  }
+
+  Future<void> _onMapTapped(LatLng location) async {
+    setState(() {
+      _selectedLocation = location;
+      _markers = {
+        Marker(
+          markerId: const MarkerId('selected_location'),
+          position: location,
+        ),
+      };
+    });
+
+    await _reverseGeocode(location.latitude, location.longitude);
+  }
+
+  Future<void> _reverseGeocode(double lat, double lng) async {
+    setState(() => _isDetecting = true);
+    try {
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ));
+      
+      final geocodeResponse = await dio.get<dynamic>(
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=AIzaSyBMomse-7qenHBhXCe6iaq8UUCgY6LQ2jc',
+      );
+      if (geocodeResponse.statusCode == 200 && geocodeResponse.data != null) {
+        final results = geocodeResponse.data['results'] as List?;
+        if (results != null && results.isNotEmpty) {
+          final formattedAddress = results[0]['formatted_address'] as String?;
+          if (formattedAddress != null && formattedAddress.isNotEmpty) {
+             _addressController.text = formattedAddress;
+             if (mounted) {
+               AppSnackbar.showSuccess(context, 'Location updated from map!');
+             }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Reverse geocoding failed: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isDetecting = false);
+      }
+    }
   }
 
   Future<void> _autoDetectLocation() async {
@@ -94,6 +151,11 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
             final latVal = data['lat'];
             final lonVal = data['lon'];
 
+            if (latVal != null && lonVal != null) {
+              lat = double.tryParse(latVal.toString());
+              lng = double.tryParse(lonVal.toString());
+            }
+
             if (city != null && country != null) {
               formattedAddress = '$city, $region, $country ($latVal, $lonVal) (IP-based)';
             }
@@ -104,6 +166,18 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
       }
 
       if (mounted) {
+        if (lat != null && lng != null) {
+          final newLoc = LatLng(lat, lng);
+          _selectedLocation = newLoc;
+          _markers = {
+            Marker(
+              markerId: const MarkerId('selected_location'),
+              position: newLoc,
+            ),
+          };
+          _mapController?.animateCamera(CameraUpdate.newLatLngZoom(newLoc, 15));
+        }
+
         if (formattedAddress != null && formattedAddress.isNotEmpty) {
           _addressController.text = formattedAddress;
           AppSnackbar.showSuccess(context, 'Location auto-detected successfully!');
@@ -144,6 +218,11 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
       );
 
       if (mounted) {
+        if (_selectedLocation != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setDouble('shipping_lat', _selectedLocation!.latitude);
+          await prefs.setDouble('shipping_lng', _selectedLocation!.longitude);
+        }
         context.read<ProfileViewModel>().setProfile(updatedProfile);
         AppSnackbar.showSuccess(context, 'Shipping address updated successfully!');
         context.pop();
@@ -213,9 +292,67 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
             
             // Content Card
             Expanded(
-              child: ListView(
+              child: Padding(
                 padding: const EdgeInsets.all(16),
-                children: [
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border.withValues(alpha: 0.5)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.textPrimary.withValues(alpha: 0.03),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Stack(
+                        children: [
+                          GoogleMap(
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: _selectedLocation ?? _defaultLocation,
+                              zoom: 14.0,
+                            ),
+                            markers: _markers,
+                            onTap: _onMapTapped,
+                            myLocationEnabled: false,
+                            myLocationButtonEnabled: false,
+                            zoomControlsEnabled: false,
+                          ),
+                          Positioned(
+                            top: 12,
+                            right: 12,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: IconButton(
+                                icon: const Icon(Icons.my_location, color: AppColors.buttonColor, size: 20),
+                                onPressed: _autoDetectLocation,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ),
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -305,6 +442,7 @@ class _ShippingAddressScreenState extends State<ShippingAddressScreen> {
                   ),
                 ],
               ),
+             ),
             ),
             
             // Save Button

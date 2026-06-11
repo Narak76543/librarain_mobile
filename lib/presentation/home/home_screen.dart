@@ -1500,12 +1500,12 @@ class _QuickActionSection extends StatelessWidget {
       ),
       _QuickActionItem(
         title: 'Shipping',
-        iconData: Icons.local_shipping_outlined,
+        iconPath: 'assets/images/location-map.png',
         onTap: () => context.push(AppRoutes.shippingAddress),
       ),
       _QuickActionItem(
         title: 'Password',
-        iconData: Icons.lock_outline,
+        iconPath: 'assets/images/secure.png',
         onTap: () => context.push(AppRoutes.changePassword),
       ),
       _QuickActionItem(
@@ -1518,7 +1518,7 @@ class _QuickActionSection extends StatelessWidget {
     // 2. Determine which items to display
     List<Widget> displayedItems;
 
-    if (allActions.length > 6) {
+    if (allActions.length > 4) {
       // Take the first 4 items and add a "More" item
       displayedItems = allActions.sublist(0, 5);
       displayedItems.add(
@@ -1600,10 +1600,10 @@ class _QuickActionItem extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buttonColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.border.withValues(alpha: 0.5),
+                color: AppColors.border.withValues(alpha: 0.8),
                 width: 1,
               ),
               boxShadow: [
