@@ -105,7 +105,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         onPressed: () => context.pop(),
       ),
       title: const AppText.titleSmall(
-        'BookStore',
+        'Librarain',
         color: AppColors.buttonColor,
         fontSize: 16,
         fontWeight: FontWeight.bold,

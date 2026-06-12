@@ -47,7 +47,7 @@ class OrderConfirmedScreen extends StatelessWidget {
           onPressed: () => context.go(AppRoutes.main),
         ),
         title: const AppText.titleSmall(
-          'BookStore',
+          'Librarain',
           color: AppColors.buttonColor,
           fontSize: 16,
           fontWeight: FontWeight.w800,

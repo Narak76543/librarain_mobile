@@ -833,7 +833,7 @@ class _DeliveryWaySectionState extends State<_DeliveryWaySection> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AppText.bodySmall(
-                            'BookStore Main Shop',
+                            'Librarain Main Shop',
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w700,
                             fontSize: 13,

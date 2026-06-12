@@ -679,7 +679,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         const AppText.bodySmall(
-                                          'BookStore Main Shop Address',
+                                          'Librarain Main Shop Address',
                                           color: AppColors.textPrimary,
                                           fontWeight: FontWeight.w600,
                                         ),
