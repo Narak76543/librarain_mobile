@@ -1,4 +1,5 @@
 import 'category_model.dart';
+import 'review_model.dart';
 
 class BookModel {
   BookModel({
@@ -19,6 +20,9 @@ class BookModel {
     required this.ratingCount,
     required this.isActive,
     this.category,
+    this.fileSize,
+    this.purchases,
+    this.reviews,
   });
 
   final String id;
@@ -38,6 +42,9 @@ class BookModel {
   final int ratingCount;
   final bool isActive;
   final CategoryModel? category;
+  final String? fileSize;
+  final String? purchases;
+  final List<ReviewModel>? reviews;
 
   factory BookModel.fromJson(Map<String, dynamic> json) {
     return BookModel(
@@ -59,6 +66,11 @@ class BookModel {
       isActive: json['is_active'] != false,
       category: json['category'] != null
           ? CategoryModel.fromJson(json['category'] as Map<String, dynamic>)
+          : null,
+      fileSize: json['file_size']?.toString(),
+      purchases: json['purchases']?.toString(),
+      reviews: json['reviews'] != null
+          ? (json['reviews'] as List).map((r) => ReviewModel.fromJson(r as Map<String, dynamic>)).toList()
           : null,
     );
   }

@@ -14,6 +14,7 @@ import '../../data/repositories/book_repository.dart';
 import '../../data/repositories/category_repository.dart';
 import '../../shared/widgets/wishlist_heart.dart';
 import '../profile/viewmodels/profile_viewmodel.dart';
+import '../../core/constants/app_routes.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -1483,49 +1484,41 @@ class _QuickActionSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final allActions = [
       _QuickActionItem(
-        title: 'Orders Summary',
-        iconPath: 'assets/images/to-do-list.png',
-        onTap: () {
-          context.push('/orders');
-        },
-      ),
-      _QuickActionItem(
         title: 'My Orders',
-        iconPath: 'assets/images/sold.png',
-        // iconColor: Colors.deepOrange,
-        onTap: () {},
+        iconPath: 'assets/images/to-do-list.png',
+        onTap: () => context.push(AppRoutes.orders),
       ),
       _QuickActionItem(
         title: 'Wishlist',
         iconPath: 'assets/images/list.png',
-        onTap: () => Navigator.of(context).pushNamed('/wishlist'),
+        onTap: () => context.push(AppRoutes.wishlist),
       ),
       _QuickActionItem(
-        title: 'Categories',
+        title: 'Cart',
         iconPath: 'assets/images/shopping-bag.png',
-        onTap: () => Navigator.of(context).pushNamed('/categories'),
+        onTap: () => context.push(AppRoutes.cart),
       ),
       _QuickActionItem(
-        title: 'Featured',
-        iconPath: 'assets/images/jigsaw.png',
-        onTap: () => Navigator.of(context).pushNamed('/featured'),
+        title: 'Shipping',
+        iconPath: 'assets/images/location-map.png',
+        onTap: () => context.push(AppRoutes.shippingAddress),
       ),
       _QuickActionItem(
-        title: 'Nompang',
-        iconPath: 'assets/images/jigsaw.png',
-        onTap: () => Navigator.of(context).pushNamed('/featured'),
+        title: 'Password',
+        iconPath: 'assets/images/secure.png',
+        onTap: () => context.push(AppRoutes.changePassword),
       ),
       _QuickActionItem(
-        title: 'Nompang',
-        iconPath: 'assets/images/jigsaw.png',
-        onTap: () => Navigator.of(context).pushNamed('/featured'),
+        title: 'Profile',
+        iconData: Icons.person_outline,
+        onTap: () => context.push(AppRoutes.editProfile),
       ),
     ];
 
     // 2. Determine which items to display
     List<Widget> displayedItems;
 
-    if (allActions.length > 6) {
+    if (allActions.length > 4) {
       // Take the first 4 items and add a "More" item
       displayedItems = allActions.sublist(0, 5);
       displayedItems.add(
@@ -1607,10 +1600,10 @@ class _QuickActionItem extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: AppColors.buttonColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.border.withValues(alpha: 0.5),
+                color: AppColors.border.withValues(alpha: 0.8),
                 width: 1,
               ),
               boxShadow: [
@@ -1623,17 +1616,7 @@ class _QuickActionItem extends StatelessWidget {
             ),
             child: Center(
               child: iconPath != null
-                  ?
-                    // ? SvgPicture.asset(
-                    //     iconPath!,
-                    //     width: 26,
-                    //     height: 26,
-                    //     colorFilter: const ColorFilter.mode(
-                    //       AppColors.buttonColor,
-                    //       BlendMode.srcIn,
-                    //     ),
-                    //   )
-                    Image.asset(iconPath!, width: 52, height: 52)
+                  ? Image.asset(iconPath!, width: 52, height: 52)
                   : Icon(
                       iconData,
                       size: 28,

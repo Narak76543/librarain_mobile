@@ -74,6 +74,32 @@ class ProfileRepository {
     }
   }
 
+  Future<bool> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await _sendWithAuthRetry(
+        () async => _dio.post<dynamic>(
+          ApiConfig.changePassword,
+          data: {
+            'current_password': currentPassword,
+            'new_password': newPassword,
+          },
+          options: await _authOptions(),
+        ),
+      );
+
+      final statusCode = response.statusCode ?? 0;
+      return statusCode >= 200 && statusCode < 300;
+    } on DioException catch (error) {
+      throw ProfileException(
+        _getErrorMessage(error),
+        statusCode: error.response?.statusCode,
+      );
+    }
+  }
+
   Future<UserProfileModel> uploadAvatar(File imageFile) async {
     try {
       final formData = FormData.fromMap({

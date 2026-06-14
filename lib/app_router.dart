@@ -9,10 +9,14 @@ import 'presentation/auth/views/welcome_screen.dart';
 import 'presentation/main/main_screen.dart';
 import 'presentation/onboarding/onboarding_screen.dart';
 import 'presentation/profile/views/edit_profile_screen.dart';
+import 'presentation/profile/views/shipping_address_screen.dart';
+import 'presentation/profile/views/change_password_screen.dart';
 import 'presentation/profile/views/wishlist_screen.dart';
 import 'presentation/history/history_screen.dart';
 import 'presentation/orders/views/order_summary_screen.dart';
 import 'presentation/orders/views/order_confirmed_screen.dart';
+import 'presentation/cart/cart_screen.dart';
+import 'presentation/shop/views/book_detail_screen.dart';
 
 GoRouter createAppRouter({required bool isLoggedIn}) {
   return GoRouter(
@@ -62,6 +66,14 @@ GoRouter createAppRouter({required bool isLoggedIn}) {
         builder: (context, state) => const EditProfileScreen(),
       ),
       GoRoute(
+        path: AppRoutes.shippingAddress,
+        builder: (context, state) => const ShippingAddressScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.changePassword,
+        builder: (context, state) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.wishlist,
         builder: (context, state) => const WishlistScreen(),
       ),
@@ -74,9 +86,12 @@ GoRouter createAppRouter({required bool isLoggedIn}) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
           return OrderConfirmedScreen(
-            orderId:    extra['orderId'].toString(),
-            orderTotal: extra['orderTotal'] as double,
-            orderItems: extra['orderItems'] as List,
+            orderId:         extra['orderId'].toString(),
+            orderTotal:      extra['orderTotal'] as double,
+            orderItems:      extra['orderItems'] as List,
+            deliveryWay:     extra['deliveryWay'] as String? ?? 'Pick Up',
+            deliveryPartner: extra['deliveryPartner'] as String?,
+            paymentMethod:   extra['paymentMethod'] as String? ?? 'COD',
           );
         },
       ),
@@ -85,6 +100,17 @@ GoRouter createAppRouter({required bool isLoggedIn}) {
         builder: (context, state) {
           final orderId = state.pathParameters['id']!;
           return OrderSummaryScreen(orderId: orderId);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.cart,
+        builder: (context, state) => const CartScreen(),
+      ),
+      GoRoute(
+        path: '/book/:id',
+        builder: (context, state) {
+          final bookId = state.pathParameters['id']!;
+          return BookDetailScreen(bookId: bookId);
         },
       ),
     ],

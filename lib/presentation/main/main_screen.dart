@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../history/history_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
-import '../shop/shop_screen.dart';
+import '../shop/views/shop_screen.dart';
 import 'widgets/floating_nav_bar.dart';
+import 'package:provider/provider.dart';
+import '../../providers/shop_provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -41,6 +43,9 @@ class _MainScreenState extends State<MainScreen> {
             child: FloatingNavBar(
               currentIndex: _currentIndex,
               onTap: (index) {
+                if (index == 1) {
+                  context.read<ShopProvider>().init();
+                }
                 setState(() {
                   _currentIndex = index;
                 });

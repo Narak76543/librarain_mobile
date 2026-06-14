@@ -84,9 +84,22 @@ class OrderRepository {
     return 'Order operation failed';
   }
 
-  Future<String?> placeOrder() async {
+  Future<String?> placeOrder({
+    required String deliveryWay,
+    String? deliveryPartner,
+    String? deliveryAddress,
+    required String paymentMethod,
+  }) async {
     try {
-      final response = await _dio.post<dynamic>(ApiConfig.orders);
+      final response = await _dio.post<dynamic>(
+        ApiConfig.orders,
+        data: {
+          'delivery_way': deliveryWay,
+          'delivery_partner': deliveryPartner,
+          'delivery_address': deliveryAddress,
+          'payment_method': paymentMethod,
+        },
+      );
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = response.data;
         if (data != null && data['data'] != null) {

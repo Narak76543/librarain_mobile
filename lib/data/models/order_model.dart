@@ -41,6 +41,10 @@ class OrderModel {
   final String           status;
   final String           createdAt;
   final List<OrderItemModel> orderItems;
+  final String           deliveryWay;
+  final String?          deliveryPartner;
+  final String?          deliveryAddress;
+  final String           paymentMethod;
 
   OrderModel({
     required this.id,
@@ -49,17 +53,25 @@ class OrderModel {
     required this.status,
     required this.createdAt,
     required this.orderItems,
+    required this.deliveryWay,
+    this.deliveryPartner,
+    this.deliveryAddress,
+    required this.paymentMethod,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) => OrderModel(
-    id:         json['id']         as String,
-    shortId:    (json['id'] as String).substring(0, 8).toUpperCase(),
-    total:      double.parse(json['total'].toString()),
-    status:     json['status']     as String,
-    createdAt:  json['created_at'] as String,
-    orderItems: (json['order_items'] as List? ?? [])
+    id:              json['id']         as String,
+    shortId:         (json['id'] as String).substring(0, 8).toUpperCase(),
+    total:           double.parse(json['total'].toString()),
+    status:          json['status']     as String,
+    createdAt:       json['created_at'] as String,
+    orderItems:      (json['order_items'] as List? ?? [])
         .map((i) => OrderItemModel.fromJson(i))
         .toList(),
+    deliveryWay:     json['delivery_way'] as String? ?? 'Pick Up',
+    deliveryPartner: json['delivery_partner'] as String?,
+    deliveryAddress: json['delivery_address'] as String?,
+    paymentMethod:   json['payment_method'] as String? ?? 'COD',
   );
 }
 
@@ -77,6 +89,10 @@ class OrderSummaryModel {
   final double           discount;
   final double           delivery;
   final double           total;
+  final String           deliveryWay;
+  final String?          deliveryPartner;
+  final String?          deliveryAddress;
+  final String           paymentMethod;
 
   OrderSummaryModel({
     required this.orderId,
@@ -92,6 +108,10 @@ class OrderSummaryModel {
     required this.discount,
     required this.delivery,
     required this.total,
+    required this.deliveryWay,
+    this.deliveryPartner,
+    this.deliveryAddress,
+    required this.paymentMethod,
   });
 
   factory OrderSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -99,21 +119,25 @@ class OrderSummaryModel {
     final customer = json['customer'] as Map<String, dynamic>;
     final summary  = json['summary']  as Map<String, dynamic>;
     return OrderSummaryModel(
-      orderId:       order['id']        as String,
-      shortId:       order['short_id']  as String,
-      status:        order['status']    as String,
-      createdAt:     order['created_at']as String,
-      customerName:  customer['full_name'] as String,
-      customerEmail: customer['email']     as String,
-      customerPhone: customer['phone']  as String? ?? '',
+      orderId:         order['id']        as String,
+      shortId:         order['short_id']  as String,
+      status:          order['status']    as String,
+      createdAt:       order['created_at']as String,
+      customerName:    customer['full_name'] as String,
+      customerEmail:   customer['email']     as String,
+      customerPhone:   customer['phone']  as String? ?? '',
       items: (json['items'] as List)
           .map((i) => OrderItemModel.fromJson(i))
           .toList(),
-      itemCount: json['item_count'] as int,
-      subtotal:  double.parse(summary['subtotal'].toString()),
-      discount:  double.parse(summary['discount'].toString()),
-      delivery:  double.parse(summary['delivery'].toString()),
-      total:     double.parse(summary['total'].toString()),
+      itemCount:       json['item_count'] as int,
+      subtotal:        double.parse(summary['subtotal'].toString()),
+      discount:        double.parse(summary['discount'].toString()),
+      delivery:        double.parse(summary['delivery'].toString()),
+      total:           double.parse(summary['total'].toString()),
+      deliveryWay:     order['delivery_way'] as String? ?? 'Pick Up',
+      deliveryPartner: order['delivery_partner'] as String?,
+      deliveryAddress: order['delivery_address'] as String?,
+      paymentMethod:   order['payment_method'] as String? ?? 'COD',
     );
   }
 }

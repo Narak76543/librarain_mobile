@@ -91,25 +91,25 @@ class _EditProfileView extends StatelessWidget {
                         controller: viewModel.phoneController,
                         keyboardType: TextInputType.phone,
                       ),
-                      _ProfileField(
-                        label: 'Telegram Username',
-                        controller: viewModel.telegramController,
-                        prefixText: '@',
-                      ),
+                      // _ProfileField(
+                      //   label: 'Telegram Username',
+                      //   controller: viewModel.telegramController,
+                      //   prefixText: '@',
+                      // ),
                     ],
                   ),
                   const SizedBox(height: 24),
-                  const _SectionLabel('ADDRESS'),
-                  _FieldCard(
-                    children: [
-                      _ProfileField(
-                        label: 'Home Address',
-                        controller: viewModel.addressController,
-                        minLines: 3,
-                        maxLines: 5,
-                      ),
-                    ],
-                  ),
+                  // const _SectionLabel('ADDRESS'),
+                  // _FieldCard(
+                  //   children: [
+                  //     _ProfileField(
+                  //       label: 'Home Address',
+                  //       controller: viewModel.addressController,
+                  //       minLines: 3,
+                  //       maxLines: 5,
+                  //     ),
+                  //   ],
+                  // ),
                   if (viewModel.errorMessage != null) ...[
                     const SizedBox(height: 16),
                     Container(
@@ -117,11 +117,17 @@ class _EditProfileView extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+                        border: Border.all(
+                          color: AppColors.error.withValues(alpha: 0.3),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 20),
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: AppColors.error,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
@@ -389,7 +395,10 @@ class _FieldCard extends StatelessWidget {
               border: index == children.length - 1
                   ? null
                   : Border(
-                      bottom: BorderSide(color: AppColors.border.withValues(alpha: 0.4), width: 1),
+                      bottom: BorderSide(
+                        color: AppColors.border.withValues(alpha: 0.4),
+                        width: 1,
+                      ),
                     ),
             ),
             child: children[index],
@@ -449,7 +458,9 @@ class _ProfileFieldState extends State<_ProfileField> {
         : AppColors.textDisabled;
 
     return Container(
-      color: _focusNode.hasFocus ? AppColors.buttonColor.withValues(alpha: 0.02) : Colors.transparent,
+      color: _focusNode.hasFocus
+          ? AppColors.buttonColor.withValues(alpha: 0.02)
+          : Colors.transparent,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
