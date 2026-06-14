@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_texts.dart';
 import '../../../core/theme/app_color.dart';
-import '../../../core/widgets/app_text.dart';
 import '../viewmodels/auth_view_model.dart';
 import '../../../providers/wishlist_provider.dart';
-import '../widgets/auth_header.dart';
-import '../widgets/auth_text_field.dart';
-import '../widgets/primary_button.dart';
 
 // class LoginScreen extends StatefulWidget {
 //   const LoginScreen({super.key});
@@ -157,15 +154,6 @@ import '../widgets/primary_button.dart';
 
 //============== Visut-- Version ================
 
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-
-import '../../../core/constants/app_routes.dart';
-import '../../../core/constants/app_texts.dart';
-import '../../../core/theme/app_color.dart';
-import '../viewmodels/auth_view_model.dart';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -180,6 +168,50 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool obscurePassword = true;
+  bool _emailTouched = false;
+  bool _passwordTouched = false;
+  String? _emailError;
+  String? _passwordError;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_validateEmail);
+    _passwordController.addListener(_validatePassword);
+  }
+
+  void _validateEmail() {
+    setState(() {
+      if (_emailTouched) {
+        if (_emailController.text.isEmpty) {
+          _emailError = AppTexts.emailRequired;
+        } else if (!_isValidEmail(_emailController.text)) {
+          _emailError = "Please enter a valid email";
+        } else {
+          _emailError = null;
+        }
+      }
+    });
+  }
+
+  void _validatePassword() {
+    setState(() {
+      if (_passwordTouched) {
+        if (_passwordController.text.isEmpty) {
+          _passwordError = AppTexts.passwordRequired;
+        } else if (_passwordController.text.length < 6) {
+          _passwordError = "Minimum 6 characters required";
+        } else {
+          _passwordError = null;
+        }
+      }
+    });
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+    return emailRegex.hasMatch(email);
+  }
 
   @override
   void dispose() {
@@ -225,6 +257,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
+
           child: Form(
             key: _formKey,
             child: Column(
@@ -232,11 +265,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 30),
 
                 // TOP LOGO
-                Image.asset(
-                  'assets/images/app_logo.png',
+                Container(
                   width: 80,
                   height: 80,
-                  fit: BoxFit.contain,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/app_logo.png'),
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    color: Colors.transparent,
+                    // fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(height: 24),
 
@@ -268,61 +307,95 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 34),
 
                 // EMAIL
-                _buildTextField(
-                  controller: _emailController,
-                  hint: "E-mail",
-                  icon: Icons.email_outlined,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppTexts.emailRequired;
-                    }
-                    // if(value == _emailController.text.trim()){
-                    //   return AppTexts.emailAlreadyInUse;
-                    // }
-                    final emailRegex = RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                    );
-                    if(!emailRegex.hasMatch(value)){
-                      return AppTexts.invalidEmail;
-                    }
-                    return null;
-                  },
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTextField(
+                        controller: _emailController,
+                        hint: "E-mail",
+                        iconPath: 'assets/icons/mail.svg',
+                        touched: _emailTouched,
+                        errorText: _emailError,
+                        onChanged: _validateEmail,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return AppTexts.emailRequired;
+                          }
+                          return null;
+                        },
+                      ),
+                      if (_emailTouched && _emailError != null && _emailError!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16, top: 8),
+                          child: Text(
+                            _emailError!,
+                            style: const TextStyle(
+                              color: AppColors.error,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 // PASSWORD
-                _buildTextField(
-                  controller: _passwordController,
-                  hint: "Password",
-                  icon: Icons.lock_outline,
-                  obscure: obscurePassword,
-                  suffix: IconButton(
-                    splashRadius: 20,
-                    onPressed: () {
-                      setState(() {
-                        obscurePassword = !obscurePassword;
-                      });
-                    },
-                    icon: Icon(
-                      obscurePassword
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                      color: const Color(0xFF9A9A9A),
-                      size: 20,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTextField(
+                      controller: _passwordController,
+                      hint: "Password",
+                      iconPath: 'assets/icons/lock-keyhole.svg',
+                      obscure: obscurePassword,
+                      suffix: IconButton(
+                        splashRadius: 20,
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: const Color(0xFF4E4C4C),
+                          size: 20,
+                        ),
+                      ),
+                      touched: _passwordTouched,
+                      errorText: _passwordError,
+                      onChanged: _validatePassword,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return AppTexts.passwordRequired;
+                        }
+
+                        if (value.length < 6) {
+                          return AppTexts.passwordMinLength;
+                        }
+
+                        return null;
+                      },
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppTexts.passwordRequired;
-                    }
-
-                    if (value.length < 6) {
-                      return AppTexts.passwordMinLength;
-                    }
-
-                    return null;
-                  },
+                    if (_passwordTouched && _passwordError != null && _passwordError!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16, top: 8),
+                        child: Text(
+                          _passwordError!,
+                          style: const TextStyle(
+                            color: AppColors.error,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
 
                 const SizedBox(height: 8),
@@ -360,20 +433,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: authViewModel.isLoading
                         ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2.5,
-                            ),
-                          )
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
                         : const Text(
-                            "Continue",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      "Continue",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
 
@@ -382,15 +455,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 // DIVIDER
                 Row(
                   children: [
-                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                    const Expanded(
+                      child: Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                    ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        "Don't have an account yet?",
-                        style: TextStyle(fontSize: 13, color: Color(0xFF9A9A9A)),
+                        "Don't have any account yet?",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF9A9A9A),
+                        ),
                       ),
                     ),
-                    const Expanded(child: Divider(color: Color(0xFFEEEEEE), thickness: 1)),
+                    const Expanded(
+                      child: Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                    ),
                   ],
                 ),
 
@@ -449,7 +529,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       TextSpan(
                         text:
-                            "By clicking “Continue”, I have read and agree\nwith the ",
+                        "By clicking “Continue”, I have read and agree\nwith the ",
                       ),
                       TextSpan(
                         text: "Term Sheet",
@@ -482,50 +562,46 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
-    required IconData icon,
+    required String iconPath,
     Widget? suffix,
     bool obscure = false,
     String? Function(String?)? validator,
+    String? errorText,
+    bool touched = false,
+    VoidCallback? onChanged,
   }) {
+    bool hasError = touched && errorText != null && errorText.isNotEmpty;
+
     return TextFormField(
+      onTap: (){
+        setState(() {
+          if(controller == _emailController) {
+          _emailTouched = true;
+          } else if(controller == _passwordController) {
+            _passwordTouched = true;
+          }
+        });
+      },
       controller: controller,
       obscureText: obscure,
       validator: validator,
-      onTap: (){
-        setState(() {
-
-        });
-      },
-      style: const TextStyle(fontSize: 14, color: Color(0xFF1E1E1E)),
+      onChanged: (_) => onChanged?.call(),
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        hintText: hint,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SvgPicture.asset(iconPath, width: 20, height: 20),
+        ),
+        suffixIcon: suffix,
+        filled: true,
+        fillColor: const Color(0xFFF5F5F7),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(24),
           borderSide: BorderSide.none,
         ),
-        filled: true,
-        fillColor: const Color(0xFFF5F5F7),
-        hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
-        prefixIcon: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Container(
-            width: 30,
-            height: 30,
-            decoration: BoxDecoration(
-              color: const Color(0xFF005B5B),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: Colors.white, size: 16),
-          ),
-        ),
-        suffixIcon: suffix != null
-            ? Padding(
-                padding: const EdgeInsets.only(right: 12.0),
-                child: suffix,
-              )
-            : null,
-      )
+        errorText: hasError ? errorText : null,
+        errorStyle: const TextStyle(height: 0), // Hide default error space
+      ),
     );
   }
 
@@ -546,7 +622,8 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icon != null) Icon(icon, size: 22, color: const Color(0xFF1E1E1E)),
+            if (icon != null)
+              Icon(icon, size: 22, color: const Color(0xFF1E1E1E)),
             if (image != null) Image.asset(image, width: 22, height: 22),
             const SizedBox(width: 10),
             Text(
@@ -563,5 +640,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-
