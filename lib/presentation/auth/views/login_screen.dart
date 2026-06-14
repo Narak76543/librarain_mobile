@@ -276,6 +276,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return AppTexts.emailRequired;
                     }
+                    // if(value == _emailController.text.trim()){
+                    //   return AppTexts.emailAlreadyInUse;
+                    // }
+                    final emailRegex = RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    );
+                    if(!emailRegex.hasMatch(value)){
+                      return AppTexts.invalidEmail;
+                    }
                     return null;
                   },
                 ),
@@ -478,37 +487,45 @@ class _LoginScreenState extends State<LoginScreen> {
     bool obscure = false,
     String? Function(String?)? validator,
   }) {
-    return Container(
-      height: 54,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F7),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscure,
-        validator: validator,
-        style: const TextStyle(fontSize: 14, color: Color(0xFF1E1E1E)),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: const Color(0xFF005B5B),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: Colors.white, size: 16),
-            ),
-          ),
-          suffixIcon: suffix,
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
+    return TextFormField(
+      controller: controller,
+      obscureText: obscure,
+      validator: validator,
+      onTap: (){
+        setState(() {
+
+        });
+      },
+      style: const TextStyle(fontSize: 14, color: Color(0xFF1E1E1E)),
+      decoration: InputDecoration(
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide.none,
         ),
-      ),
+        filled: true,
+        fillColor: const Color(0xFFF5F5F7),
+        hintText: hint,
+        hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: const Color(0xFF005B5B),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: Colors.white, size: 16),
+          ),
+        ),
+        suffixIcon: suffix != null
+            ? Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: suffix,
+              )
+            : null,
+      )
     );
   }
 
