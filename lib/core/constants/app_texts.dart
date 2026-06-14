@@ -40,6 +40,7 @@ class AppTexts {
   static const String fullNameRequired = 'Full name is required';
   static const String emailRequired = 'Email is required';
   static const String invalidEmail = 'Please enter a valid email';
+  static const String emailAlreadyInUse = 'Email is already in use';
   static const String phoneRequired = 'Phone is required';
   static const String passwordRequired = 'Password is required';
   static const String confirmPasswordRequired = 'Confirm password is required';

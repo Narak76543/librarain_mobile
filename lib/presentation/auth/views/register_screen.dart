@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_routes.dart';
@@ -21,6 +22,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool obscurePassword = true;
+  bool _emailTouched = false;
+  bool _passwordTouched = false;
+  String? _emailError;
+  String? _passwordError;
 
   @override
   void dispose() {
@@ -111,9 +117,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // NAME
                 _buildTextField(
+                    iconPath: 'assets/icons/user-round.svg',
                   controller: _nameController,
                   hint: "Full Name",
-                  icon: Icons.person_outline,
+                //  icon: Icons.person_outline,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return AppTexts.fullNameRequired;
@@ -126,9 +133,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // EMAIL
                 _buildTextField(
+                  iconPath: 'assets/icons/mail.svg',
                   controller: _emailController,
                   hint: "E-mail",
-                  icon: Icons.email_outlined,
+                 // icon: Icons.email_outlined,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return AppTexts.emailRequired;
@@ -142,9 +150,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // PHONE
                 _buildTextField(
+                  iconPath: 'assets/icons/phone.svg',
                   controller: _phoneController,
                   hint: "Phone Number",
-                  icon: Icons.phone_outlined,
+                  //icon: Icons.phone_outlined,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return AppTexts.phoneRequired;
@@ -157,9 +166,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // PASSWORD
                 _buildTextField(
+                    iconPath: 'assets/icons/lock-keyhole.svg',
                   controller: _passwordController,
                   hint: "Password",
-                  icon: Icons.lock_outline,
+                 // icon: Icons.lock_outline,
                   obscure: true,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -270,41 +280,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _buildTextField({
     required TextEditingController controller,
     required String hint,
-    required IconData icon,
+    required String iconPath,
     Widget? suffix,
     bool obscure = false,
     String? Function(String?)? validator,
+    String? errorText,
+    bool touched = false,
+    VoidCallback? onChanged,
   }) {
-    return Container(
-      height: 54,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F7),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscure,
-        validator: validator,
-        style: const TextStyle(fontSize: 14, color: Color(0xFF1E1E1E)),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: const Color(0xFF005B5B),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: Colors.white, size: 16),
-            ),
-          ),
-          suffixIcon: suffix,
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
+    bool hasError = touched && errorText != null && errorText.isNotEmpty;
+    return TextFormField(
+      onTap: (){
+        setState(() {
+          if(controller == _emailController) {
+            _emailTouched = true;
+          } else if(controller == _passwordController) {
+            _passwordTouched = true;
+          }
+        });
+      },
+      controller: controller,
+      obscureText: obscure,
+      validator: validator,
+      onChanged: (_) => onChanged?.call(),
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SvgPicture.asset(iconPath, width: 20, height: 20),
         ),
+        suffixIcon: suffix,
+        filled: true,
+        fillColor: const Color(0xFFF5F5F7),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide.none,
+        ),
+        errorText: hasError ? errorText : null,
+        errorStyle: const TextStyle(height: 0), // Hide default error space
       ),
     );
   }

@@ -81,7 +81,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Colors.teal.withValues(alpha: 0.15);
       case 'processing':
       case 'pending':
-        return Colors.brown.withValues(alpha: 0.15);
+        return AppColors.isPending;
       case 'shipped':
         return Colors.grey.withValues(alpha: 0.25);
       case 'cancelled':
@@ -97,7 +97,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Colors.teal[700]!;
       case 'processing':
       case 'pending':
-        return const Color.fromARGB(255, 184, 240, 79);
+        return AppColors.white;
       case 'shipped':
         return Colors.grey[700]!;
       case 'cancelled':
