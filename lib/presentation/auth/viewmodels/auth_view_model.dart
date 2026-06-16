@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_s2_flutter/core/constants/app_texts.dart';
 import 'package:mobile_s2_flutter/data/repositories/auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile_s2_flutter/core/services/notification_service.dart';
 
 class AuthViewModel extends ChangeNotifier {
   AuthViewModel(this._authRepository);
@@ -28,6 +29,7 @@ class AuthViewModel extends ChangeNotifier {
 
       if (result) {
         await _saveLoggedIn();
+        await NotificationService.initialize();
       }
 
       return result;
@@ -86,6 +88,7 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    await NotificationService.clearToken();
     final preferences = await SharedPreferences.getInstance();
     await preferences.remove('access_token');
     await preferences.remove('token');

@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,10 +8,26 @@ import 'core/theme/app_color.dart';
 import 'core/theme/app_text_style.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/app_providers.dart';
+import 'core/services/notification_service.dart';
+import 'core/network/dio_client.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+
+  // Initialize Firebase
+  await Firebase.initializeApp();
+
+  // Register background handler
+  FirebaseMessaging.onBackgroundMessage(
+    firebaseMessagingBackgroundHandler,
+  );
+
+  // Initialize Dio
+  DioClient.instance.init();
+
+  // Initialize notifications
+  await NotificationService.initialize();
 
   final preferences = await SharedPreferences.getInstance();
   final isLoggedIn = preferences.getBool('is_logged_in') ?? false;
