@@ -47,3 +47,9 @@ app.*.map.json
 # Dotenv
 .env
 .env*
+
+# Environment Config and Secrets
+env.json
+config.json
+firebase_options.dart
+key.properties
