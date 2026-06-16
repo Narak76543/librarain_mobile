@@ -3,12 +3,13 @@ class ApiConfig {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.1.82:8000',
-  );
+   // defaultValue: 'http://172.16.13.35:8000',
 
-  static const String telegramBotUsername = String.fromEnvironment(
-    'TELEGRAM_BOT_USERNAME',
-    defaultValue: 'librarain_postman2_bot',
+    // ah san wifi
+    // defaultValue: 'http://172.16.53.187:8000',
+
+    // G104 wifi
+     defaultValue: 'http://172.16.41.95:8000',
   );
 
   static const String register = '/api/v1/auth/register';

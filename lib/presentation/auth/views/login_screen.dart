@@ -168,6 +168,50 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool obscurePassword = true;
+  bool _emailTouched = false;
+  bool _passwordTouched = false;
+  String? _emailError;
+  String? _passwordError;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_validateEmail);
+    _passwordController.addListener(_validatePassword);
+  }
+
+  void _validateEmail() {
+    setState(() {
+      if (_emailTouched) {
+        if (_emailController.text.isEmpty) {
+          _emailError = AppTexts.emailRequired;
+        } else if (!_isValidEmail(_emailController.text)) {
+          _emailError = "Please enter a valid email";
+        } else {
+          _emailError = null;
+        }
+      }
+    });
+  }
+
+  void _validatePassword() {
+    setState(() {
+      if (_passwordTouched) {
+        if (_passwordController.text.isEmpty) {
+          _passwordError = AppTexts.passwordRequired;
+        } else if (_passwordController.text.length < 6) {
+          _passwordError = "Minimum 6 characters required";
+        } else {
+          _passwordError = null;
+        }
+      }
+    });
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+    return emailRegex.hasMatch(email);
+  }
 
   @override
   void dispose() {
@@ -263,52 +307,95 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 34),
 
                 // EMAIL
-                _buildTextField(
-                  controller: _emailController,
-                  hint: "E-mail",
-                  iconPath: 'assets/icons/mail.svg',
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppTexts.emailRequired;
-                    }
-                    return null;
-                  },
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTextField(
+                        controller: _emailController,
+                        hint: "E-mail",
+                        iconPath: 'assets/icons/mail.svg',
+                        touched: _emailTouched,
+                        errorText: _emailError,
+                        onChanged: _validateEmail,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return AppTexts.emailRequired;
+                          }
+                          return null;
+                        },
+                      ),
+                      if (_emailTouched && _emailError != null && _emailError!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16, top: 8),
+                          child: Text(
+                            _emailError!,
+                            style: const TextStyle(
+                              color: AppColors.error,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
                 // PASSWORD
-                _buildTextField(
-                  controller: _passwordController,
-                  hint: "Password",
-                  iconPath: 'assets/icons/lock-keyhole.svg',
-                  obscure: obscurePassword,
-                  suffix: IconButton(
-                    splashRadius: 20,
-                    onPressed: () {
-                      setState(() {
-                        obscurePassword = !obscurePassword;
-                      });
-                    },
-                    icon: Icon(
-                      obscurePassword
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                      color: const Color(0xFF9A9A9A),
-                      size: 20,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTextField(
+                      controller: _passwordController,
+                      hint: "Password",
+                      iconPath: 'assets/icons/lock-keyhole.svg',
+                      obscure: obscurePassword,
+                      suffix: IconButton(
+                        splashRadius: 20,
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: const Color(0xFF4E4C4C),
+                          size: 20,
+                        ),
+                      ),
+                      touched: _passwordTouched,
+                      errorText: _passwordError,
+                      onChanged: _validatePassword,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return AppTexts.passwordRequired;
+                        }
+
+                        if (value.length < 6) {
+                          return AppTexts.passwordMinLength;
+                        }
+
+                        return null;
+                      },
                     ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return AppTexts.passwordRequired;
-                    }
-
-                    if (value.length < 6) {
-                      return AppTexts.passwordMinLength;
-                    }
-
-                    return null;
-                  },
+                    if (_passwordTouched && _passwordError != null && _passwordError!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16, top: 8),
+                        child: Text(
+                          _passwordError!,
+                          style: const TextStyle(
+                            color: AppColors.error,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
 
                 const SizedBox(height: 8),
@@ -346,20 +433,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: authViewModel.isLoading
                         ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2.5,
-                            ),
-                          )
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
                         : const Text(
-                            "Continue",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                      "Continue",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
 
@@ -442,7 +529,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       TextSpan(
                         text:
-                            "By clicking “Continue”, I have read and agree\nwith the ",
+                        "By clicking “Continue”, I have read and agree\nwith the ",
                       ),
                       TextSpan(
                         text: "Term Sheet",
@@ -479,35 +566,41 @@ class _LoginScreenState extends State<LoginScreen> {
     Widget? suffix,
     bool obscure = false,
     String? Function(String?)? validator,
+    String? errorText,
+    bool touched = false,
+    VoidCallback? onChanged,
   }) {
-    return Container(
-      height: 54,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F7),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscure,
-        validator: validator,
-        style: const TextStyle(fontSize: 14, color: Color(0xFF1E1E1E)),
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFF9A9A9A), fontSize: 13),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: SvgPicture.asset(
-              iconPath,
-              colorFilter: ColorFilter.mode(
-                AppColors.buttonColor,
-                BlendMode.srcIn,
-              ),
-            ),
-          ),
-          suffixIcon: suffix,
-          contentPadding: const EdgeInsets.symmetric(vertical: 18),
+    bool hasError = touched && errorText != null && errorText.isNotEmpty;
+
+    return TextFormField(
+      onTap: (){
+        setState(() {
+          if(controller == _emailController) {
+          _emailTouched = true;
+          } else if(controller == _passwordController) {
+            _passwordTouched = true;
+          }
+        });
+      },
+      controller: controller,
+      obscureText: obscure,
+      validator: validator,
+      onChanged: (_) => onChanged?.call(),
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: SvgPicture.asset(iconPath, width: 20, height: 20),
         ),
+        suffixIcon: suffix,
+        filled: true,
+        fillColor: const Color(0xFFF5F5F7),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide.none,
+        ),
+        errorText: hasError ? errorText : null,
+        errorStyle: const TextStyle(height: 0), // Hide default error space
       ),
     );
   }

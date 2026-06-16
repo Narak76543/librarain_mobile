@@ -36,7 +36,7 @@ class AppColors {
   static const Color textDisabled = Color(0xFF9CA3AF); // disabled fields
 
   // ==================== Semantic =============================================
-  static const Color error = Color(0xFFEF4444);
+  static const Color error = Color(0xFFc02e2e);
   static const Color errorLight = Color(0xFFFEE2E2);
   static const Color warning = Color(0xFFF59E0B);
   static const Color warningLight = Color(0xFFFEF3C7);
@@ -44,6 +44,7 @@ class AppColors {
   static const Color successLight = accent50;
   static const Color info = primary600;
   static const Color infoLight = primary50;
+  static const Color isPending = Color(0xFFFFA500);
 
   // ================ Common shorthands ========================================
   static const Color primary = primary600;
