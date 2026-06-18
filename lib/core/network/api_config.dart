@@ -40,6 +40,6 @@ class ApiConfig {
   static const String shopAddress = "123 Norodom Blvd, Phnom Penh";
   static const String telegramBotUsername = String.fromEnvironment(
     'TELEGRAM_BOT_USERNAME',
-    defaultValue: 'MyBotName',
+    defaultValue: 'librarain_postman2_bot',
   );
 }
