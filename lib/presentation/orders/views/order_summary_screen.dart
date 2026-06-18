@@ -8,7 +8,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/widgets/app_text.dart';
 import '../../../data/models/order_model.dart';
-import '../../../providers/order_provider.dart';
+import '../viewmodels/order_viewmodel.dart';
 import '../../../data/repositories/invoice_repository.dart';
 import '../../../shared/widgets/app_snackbar.dart';
 
@@ -28,7 +28,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OrderProvider>().loadOrderSummary(widget.orderId);
+      context.read<OrderViewModel>().loadOrderSummary(widget.orderId);
     });
   }
 
@@ -90,7 +90,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<OrderProvider>();
+    final provider = context.watch<OrderViewModel>();
     final summary = provider.summary;
 
     return Scaffold(
@@ -805,7 +805,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             );
 
             if (confirm == true && context.mounted) {
-              final provider = context.read<OrderProvider>();
+              final provider = context.read<OrderViewModel>();
               final success = await provider.cancelOrder(widget.orderId);
               if (context.mounted) {
                 if (success) {

@@ -17,6 +17,7 @@ import 'presentation/orders/views/order_summary_screen.dart';
 import 'presentation/orders/views/order_confirmed_screen.dart';
 import 'presentation/cart/cart_screen.dart';
 import 'presentation/shop/views/book_detail_screen.dart';
+import 'presentation/shop/views/ai_chat_screen.dart';
 
 GoRouter createAppRouter({required bool isLoggedIn}) {
   return GoRouter(
@@ -112,6 +113,10 @@ GoRouter createAppRouter({required bool isLoggedIn}) {
           final bookId = state.pathParameters['id']!;
           return BookDetailScreen(bookId: bookId);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.aiChat,
+        builder: (context, state) => const AiChatScreen(),
       ),
     ],
   );

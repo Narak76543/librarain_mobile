@@ -7,7 +7,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/widgets/app_text.dart';
-import '../../../providers/shop_provider.dart';
+import '../viewmodels/shop_viewmodel.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../cart/viewmodels/cart_viewmodel.dart';
 import '../widgets/book_card.dart';
@@ -33,7 +33,7 @@ class _ShopScreenState extends State<ShopScreen> {
 
   void _onScroll() {
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
-      context.read<ShopProvider>().loadMore();
+      context.read<ShopViewModel>().loadMore();
     }
   }
 
@@ -46,7 +46,7 @@ class _ShopScreenState extends State<ShopScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final shopProvider = context.watch<ShopProvider>();
+    final shopProvider = context.watch<ShopViewModel>();
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -364,7 +364,7 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 
-  Widget _buildCategoryChip(BuildContext context, ShopProvider shopProvider, String label, String slug) {
+  Widget _buildCategoryChip(BuildContext context, ShopViewModel shopProvider, String label, String slug) {
     final isSelected = shopProvider.selectedCategory == slug;
     return GestureDetector(
       onTap: () => shopProvider.onCategorySelected(slug),

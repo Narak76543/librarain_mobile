@@ -7,7 +7,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/widgets/app_text.dart';
 import '../../../data/models/book_model.dart';
-import '../../../providers/book_detail_provider.dart';
+import '../viewmodels/book_detail_viewmodel.dart';
 import '../../cart/viewmodels/cart_viewmodel.dart';
 import '../../../shared/widgets/wishlist_heart.dart';
 
@@ -25,13 +25,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BookDetailProvider>().fetchBookDetails(widget.bookId);
+      context.read<BookDetailViewModel>().fetchBookDetails(widget.bookId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<BookDetailProvider>();
+    final provider = context.watch<BookDetailViewModel>();
     final book = provider.book;
     final isLoading = provider.isLoading;
 

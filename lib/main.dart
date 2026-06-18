@@ -7,13 +7,15 @@ import 'app_router.dart';
 import 'core/theme/app_color.dart';
 import 'core/theme/app_text_style.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'providers/app_providers.dart';
+import 'core/di/app_providers.dart';
 import 'core/services/notification_service.dart';
 import 'core/network/dio_client.dart';
+import 'core/di/injection.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  await initDi();
 
   // Initialize Firebase
   await Firebase.initializeApp();

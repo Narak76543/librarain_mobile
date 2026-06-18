@@ -54,7 +54,7 @@ class BookRepository {
     );
   }
 
-  Future<List<BookModel>> getBooks({String? category, bool? featured, String? search, String? sort}) async {
+  Future<List<BookModel>> getBooks({String? category, bool? featured, String? search, String? sort, double? maxPrice}) async {
     try {
       final queryParams = <String, dynamic>{};
       if (category != null && category.isNotEmpty && category != 'All') {
@@ -69,6 +69,9 @@ class BookRepository {
       }
       if (sort != null && sort.isNotEmpty) {
         queryParams['sort'] = sort;
+      }
+      if (maxPrice != null) {
+        queryParams['max_price'] = maxPrice;
       }
 
       final response = await _dio.get<dynamic>(

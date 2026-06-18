@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_color.dart';
-import '../../providers/wishlist_provider.dart';
+import '../../presentation/profile/viewmodels/wishlist_viewmodel.dart';
 
 class WishlistHeart extends StatelessWidget {
   const WishlistHeart({super.key, required this.bookId});
@@ -10,7 +10,7 @@ class WishlistHeart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<WishlistProvider>();
+    final provider = context.watch<WishlistViewModel>();
     final isWishlisted = provider.isWishlisted(bookId);
 
     return GestureDetector(

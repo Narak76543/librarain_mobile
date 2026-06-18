@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'dart:async';
-import '../data/models/book_model.dart';
-import '../data/models/category_model.dart';
-import '../data/repositories/book_repository.dart';
+import '../../../data/models/book_model.dart';
+import '../../../data/models/category_model.dart';
+import '../../../data/repositories/book_repository.dart';
+import '../../../core/di/injection.dart';
 
-class ShopProvider extends ChangeNotifier {
-  final _repo = BookRepository();
+class ShopViewModel extends ChangeNotifier {
+  final _repo = sl<BookRepository>();
 
   // State
   List<BookModel>     books             = [];
@@ -139,6 +141,24 @@ class ShopProvider extends ChangeNotifier {
     priceFilterActive = false;
     minPrice          = 0;
     maxPrice          = 100;
+    loadBooks(reset: true);
+    notifyListeners();
+  }
+
+  void applyAiFilters(Map<String, dynamic> filters) {
+    if (filters.containsKey('search')) {
+      searchQuery = filters['search'];
+    }
+    if (filters.containsKey('category')) {
+      selectedCategory = filters['category'];
+    }
+    if (filters.containsKey('sort')) {
+      selectedSort = filters['sort'];
+    }
+    if (filters.containsKey('max_price')) {
+      maxPrice = (filters['max_price'] as num).toDouble();
+      priceFilterActive = true;
+    }
     loadBooks(reset: true);
     notifyListeners();
   }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/widgets/app_text.dart';
-import '../../../providers/shop_provider.dart';
+import '../viewmodels/shop_viewmodel.dart';
 
 class FilterBottomSheet extends StatefulWidget {
   const FilterBottomSheet({super.key});
@@ -20,7 +20,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
   @override
   void initState() {
     super.initState();
-    final shopProvider = context.read<ShopProvider>();
+    final shopProvider = context.read<ShopViewModel>();
     _tempSort = shopProvider.selectedSort;
     _tempMinPrice = shopProvider.minPrice;
     _tempMaxPrice = shopProvider.maxPrice;
@@ -29,7 +29,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final shopProvider = context.read<ShopProvider>();
+    final shopProvider = context.read<ShopViewModel>();
 
     return DraggableScrollableSheet(
       initialChildSize: 0.9,

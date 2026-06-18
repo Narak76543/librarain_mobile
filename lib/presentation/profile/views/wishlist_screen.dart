@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/widgets/app_text.dart';
-import '../../../providers/wishlist_provider.dart';
+import '../viewmodels/wishlist_viewmodel.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/wishlist_heart.dart';
 
@@ -21,13 +21,13 @@ class _WishlistScreenState extends State<WishlistScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<WishlistProvider>().loadWishlist();
+      context.read<WishlistViewModel>().loadWishlist();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<WishlistProvider>();
+    final provider = context.watch<WishlistViewModel>();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -147,7 +147,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
     );
   }
 
-  Widget _buildWishlistGrid(WishlistProvider provider) {
+  Widget _buildWishlistGrid(WishlistViewModel provider) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

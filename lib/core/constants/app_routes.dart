@@ -18,4 +18,5 @@ class AppRoutes {
   static const String orders = '/orders';
   static const String orderConfirmed = '/orders/confirmed';
   static String orderSummary(String id) => '/orders/$id/summary';
+  static const String aiChat = '/ai-chat';
 }

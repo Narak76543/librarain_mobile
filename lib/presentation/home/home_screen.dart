@@ -156,7 +156,12 @@ class _HomeHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        _HeaderIconButton(iconPath: 'assets/icons/heart.svg', onTap: () {}),
+        _HeaderIconButton(
+          iconData: Icons.auto_awesome,
+          onTap: () {
+            context.push(AppRoutes.aiChat);
+          },
+        ),
         const SizedBox(width: 10),
         _HeaderIconButton(
           iconPath: 'assets/icons/bell.svg',
@@ -969,12 +974,14 @@ class _ProfileAvatar extends StatelessWidget {
 
 class _HeaderIconButton extends StatelessWidget {
   const _HeaderIconButton({
-    required this.iconPath,
+    this.iconPath,
+    this.iconData,
     required this.onTap,
     this.badgeCount,
   });
 
-  final String iconPath;
+  final String? iconPath;
+  final IconData? iconData;
   final VoidCallback onTap;
   final int? badgeCount;
 
@@ -1015,15 +1022,21 @@ class _HeaderIconButton extends StatelessWidget {
                     customBorder: const CircleBorder(),
                     onTap: onTap,
                     child: Center(
-                      child: SvgPicture.asset(
-                        iconPath,
-                        width: 24,
-                        height: 24,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.textPrimary,
-                          BlendMode.srcIn,
-                        ),
-                      ),
+                      child: iconPath != null
+                          ? SvgPicture.asset(
+                              iconPath!,
+                              width: 24,
+                              height: 24,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.textPrimary,
+                                BlendMode.srcIn,
+                              ),
+                            )
+                          : Icon(
+                              iconData,
+                              size: 24,
+                              color: AppColors.textPrimary,
+                            ),
                     ),
                   ),
                 ),

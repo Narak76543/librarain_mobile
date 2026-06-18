@@ -6,7 +6,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_texts.dart';
 import '../../../core/theme/app_color.dart';
 import '../viewmodels/auth_view_model.dart';
-import '../../../providers/wishlist_provider.dart';
+import '../../profile/viewmodels/wishlist_viewmodel.dart';
 
 // class LoginScreen extends StatefulWidget {
 //   const LoginScreen({super.key});
@@ -233,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      context.read<WishlistProvider>().loadWishlist();
+      context.read<WishlistViewModel>().loadWishlist();
       context.go(AppRoutes.main);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

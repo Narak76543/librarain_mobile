@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../data/models/book_model.dart';
-import '../data/repositories/book_repository.dart';
+import '../../../data/models/book_model.dart';
+import '../../../data/repositories/book_repository.dart';
+import '../../../core/di/injection.dart';
 
-class BookDetailProvider extends ChangeNotifier {
-  BookDetailProvider({BookRepository? bookRepository})
-      : _bookRepository = bookRepository ?? BookRepository();
+class BookDetailViewModel extends ChangeNotifier {
+  BookDetailViewModel({BookRepository? bookRepository})
+      : _bookRepository = bookRepository ?? sl<BookRepository>();
 
   final BookRepository _bookRepository;
 

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../data/models/order_model.dart';
-import '../data/repositories/order_repository.dart';
+import '../../../data/models/order_model.dart';
+import '../../../data/repositories/order_repository.dart';
+import '../../../core/di/injection.dart';
 
-class OrderProvider extends ChangeNotifier {
-  final _repo = OrderRepository();
+class OrderViewModel extends ChangeNotifier {
+  final _repo = sl<OrderRepository>();
 
   List<OrderModel>    orders       = [];
   OrderSummaryModel?  summary;

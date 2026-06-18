@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
-import '../data/models/wishlist_model.dart';
-import '../data/repositories/wishlist_repository.dart';
+import '../../../data/models/wishlist_model.dart';
+import '../../../data/repositories/wishlist_repository.dart';
+import '../../../core/di/injection.dart';
 
-class WishlistProvider extends ChangeNotifier {
-  final _repo = WishlistRepository();
+class WishlistViewModel extends ChangeNotifier {
+  final _repo = sl<WishlistRepository>();
 
   List<WishlistItem> items = [];
   Set<String> wishlistedIds = {};

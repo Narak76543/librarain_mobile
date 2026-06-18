@@ -6,7 +6,7 @@ import '../profile/profile_screen.dart';
 import '../shop/views/shop_screen.dart';
 import 'widgets/floating_nav_bar.dart';
 import 'package:provider/provider.dart';
-import '../../providers/shop_provider.dart';
+import '../shop/viewmodels/shop_viewmodel.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -44,7 +44,7 @@ class _MainScreenState extends State<MainScreen> {
               currentIndex: _currentIndex,
               onTap: (index) {
                 if (index == 1) {
-                  context.read<ShopProvider>().init();
+                  context.read<ShopViewModel>().init();
                 }
                 setState(() {
                   _currentIndex = index;
