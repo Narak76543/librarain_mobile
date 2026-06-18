@@ -61,12 +61,25 @@ class PrimaryButton extends StatelessWidget {
       );
     }
 
-    return SizedBox(
+    return Container(
       width: double.infinity,
       height: 44,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        gradient: isOnDark ? null : AppGradients.primary,
+        color: isOnDark ? AppColors.white : null,
+        boxShadow: isOnDark ? null : [
+          BoxShadow(
+            color: AppColors.primary400.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: isOnDark ? AppColors.white : AppColors.waterBlue,
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
           foregroundColor: isOnDark ? AppColors.primary : AppColors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),

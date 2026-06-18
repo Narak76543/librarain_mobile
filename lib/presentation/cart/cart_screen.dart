@@ -31,9 +31,13 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
-      body: SafeArea(
-        child: RefreshIndicator(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: SafeArea(
+          child: RefreshIndicator(
           color: AppColors.buttonColor,
           backgroundColor: AppColors.white,
           displacement: 28,
@@ -64,7 +68,8 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }
 

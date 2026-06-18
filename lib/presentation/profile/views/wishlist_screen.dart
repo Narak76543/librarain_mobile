@@ -30,7 +30,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
     final provider = context.watch<WishlistViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -67,17 +67,24 @@ class _WishlistScreenState extends State<WishlistScreen> {
           ),
         ],
       ),
-      body: provider.isLoading && provider.items.isEmpty
-          ? _buildLoadingGrid()
-          : provider.items.isEmpty
-          ? EmptyState(
-              icon: Icons.favorite_border,
-              title: 'No saved books yet',
-              subtitle: 'Tap the heart icon on any book to save it',
-              buttonLabel: 'Browse Books',
-              onButtonPressed: () => context.go(AppRoutes.main),
-            )
-          : _buildWishlistGrid(provider),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: SafeArea(
+          child: provider.isLoading && provider.items.isEmpty
+              ? _buildLoadingGrid()
+              : provider.items.isEmpty
+                  ? EmptyState(
+                      icon: Icons.favorite_border,
+                      title: 'No saved books yet',
+                      subtitle: 'Tap the heart icon on any book to save it',
+                      buttonLabel: 'Browse Books',
+                      onButtonPressed: () => context.go(AppRoutes.main),
+                    )
+                  : _buildWishlistGrid(provider),
+        ),
+      ),
     );
   }
 

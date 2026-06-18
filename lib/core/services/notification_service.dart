@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/dio_client.dart';
 
@@ -10,11 +12,23 @@ import '../network/dio_client.dart';
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   debugPrint('Background message: ${message.notification?.title}');
+  final prefs = await SharedPreferences.getInstance();
+  final String? data = prefs.getString('saved_notifications');
+  List<dynamic> jsonList = data != null ? jsonDecode(data) : [];
+  jsonList.insert(0, {
+    'title': message.notification?.title ?? 'Notification',
+    'body': message.notification?.body ?? '',
+    'isRead': false,
+  });
+  await prefs.setString('saved_notifications', jsonEncode(jsonList));
 }
 
 class NotificationService {
   static final _messaging = FirebaseMessaging.instance;
   static final _localNotifications = FlutterLocalNotificationsPlugin();
+  
+  // Stream to notify UI of new foreground messages
+  static final onNotificationReceived = StreamController<dynamic>.broadcast();
 
   // Channel for Android
   static const _channel = AndroidNotificationChannel(
@@ -62,6 +76,7 @@ class NotificationService {
     FirebaseMessaging.onMessage.listen((message) {
       debugPrint('Foreground: ${message.notification?.title}');
       _showLocalNotification(message);
+      onNotificationReceived.add(message);
     });
 
     // ── 5. Background tap ─────────────────────────────────

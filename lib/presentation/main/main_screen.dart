@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../history/history_screen.dart';
 import '../home/home_screen.dart';
 import '../profile/profile_screen.dart';
 import '../shop/views/shop_screen.dart';
 import 'widgets/floating_nav_bar.dart';
-import 'package:provider/provider.dart';
 import '../shop/viewmodels/shop_viewmodel.dart';
+import '../../core/theme/app_color.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -28,14 +29,19 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
       extendBody: true,
-      body: Stack(
-        children: [
-          IndexedStack(
-            index: _currentIndex,
-            children: _screens,
-          ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: Stack(
+          children: [
+            IndexedStack(
+              index: _currentIndex,
+              children: _screens,
+            ),
           Positioned(
             left: 0,
             right: 0,
@@ -53,6 +59,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

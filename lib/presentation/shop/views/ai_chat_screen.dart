@@ -67,8 +67,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFD),
-      body: Stack(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: Stack(
         children: [
           Positioned(
             top: -100,
@@ -123,8 +127,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildAppBar() {
     return Padding(
@@ -156,41 +161,87 @@ class _AiChatScreenState extends State<AiChatScreen> {
       return Padding(
         padding: const EdgeInsets.fromLTRB(60, 8, 20, 8),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Flexible(
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 decoration: BoxDecoration(
-                  color: AppColors.white.withValues(alpha: 0.7),
+                  gradient: AppGradients.primary,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(4),
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(6),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.textPrimary.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      color: AppColors.primary400.withValues(alpha: 0.25),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
                     ),
                   ],
-                  border: Border.all(color: AppColors.white, width: 1.5),
                 ),
                 child: AppText.bodyMedium(
                   message.text,
-                  color: AppColors.textPrimary,
-                  fontSize: 14,
+                  color: AppColors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  height: 1.3,
                 ),
               ),
             ),
-            const SizedBox(width: 12),
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: AppColors.primary100,
-              child: const Icon(Icons.person, size: 20, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              ),
+              child: Consumer<ProfileViewModel>(
+                builder: (context, profileState, child) {
+                  final avatarUrl = profileState.profile?.resolvedAvatarUrl;
+                  if (avatarUrl != null) {
+                    return ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: avatarUrl,
+                        width: 32,
+                        height: 32,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const SizedBox(
+                          width: 32,
+                          height: 32,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        errorWidget: (context, url, error) => CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppColors.white,
+                          child: AppText.bodySmall(
+                            profileState.profile?.initials ?? 'Me',
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return CircleAvatar(
+                    radius: 16,
+                    backgroundColor: AppColors.white,
+                    child: AppText.bodySmall(
+                      profileState.profile?.initials ?? 'Me',
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -203,46 +254,78 @@ class _AiChatScreenState extends State<AiChatScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: AppColors.buttonColor,
-            child: const Icon(Icons.auto_awesome, color: AppColors.white, size: 24),
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                )
+              ]
+            ),
+            child: CircleAvatar(
+              radius: 18,
+              backgroundColor: AppColors.white,
+              child: const Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
+            ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Flexible(
-            child: message.isLoading
-                ? const Padding(
-                    padding: EdgeInsets.only(top: 12.0),
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.buttonColor),
-                    ),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.white.withValues(alpha: 0.75),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(6),
+                  topRight: Radius.circular(24),
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
+                border: Border.all(color: AppColors.white.withValues(alpha: 0.9), width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
                   )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (textParts.length > 1) ...[
-                        AppText.bodyMedium(
-                          textParts[0],
-                          color: AppColors.textPrimary.withValues(alpha: 0.7),
-                          fontSize: 18,
-                        ),
-                        AppText.titleLarge(
-                          textParts[1],
-                          color: AppColors.textPrimary,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          height: 1.2,
-                        ),
-                      ] else ...[
-                        AppText.bodyMedium(
-                          message.text,
-                          color: AppColors.textPrimary,
-                          fontSize: 15,
-                          height: 1.4,
-                        ),
-                      ],
+                ],
+              ),
+              child: message.isLoading
+                  ? const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 4.0),
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.primary),
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (textParts.length > 1) ...[
+                          AppText.bodyMedium(
+                            textParts[0],
+                            color: AppColors.textPrimary.withValues(alpha: 0.8),
+                            fontSize: 16,
+                          ),
+                          const SizedBox(height: 4),
+                          AppText.titleLarge(
+                            textParts[1],
+                            color: AppColors.textPrimary,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            height: 1.3,
+                          ),
+                        ] else ...[
+                          AppText.bodyMedium(
+                            message.text,
+                            color: AppColors.textPrimary.withValues(alpha: 0.9),
+                            fontSize: 15,
+                            height: 1.5,
+                          ),
+                        ],
                       if (message.books != null && message.books!.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         SizedBox(
@@ -316,13 +399,13 @@ class _AiChatScreenState extends State<AiChatScreen> {
                               backgroundColor: AppColors.buttonColor,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                              elevation: 0,
                             ),
                           ),
                         ),
                       ],
                     ],
                   ),
+            ),
           ),
         ],
       ),
@@ -372,7 +455,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: viewModel.isProcessing ? AppColors.textDisabled : AppColors.textPrimary,
+                      gradient: viewModel.isProcessing ? null : AppGradients.primary,
+                      color: viewModel.isProcessing ? AppColors.textDisabled : null,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.arrow_upward_rounded, color: AppColors.white, size: 20),
@@ -386,4 +470,3 @@ class _AiChatScreenState extends State<AiChatScreen> {
     );
   }
 }
-

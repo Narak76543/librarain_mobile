@@ -104,8 +104,23 @@ class AiChatViewModel extends ChangeNotifier {
       }
     } catch (e) {
       removeLastMessage(); // Remove loading bubble
+      
+      String errorMessage = "Sorry, I encountered an error: $e";
+      if (e.toString().toLowerCase().contains('quota') || e.toString().contains('429')) {
+        String waitTime = "a moment";
+        final match = RegExp(r'Please retry in ([0-9.]+)s').firstMatch(e.toString());
+        if (match != null && match.groupCount >= 1) {
+          final secondsStr = match.group(1);
+          final seconds = double.tryParse(secondsStr ?? '');
+          if (seconds != null) {
+            waitTime = "${seconds.ceil()} seconds";
+          }
+        }
+        errorMessage = "I'm experiencing high traffic right now and reached my rate limit. Please wait $waitTime and try again.";
+      }
+      
       addMessage(AiMessage(
-        text: "Sorry, I encountered an error: $e",
+        text: errorMessage,
         isUser: false,
       ));
     } finally {

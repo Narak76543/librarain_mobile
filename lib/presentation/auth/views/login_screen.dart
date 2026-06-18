@@ -253,8 +253,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final authViewModel = context.watch<AuthViewModel>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
 
@@ -326,18 +330,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
-                      if (_emailTouched && _emailError != null && _emailError!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16, top: 8),
-                          child: Text(
-                            _emailError!,
-                            style: const TextStyle(
-                              color: AppColors.error,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
                     ],
                   ),
                 ),
@@ -383,18 +375,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    if (_passwordTouched && _passwordError != null && _passwordError!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 16, top: 8),
-                        child: Text(
-                          _passwordError!,
-                          style: const TextStyle(
-                            color: AppColors.error,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
 
@@ -553,6 +533,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 30),
               ],
             ),
+            ),
           ),
         ),
       ),
@@ -600,7 +581,6 @@ class _LoginScreenState extends State<LoginScreen> {
           borderSide: BorderSide.none,
         ),
         errorText: hasError ? errorText : null,
-        errorStyle: const TextStyle(height: 0), // Hide default error space
       ),
     );
   }

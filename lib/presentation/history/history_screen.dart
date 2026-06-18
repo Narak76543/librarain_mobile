@@ -191,7 +191,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         viewModel.orders; // To check if entirely empty vs just filter empty
 
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Slightly off-white background
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text(
           'History',
@@ -201,7 +201,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             color: AppColors.buttonColor,
           ),
         ),
-        backgroundColor: Colors.grey[50],
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
       ),

@@ -52,3 +52,38 @@ class AppColors {
   static const Color background = white;
   static const Color buttonColor = Color(0xFF4F8C87);
 }
+
+class AppGradients {
+  AppGradients._();
+
+  // Primary vibrant gradient (Blue to Teal)
+  static const LinearGradient primary = LinearGradient(
+    colors: [
+      Color(0xFF3B82F6), // Blue
+      Color(0xFF10B981), // Teal/Green
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Soft background gradient for screens
+  static const LinearGradient background = LinearGradient(
+    colors: [
+      Color(0xFFF0FDF4), // Very light mint
+      Color(0xFFEFF6FF), // Very light blue
+      Color(0xFFFFFFFF),
+    ],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+  
+  // Glassmorphism subtle gradient for overlays
+  static const LinearGradient glass = LinearGradient(
+    colors: [
+      Color(0x99FFFFFF), // 60% White
+      Color(0x33FFFFFF), // 20% White
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+}

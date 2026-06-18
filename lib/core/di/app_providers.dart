@@ -12,9 +12,13 @@ import '../../presentation/shop/viewmodels/shop_viewmodel.dart';
 import '../../presentation/shop/viewmodels/book_detail_viewmodel.dart';
 import '../../presentation/shop/viewmodels/ai_chat_viewmodel.dart';
 import '../../presentation/home/viewmodels/home_viewmodel.dart';
+import '../../presentation/home/viewmodels/notification_viewmodel.dart';
 import 'injection.dart'; // import sl
 
 final appProviders = [
+  ChangeNotifierProvider<NotificationViewModel>(
+    create: (_) => NotificationViewModel(),
+  ),
   ChangeNotifierProvider<AiChatViewModel>(
     create: (_) => AiChatViewModel(),
   ),

@@ -56,64 +56,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.textPrimary,
-          backgroundColor: AppColors.white,
-          onRefresh: context.read<ProfileViewModel>().refreshProfile,
-          child: ListView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-            children: [
-              const SizedBox(height: 20),
-              const _TopBar(),
-              const SizedBox(height: 22),
-              const _UserCard(),
-              const SizedBox(height: 20),
-              _MenuCard(
-                children: [
-                  _MenuRow(
-                    svgPath: "assets/icons/shopping-cart.svg",
-                    title: 'My Orders',
-                    onTap: () => context.push(AppRoutes.orders),
-                  ),
-                  _MenuRow(
-                    svgPath: "assets/icons/bell-dot.svg",
-                    title: 'Link Telegram Alerts',
-                    onTap: _linkTelegram,
-                  ),
-                  _MenuRow(
-                    svgPath: "assets/icons/bookmark.svg",
-                    title: 'My Wishlist',
-                    onTap: () => context.push(AppRoutes.wishlist),
-                  ),
-                  _MenuRow(
-                    svgPath: "assets/icons/map-pinned.svg",
-                    title: 'Shipping Address',
-                    onTap: () => context.push(AppRoutes.shippingAddress),
-                  ),
-                  const _MenuRow(
-                    svgPath: "assets/icons/bell-dot.svg",
-                    title: 'Notifications',
-                  ),
-                  _MenuRow(
-                    svgPath: "assets/icons/user-round-key.svg",
-                    title: 'Change Password',
-                    onTap: () => context.push(AppRoutes.changePassword),
-                  ),
-                  const _MenuRow(
-                    svgPath: "assets/icons/info.svg",
-                    title: 'About App',
-                  ),
-                ],
+    return Container(
+      decoration: const BoxDecoration(gradient: AppGradients.background),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: RefreshIndicator(
+            color: AppColors.textPrimary,
+            backgroundColor: AppColors.white,
+            onRefresh: context.read<ProfileViewModel>().refreshProfile,
+            child: ListView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
               ),
-              const SizedBox(height: 18),
-              SwipeLogoutButton(onLogout: _logout),
-            ],
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+              children: [
+                const SizedBox(height: 20),
+                const _TopBar(),
+                const SizedBox(height: 22),
+                const _UserCard(),
+                const SizedBox(height: 20),
+                _MenuCard(
+                  children: [
+                    _MenuRow(
+                      svgPath: "assets/icons/shopping-cart.svg",
+                      title: 'My Orders',
+                      onTap: () => context.push(AppRoutes.orders),
+                    ),
+                    _MenuRow(
+                      svgPath: "assets/icons/bell-dot.svg",
+                      title: 'Link Telegram Alerts',
+                      onTap: _linkTelegram,
+                    ),
+                    _MenuRow(
+                      svgPath: "assets/icons/bookmark.svg",
+                      title: 'My Wishlist',
+                      onTap: () => context.push(AppRoutes.wishlist),
+                    ),
+                    _MenuRow(
+                      svgPath: "assets/icons/map-pinned.svg",
+                      title: 'Shipping Address',
+                      onTap: () => context.push(AppRoutes.shippingAddress),
+                    ),
+                    const _MenuRow(
+                      svgPath: "assets/icons/bell-dot.svg",
+                      title: 'Notifications',
+                    ),
+                    _MenuRow(
+                      svgPath: "assets/icons/user-round-key.svg",
+                      title: 'Change Password',
+                      onTap: () => context.push(AppRoutes.changePassword),
+                    ),
+                    const _MenuRow(
+                      svgPath: "assets/icons/info.svg",
+                      title: 'About App',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                SwipeLogoutButton(onLogout: _logout),
+              ],
+            ),
           ),
         ),
       ),
@@ -130,10 +133,10 @@ class _TopBar extends StatelessWidget {
       children: [
         const Expanded(
           child: AppText.titleLarge(
-            'Setting',
+            'Settings',
             color: AppColors.textPrimary,
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
         IconButton(
@@ -165,25 +168,36 @@ class _UserCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withAlpha(130)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.textPrimary.withAlpha(20),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         onTap: () => context.push(AppRoutes.editProfile),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              _UserAvatar(profile: profile, isLoading: profileState.isLoading),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    width: 2,
+                  ),
+                ),
+                child: _UserAvatar(
+                  profile: profile,
+                  isLoading: profileState.isLoading,
+                ),
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -192,28 +206,33 @@ class _UserCard extends StatelessWidget {
                     AppText.bodyMedium(
                       displayName,
                       color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.normal,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
-                    const Row(
+                    const SizedBox(height: 4),
+                    Row(
                       children: [
-                        Icon(
-                          Icons.person_outline_rounded,
-                          color: AppColors.textDisabled,
-                          size: 14,
+                        const Icon(
+                          Icons.verified_rounded,
+                          color: AppColors.primary,
+                          size: 16,
                         ),
-                        SizedBox(width: 6),
-                        AppText.bodyMedium(
-                          'Member',
-                          color: AppColors.textDisabled,
+                        const SizedBox(width: 6),
+                        const AppText.bodySmall(
+                          'Premium Member',
+                          color: AppColors.buttonColor,
                           fontWeight: FontWeight.w500,
                         ),
                       ],
                     ),
                   ],
                 ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textDisabled,
+                size: 24,
               ),
             ],
           ),
@@ -298,14 +317,17 @@ class _MenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border.withAlpha(130)),
+        color: AppColors.white.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppColors.white.withValues(alpha: 0.8),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.textPrimary.withAlpha(20),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
+            color: AppColors.primary.withValues(alpha: 0.05),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),

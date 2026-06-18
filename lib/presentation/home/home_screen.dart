@@ -15,6 +15,7 @@ import '../../data/repositories/category_repository.dart';
 import '../../shared/widgets/wishlist_heart.dart';
 import '../profile/viewmodels/profile_viewmodel.dart';
 import '../../core/constants/app_routes.dart';
+import 'viewmodels/notification_viewmodel.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,56 +46,56 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: RefreshIndicator(
-          color: AppColors.buttonColor,
-          backgroundColor: AppColors.white,
-          displacement: 28,
-          onRefresh: _refreshHome,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 110),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _HomeHeader(),
-                const SizedBox(height: 10),
-                _SearchSection(
-                  onSearch: (query) {
-                    setState(() {
-                      _searchQuery = query;
-                      _refreshVersion++;
-                    });
-                  },
-                ),
-                const SizedBox(height: 10),
-                _CategoriesSection(
-                  refreshVersion: _refreshVersion,
-                  selectedCategory: _selectedCategory,
-                  onCategorySelected: (category) {
-                    setState(() => _selectedCategory = category);
-                  },
-                ),
-                const SizedBox(height: 10),
-                const _BannerCarousel(),
-                const SizedBox(height: 18),
-                const _QuickActionSection(),
-                const SizedBox(height: 18),
-                _FeaturedSection(refreshVersion: _refreshVersion),
-                const SizedBox(height: 10),
-                _NewArrivalsSection(
-                  refreshVersion: _refreshVersion,
-                  selectedCategory: _selectedCategory,
-                  searchQuery: _searchQuery,
-                ),
-              ],
+            color: AppColors.buttonColor,
+            backgroundColor: AppColors.white,
+            displacement: 28,
+            onRefresh: _refreshHome,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 110),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const _HomeHeader(),
+                  const SizedBox(height: 10),
+                  _SearchSection(
+                    onSearch: (query) {
+                      setState(() {
+                        _searchQuery = query;
+                        _refreshVersion++;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  _CategoriesSection(
+                    refreshVersion: _refreshVersion,
+                    selectedCategory: _selectedCategory,
+                    onCategorySelected: (category) {
+                      setState(() => _selectedCategory = category);
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  const _BannerCarousel(),
+                  const SizedBox(height: 18),
+                  const _QuickActionSection(),
+                  const SizedBox(height: 18),
+                  _FeaturedSection(refreshVersion: _refreshVersion),
+                  const SizedBox(height: 10),
+                  _NewArrivalsSection(
+                    refreshVersion: _refreshVersion,
+                    selectedCategory: _selectedCategory,
+                    searchQuery: _searchQuery,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -158,6 +159,7 @@ class _HomeHeader extends StatelessWidget {
         const SizedBox(width: 10),
         _HeaderIconButton(
           iconData: Icons.auto_awesome,
+          isPrimary: true,
           onTap: () {
             context.push(AppRoutes.aiChat);
           },
@@ -165,8 +167,10 @@ class _HomeHeader extends StatelessWidget {
         const SizedBox(width: 10),
         _HeaderIconButton(
           iconPath: 'assets/icons/bell.svg',
-          badgeCount: 12,
-          onTap: () {},
+          badgeCount: context.watch<NotificationViewModel>().unreadCount,
+          onTap: () {
+            context.push(AppRoutes.notifications);
+          },
         ),
       ],
     );
@@ -978,12 +982,14 @@ class _HeaderIconButton extends StatelessWidget {
     this.iconData,
     required this.onTap,
     this.badgeCount,
+    this.isPrimary = false,
   });
 
   final String? iconPath;
   final IconData? iconData;
   final VoidCallback onTap;
   final int? badgeCount;
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {
@@ -1035,7 +1041,7 @@ class _HeaderIconButton extends StatelessWidget {
                           : Icon(
                               iconData,
                               size: 24,
-                              color: AppColors.textPrimary,
+                              color: isPrimary ? AppColors.primary : AppColors.textPrimary,
                             ),
                     ),
                   ),
@@ -1043,7 +1049,7 @@ class _HeaderIconButton extends StatelessWidget {
               ),
             ),
           ),
-          if (badgeCount != null)
+          if (badgeCount != null && badgeCount! > 0)
             Positioned(
               right: -2,
               top: -4,

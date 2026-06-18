@@ -94,7 +94,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     final summary = provider.summary;
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: AppColors.transparent,
         elevation: 0,
@@ -122,12 +122,17 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: provider.isLoading || summary == null
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.buttonColor),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.only(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: SafeArea(
+          child: provider.isLoading || summary == null
+              ? const Center(
+                  child: CircularProgressIndicator(color: AppColors.buttonColor),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.only(
                 left: 16,
                 right: 16,
                 top: 16,
@@ -761,6 +766,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 ],
               ),
             ),
+        ),
+      ),
     );
   }
 

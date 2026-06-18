@@ -49,9 +49,9 @@ class _ShopScreenState extends State<ShopScreen> {
     final shopProvider = context.watch<ShopViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         title: const AppText.titleSmall(
           "Get What You Want",
@@ -90,60 +90,193 @@ class _ShopScreenState extends State<ShopScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          children: [
-            // [1] SEARCH BAR
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  border: Border.all(color: AppColors.buttonColor, width: 0.4),
-                  borderRadius: BorderRadius.circular(32),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.textPrimary.withAlpha(14),
-                      blurRadius: 24,
-                      offset: const Offset(0, 10),
-                    ),
+          controller: _scrollController,
+          child: Column(
+            children: [
+              // [1] SEARCH BAR
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    border: Border.all(color: AppColors.buttonColor, width: 0.4),
+                    borderRadius: BorderRadius.circular(32),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.textPrimary.withAlpha(14),
+                        blurRadius: 24,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/search.svg',
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.buttonColor,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          cursorColor: AppColors.buttonColor,
+                          style: AppTextStyle.bodyLarge.copyWith(
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            hintText: "Search books, authors...",
+                            hintStyle: AppTextStyle.bodyMedium.copyWith(
+                              color: AppColors.textDisabled.withAlpha(190),
+                              fontSize: 13,
+                            ),
+                            isCollapsed: true,
+                          ),
+                          onChanged: (val) => shopProvider.onSearchChanged(val),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (_) => const FilterBottomSheet(),
+                          );
+                        },
+                        child: shopProvider.activeFilterCount > 0
+                            ? Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  const Icon(Icons.tune_rounded, color: AppColors.buttonColor),
+                                  Positioned(
+                                    top: -2,
+                                    right: -2,
+                                    child: Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.buttonColor,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const Icon(Icons.tune_rounded, color: AppColors.textDisabled),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // [2] ACTIVE FILTER CHIPS
+              if (shopProvider.hasActiveFilters)
+                Container(
+                  height: 40,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      if (shopProvider.selectedCategory.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(shopProvider.selectedCategory),
+                            onDeleted: () => shopProvider.onCategorySelected(shopProvider.selectedCategory),
+                            backgroundColor: AppColors.buttonColor.withAlpha(20),
+                            labelStyle: AppTextStyle.caption.copyWith(
+                              color: AppColors.buttonColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            deleteIconColor: AppColors.buttonColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: AppColors.buttonColor.withAlpha(40)),
+                            ),
+                            onSelected: (_) {},
+                          ),
+                        ),
+                      if (shopProvider.selectedSort.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(shopProvider.sortLabel),
+                            onDeleted: () => shopProvider.onSortSelected(''),
+                            backgroundColor: AppColors.buttonColor.withAlpha(20),
+                            labelStyle: AppTextStyle.caption.copyWith(
+                              color: AppColors.buttonColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            deleteIconColor: AppColors.buttonColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: AppColors.buttonColor.withAlpha(40)),
+                            ),
+                            onSelected: (_) {},
+                          ),
+                        ),
+                      if (shopProvider.priceFilterActive)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text('\$${shopProvider.minPrice.toInt()}–\$${shopProvider.maxPrice.toInt()}'),
+                            onDeleted: () => shopProvider.clearPriceFilter(),
+                            backgroundColor: AppColors.buttonColor.withAlpha(20),
+                            labelStyle: AppTextStyle.caption.copyWith(
+                              color: AppColors.buttonColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            deleteIconColor: AppColors.buttonColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(color: AppColors.buttonColor.withAlpha(40)),
+                            ),
+                            onSelected: (_) {},
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+              // [3] CATEGORY CHIPS
+              Container(
+                height: 35,
+                margin: const EdgeInsets.only(bottom: 16),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    _buildCategoryChip(context, shopProvider, 'All', ''),
+                    ...shopProvider.categories.map((c) {
+                      return _buildCategoryChip(context, shopProvider, c.name, c.slug);
+                    }),
                   ],
                 ),
+              ),
+
+              // [4] RESULTS HEADER
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    SvgPicture.asset(
-                      'assets/icons/search.svg',
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.buttonColor,
-                        BlendMode.srcIn,
-                      ),
+                    AppText.bodyMedium(
+                      "${shopProvider.total} books found",
+                      color: AppColors.textPrimary.withAlpha(160),
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        cursorColor: AppColors.buttonColor,
-                        style: AppTextStyle.bodyLarge.copyWith(
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          hintText: "Search books, authors...",
-                          hintStyle: AppTextStyle.bodyMedium.copyWith(
-                            color: AppColors.textDisabled.withAlpha(190),
-                            fontSize: 13,
-                          ),
-                          isCollapsed: true,
-                        ),
-                        onChanged: (val) => shopProvider.onSearchChanged(val),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
+                    const Spacer(),
                     GestureDetector(
                       onTap: () {
                         showModalBottomSheet(
@@ -153,213 +286,80 @@ class _ShopScreenState extends State<ShopScreen> {
                           builder: (_) => const FilterBottomSheet(),
                         );
                       },
-                      child: shopProvider.activeFilterCount > 0
-                          ? Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                const Icon(Icons.tune_rounded, color: AppColors.buttonColor),
-                                Positioned(
-                                  top: -2,
-                                  right: -2,
-                                  child: Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.buttonColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : const Icon(Icons.tune_rounded, color: AppColors.textDisabled),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          border: Border.all(color: AppColors.border),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        child: Row(
+                          children: [
+                            AppText.bodySmall(
+                              "Sort: ${shopProvider.sortLabel}",
+                              color: AppColors.textPrimary.withAlpha(180),
+                              fontWeight: FontWeight.w600,
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textDisabled),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // [2] ACTIVE FILTER CHIPS
-            if (shopProvider.hasActiveFilters)
-              Container(
-                height: 40,
-                margin: const EdgeInsets.only(bottom: 16),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    if (shopProvider.selectedCategory.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(shopProvider.selectedCategory),
-                          onDeleted: () => shopProvider.onCategorySelected(shopProvider.selectedCategory),
-                          backgroundColor: AppColors.buttonColor.withAlpha(20),
-                          labelStyle: AppTextStyle.caption.copyWith(
-                            color: AppColors.buttonColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          deleteIconColor: AppColors.buttonColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(color: AppColors.buttonColor.withAlpha(40)),
-                          ),
-                          onSelected: (_) {},
-                        ),
-                      ),
-                    if (shopProvider.selectedSort.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(shopProvider.sortLabel),
-                          onDeleted: () => shopProvider.onSortSelected(''),
-                          backgroundColor: AppColors.buttonColor.withAlpha(20),
-                          labelStyle: AppTextStyle.caption.copyWith(
-                            color: AppColors.buttonColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          deleteIconColor: AppColors.buttonColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(color: AppColors.buttonColor.withAlpha(40)),
-                          ),
-                          onSelected: (_) {},
-                        ),
-                      ),
-                    if (shopProvider.priceFilterActive)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text('\$${shopProvider.minPrice.toInt()}–\$${shopProvider.maxPrice.toInt()}'),
-                          onDeleted: () => shopProvider.clearPriceFilter(),
-                          backgroundColor: AppColors.buttonColor.withAlpha(20),
-                          labelStyle: AppTextStyle.caption.copyWith(
-                            color: AppColors.buttonColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          deleteIconColor: AppColors.buttonColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: BorderSide(color: AppColors.buttonColor.withAlpha(40)),
-                          ),
-                          onSelected: (_) {},
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-
-            // [3] CATEGORY CHIPS
-            Container(
-              height: 35,
-              margin: const EdgeInsets.only(bottom: 16),
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  _buildCategoryChip(context, shopProvider, 'All', ''),
-                  ...shopProvider.categories.map((c) {
-                    return _buildCategoryChip(context, shopProvider, c.name, c.slug);
-                  }),
-                ],
-              ),
-            ),
-
-            // [4] RESULTS HEADER
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  AppText.bodyMedium(
-                    "${shopProvider.total} books found",
-                    color: AppColors.textPrimary.withAlpha(160),
-                    fontWeight: FontWeight.w600,
+              // [5] BOOK GRID
+              if (shopProvider.isLoading)
+                const ShimmerGrid()
+              else if (shopProvider.books.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 60),
+                  child: EmptyState(
+                    icon: Icons.book,
+                    title: 'No Books Found',
+                    subtitle: 'Try adjusting your filters or search query.',
+                    buttonLabel: 'Clear Filters',
+                    onButtonPressed: () => shopProvider.clearAllFilters(),
                   ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) => const FilterBottomSheet(),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        border: Border.all(color: AppColors.border),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      child: Row(
-                        children: [
-                          AppText.bodySmall(
-                            "Sort: ${shopProvider.sortLabel}",
-                            color: AppColors.textPrimary.withAlpha(180),
-                            fontWeight: FontWeight.w600,
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: AppColors.textDisabled),
-                        ],
-                      ),
-                    ),
+                )
+              else
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.60,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // [5] BOOK GRID
-            if (shopProvider.isLoading)
-              const ShimmerGrid()
-            else if (shopProvider.books.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 60),
-                child: EmptyState(
-                  icon: Icons.book,
-                  title: 'No Books Found',
-                  subtitle: 'Try adjusting your filters or search query.',
-                  buttonLabel: 'Clear Filters',
-                  onButtonPressed: () => shopProvider.clearAllFilters(),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                  itemCount: shopProvider.books.length + (shopProvider.isLoadingMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == shopProvider.books.length) {
+                      return const Center(child: CircularProgressIndicator(color: AppColors.buttonColor));
+                    }
+                    final book = shopProvider.books[index];
+                    return BookCard(
+                      book: book,
+                      onTap: () => context.push('/book/${book.id}'),
+                      onAddToCart: () {
+                        context.read<CartViewModel>().addToCart(book);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${book.title} added to cart!'),
+                            backgroundColor: AppColors.buttonColor,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
-              )
-            else
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.60,
-                ),
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                itemCount: shopProvider.books.length + (shopProvider.isLoadingMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == shopProvider.books.length) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.buttonColor));
-                  }
-                  final book = shopProvider.books[index];
-                  return BookCard(
-                    book: book,
-                    onTap: () => context.push('/book/${book.id}'),
-                    onAddToCart: () {
-                      context.read<CartViewModel>().addToCart(book);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${book.title} added to cart!'),
-                          backgroundColor: AppColors.buttonColor,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-          ],
-        ),
+            ],
+          ),
       ),
     );
   }

@@ -18,6 +18,7 @@ import 'presentation/orders/views/order_confirmed_screen.dart';
 import 'presentation/cart/cart_screen.dart';
 import 'presentation/shop/views/book_detail_screen.dart';
 import 'presentation/shop/views/ai_chat_screen.dart';
+import 'presentation/home/views/notification_screen.dart';
 
 GoRouter createAppRouter({required bool isLoggedIn}) {
   return GoRouter(
@@ -117,6 +118,10 @@ GoRouter createAppRouter({required bool isLoggedIn}) {
       GoRoute(
         path: AppRoutes.aiChat,
         builder: (context, state) => const AiChatScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (context, state) => const NotificationScreen(),
       ),
     ],
   );

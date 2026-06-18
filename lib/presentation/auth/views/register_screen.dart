@@ -70,8 +70,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authViewModel = context.watch<AuthViewModel>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
           child: Form(
@@ -271,6 +275,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 40),
               ],
             ),
+            ),
           ),
         ),
       ),
@@ -317,7 +322,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           borderSide: BorderSide.none,
         ),
         errorText: hasError ? errorText : null,
-        errorStyle: const TextStyle(height: 0), // Hide default error space
       ),
     );
   }

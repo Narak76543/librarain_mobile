@@ -36,32 +36,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final isLoading = provider.isLoading;
 
     return Scaffold(
-      backgroundColor: AppColors.white,
-      body: isLoading || book == null
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.buttonColor),
-            )
-          : Stack(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: isLoading || book == null
+            ? const Center(
+                child: CircularProgressIndicator(color: AppColors.buttonColor),
+              )
+            : Stack(
               children: [
-                // Background Gradient
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: 350,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Color(0xFFE5E7EB), // Light grey
-                          AppColors.white,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+
                 SafeArea(
                   child: CustomScrollView(
                     slivers: [
@@ -92,6 +78,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 ),
               ],
             ),
+      ),
     );
   }
 
