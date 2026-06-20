@@ -360,37 +360,15 @@ class _FieldCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.textPrimary.withValues(alpha: 0.03),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+    return Column(
+      children: List.generate(children.length, (index) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: index == children.length - 1 ? 0 : 24.0,
           ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: List.generate(children.length, (index) {
-          return DecoratedBox(
-            decoration: BoxDecoration(
-              border: index == children.length - 1
-                  ? null
-                  : Border(
-                      bottom: BorderSide(
-                        color: AppColors.border.withValues(alpha: 0.4),
-                        width: 1,
-                      ),
-                    ),
-            ),
-            child: children[index],
-          );
-        }),
-      ),
+          child: children[index],
+        );
+      }),
     );
   }
 }
@@ -437,77 +415,96 @@ class _PasswordFieldState extends State<_PasswordField> {
   Widget build(BuildContext context) {
     final labelColor = _focusNode.hasFocus
         ? AppColors.buttonColor
-        : AppColors.textDisabled;
+        : AppColors.textPrimary.withValues(alpha: 0.8);
 
-    return Container(
-      color: _focusNode.hasFocus
-          ? AppColors.buttonColor.withValues(alpha: 0.02)
-          : Colors.transparent,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppText.bodySmall(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: AppText.bodySmall(
             widget.label,
             color: labelColor,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
-          const SizedBox(height: 2),
-          Row(
+        ),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: _focusNode.hasFocus 
+                ? AppColors.buttonColor.withValues(alpha: 0.05) 
+                : AppColors.surface,
+            border: Border.all(
+              width: 1.5,
+              color: _focusNode.hasFocus 
+                  ? AppColors.buttonColor 
+                  : AppColors.border.withValues(alpha: 0.8),
+            ),
+            boxShadow: _focusNode.hasFocus
+                ? [
+                    BoxShadow(
+                      color: AppColors.buttonColor.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : [],
+          ),
+          child: Row(
             children: [
               Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey.shade100,
-                    border: Border.all(width: 0.8, color: Colors.grey),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 16,
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 10,
-                          ),
-                          child: TextField(
-                            controller: widget.controller,
-                            focusNode: _focusNode,
-                            obscureText: widget.obscureText,
-                            cursorColor: AppColors.buttonColor,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              isDense: true,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
+                  child: TextField(
+                    controller: widget.controller,
+                    focusNode: _focusNode,
+                    obscureText: widget.obscureText,
+                    cursorColor: AppColors.buttonColor,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.5,
+                    ),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      hintText: '••••••••',
+                      hintStyle: TextStyle(
+                        color: AppColors.textDisabled.withValues(alpha: 0.5),
+                        letterSpacing: 2,
                       ),
-                      IconButton(
-                        onPressed: widget.onToggleVisibility,
-                        icon: Icon(
-                          widget.obscureText
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: AppColors.textDisabled,
-                          size: 20,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: IconButton(
+                  onPressed: widget.onToggleVisibility,
+                  icon: Icon(
+                    widget.obscureText
+                        ? Icons.visibility_off_rounded
+                        : Icons.visibility_rounded,
+                    color: _focusNode.hasFocus 
+                        ? AppColors.buttonColor 
+                        : AppColors.textDisabled,
+                    size: 22,
+                  ),
+                  splashRadius: 24,
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

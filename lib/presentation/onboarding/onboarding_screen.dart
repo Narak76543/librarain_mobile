@@ -49,6 +49,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
   ];
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pre-cache images for better performance to prevent jank when swiping
+    for (var page in pages) {
+      precacheImage(AssetImage(page.imagePath), context);
+    }
+  }
+
   void _openLogin(BuildContext context) {
     context.go(AppRoutes.login);
   }
@@ -68,154 +77,163 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         body: SafeArea(
           child: Column(
             children: [
+              // SKIP button at top right
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 16, right: 24),
+                  child: AnimatedOpacity(
+                    opacity: _currentPage == pages.length - 1 ? 0.0 : 1.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: TextButton(
+                      onPressed: () => _openLogin(context),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF9E9E9E),
+                      ),
+                      child: const Text(
+                        'Skip',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
                   onPageChanged: (idx) => setState(() => _currentPage = idx),
                   itemCount: pages.length,
+                  physics: const BouncingScrollPhysics(),
                   itemBuilder: (context, index) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Image Placeholder
-                        SizedBox(
-                          width: 280,
-                          height: 280,
-                          child: Image.asset(
-                            pages[index].imagePath,
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFF5F5F7),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Center(
-                                  child: Text(
-                                    'Image Placeholder\n(Add PNG later)',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Color(0xFF9A9A9A)),
+                    return Padding(
+                      padding: const EdgeInsets.all(40.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Image.asset(
+                              pages[index].imagePath,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFF9FAFB),
+                                    shape: BoxShape.circle,
                                   ),
-                                ),
-                              );
-                            },
+                                  child: const Center(
+                                    child: Text(
+                                      'Illustration Here',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Color(0xFF9E9E9E)),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 48),
 
-                        const SizedBox(height: 60),
-
-                        // Dots
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(pages.length, (dotIndex) {
-                            final isActive = dotIndex == _currentPage;
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              margin: const EdgeInsets.symmetric(horizontal: 6),
-                              width: 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: isActive
-                                    ? Colors.black
-                                    : Colors.transparent,
-                                border: Border.all(
-                                  color: Colors.black,
-                                  width: 1.5,
-                                ),
-                                shape: BoxShape.circle,
-                              ),
-                            );
-                          }),
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        // Title
-                        Text(
-                          pages[index].title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                            letterSpacing: -0.5,
+                          // Title
+                          Text(
+                            pages[index].title,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1E1E1E),
+                              letterSpacing: -0.5,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 16),
 
-                        const SizedBox(height: 16),
-
-                        // Description
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 48),
-                          child: Text(
+                          // Description
+                          Text(
                             pages[index].description,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 15,
-                              color: Color(0xFF6B7280),
+                              fontSize: 16,
+                              color: Color(0xFF757575),
                               height: 1.5,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                      ],
+                          const Spacer(),
+                        ],
+                      ),
                     );
                   },
                 ),
               ),
 
-              // Bottom Bar
+              // Bottom Control Bar
               Padding(
-                padding: const EdgeInsets.fromLTRB(40, 0, 40, 40),
+                padding: const EdgeInsets.fromLTRB(32, 0, 32, 40),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
-                      onPressed: () => _openLogin(context),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: const Text(
-                        'SKIP',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+                    // Dynamic Dots
+                    Row(
+                      children: List.generate(pages.length, (dotIndex) {
+                        final isActive = dotIndex == _currentPage;
+                        return AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          margin: const EdgeInsets.only(right: 8),
+                          width: isActive ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? AppColors.buttonColor
+                                : AppColors.buttonColor.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        );
+                      }),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_currentPage == pages.length - 1) {
-                          _openLogin(context);
-                        } else {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeIn,
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonColor,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+
+                    // Next/Start Button morphing animation
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOutCubic,
+                      height: 56,
+                      width: _currentPage == pages.length - 1 ? 140 : 56,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_currentPage == pages.length - 1) {
+                            _openLogin(context);
+                          } else {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeInOutCubic,
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.buttonColor,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.zero,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 36,
-                          vertical: 16,
-                        ),
-                      ),
-                      child: Text(
-                        _currentPage == pages.length - 1 ? 'START' : 'NEXT',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
+                        child: _currentPage == pages.length - 1
+                            ? const Text(
+                                'Get Started',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 24,
+                              ),
                       ),
                     ),
                   ],

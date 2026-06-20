@@ -90,4 +90,11 @@ class NotificationViewModel extends ChangeNotifier {
     // This now just marks all as read
     await markAllAsRead();
   }
+
+  Future<void> clearAll() async {
+    _notifications.clear();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('saved_notifications');
+    notifyListeners();
+  }
 }

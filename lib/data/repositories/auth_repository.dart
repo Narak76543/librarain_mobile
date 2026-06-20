@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:math';
+import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/constants/app_texts.dart';
 import '../../core/network/api_config.dart';
@@ -90,6 +94,93 @@ class AuthRepository {
         _getErrorMessage(error),
         statusCode: error.response?.statusCode,
       );
+    }
+  }
+
+  Future<bool> loginWithGoogle() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+        serverClientId: '632874416504-30ue2elf9c0prf8g5fjd1k0lsqe28u6m.apps.googleusercontent.com',
+      );
+
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
+      if (account == null) {
+        return false;
+      }
+
+      final GoogleSignInAuthentication auth = await account.authentication;
+      final String? idToken = auth.idToken;
+
+      if (idToken == null) {
+        throw const AuthException('Failed to retrieve Google ID token.');
+      }
+
+      final response = await _dio.post<dynamic>(
+        ApiConfig.googleLogin,
+        data: {'id_token': idToken},
+      );
+
+      final statusCode = response.statusCode ?? 0;
+      if (statusCode >= 200 && statusCode < 300) {
+        await _saveAuthToken(response.data);
+      }
+      return statusCode >= 200 && statusCode < 300;
+    } on DioException catch (error) {
+      throw AuthException(
+        _getErrorMessage(error),
+        statusCode: error.response?.statusCode,
+      );
+    } on AuthException {
+      rethrow;
+    } catch (e) {
+      throw AuthException('Google Sign-In failed: $e');
+    }
+  }
+
+  Future<bool> loginWithTelegram() async {
+    try {
+      final String loginToken = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(100000)}';
+      
+      final url = Uri.parse('https://t.me/${ApiConfig.telegramBotUsername}?start=login_$loginToken');
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw const AuthException('Could not open Telegram app');
+      }
+
+      // Start polling for the login status
+      for (int i = 0; i < 30; i++) { // Poll for up to 60 seconds
+        await Future.delayed(const Duration(seconds: 2));
+        
+        try {
+          final response = await _dio.get<dynamic>(
+            ApiConfig.telegramLoginStatus,
+            queryParameters: {'token': loginToken},
+          );
+
+          if (response.statusCode == 200) {
+            await _saveAuthToken(response.data);
+            return true;
+          }
+        } on DioException catch (e) {
+          if (e.response?.statusCode == 400) {
+             // Pending
+             continue;
+          }
+          if (e.type == DioExceptionType.connectionTimeout || 
+              e.type == DioExceptionType.receiveTimeout || 
+              e.type == DioExceptionType.connectionError) {
+             // Network might be paused while app is in background, ignore and continue
+             continue;
+          }
+          rethrow;
+        }
+      }
+      
+      throw const AuthException('Login timed out. Please try again.');
+    } on AuthException {
+      rethrow;
+    } catch (e) {
+      throw AuthException('Telegram login failed: $e');
     }
   }
 

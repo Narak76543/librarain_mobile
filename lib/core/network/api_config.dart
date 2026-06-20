@@ -3,17 +3,13 @@ class ApiConfig {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.1.4:8000',
-
-    // ah san wifi
-    // defaultValue: 'http://172.16.53.187:8000',
-
-    // G104 wifi
-    //  defaultValue: 'http://172.16.41.95:8000',
+    defaultValue: 'http://192.168.1.7:8000',
   );
 
   static const String register = '/api/v1/auth/register';
   static const String login = '/api/v1/auth/login';
+  static const String googleLogin = '/api/v1/auth/google-login';
+  static const String telegramLoginStatus = '/api/v1/auth/telegram-login-status';
   static const String refreshToken = '/api/v1/auth/refresh-token';
   static const String forgotPassword = '/api/v1/auth/forgot-password';
   static const String verifyOtp = '/api/v1/auth/verify-otp';

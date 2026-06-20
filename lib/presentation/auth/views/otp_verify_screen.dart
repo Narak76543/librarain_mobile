@@ -161,205 +161,208 @@ class _OtpVerifyViewState extends State<_OtpVerifyView>
     final canPop = Navigator.canPop(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top Bar
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
-              child: Row(
-                children: [
-                  if (canPop) ...[
-                    GestureDetector(
-                      onTap: () => context.pop(),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        margin: const EdgeInsets.only(right: 12),
-                        decoration: BoxDecoration(
-                          color: AppColors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.border),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.textPrimary.withValues(
-                                alpha: 0.04,
-                              ),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.textPrimary,
-                          size: 20,
-                        ),
+      backgroundColor: Colors.transparent,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: AppGradients.background,
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Custom Back Button AppBar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    if (canPop)
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E1E1E), size: 20),
+                        onPressed: () => context.pop(),
                       ),
-                    ),
                   ],
-                  const Expanded(
-                    child: AppText.titleLarge(
-                      AppTexts.verifyOtpTitle,
-                      color: AppColors.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.border.withValues(alpha: 0.5),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.textPrimary.withValues(alpha: 0.03),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const AppText.bodySmall(
-                          'Enter the 6-digit code sent to your email',
-                          color: AppColors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                        ),
-                        const SizedBox(height: 24),
-                        AnimatedBuilder(
-                          animation: _shakeController,
-                          builder: (context, child) {
-                            final offset =
-                                math.sin(_shakeController.value * math.pi * 6) *
-                                8;
-                            return Transform.translate(
-                              offset: Offset(offset, 0),
-                              child: child,
-                            );
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: List.generate(
-                              _controllers.length,
-                              (index) => Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                    right: index == _controllers.length - 1
-                                        ? 0
-                                        : 8,
-                                  ),
-                                  child: _OtpDigitBox(
-                                    controller: _controllers[index],
-                                    focusNode: _focusNodes[index],
-                                    onChanged: (value) =>
-                                        _handleOtpChanged(index, value),
-                                  ),
+                          // LOGO
+                          Container(
+                            width: 88,
+                            height: 88,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF005B5B).withValues(alpha: 0.1),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
                                 ),
+                              ],
+                              image: const DecorationImage(
+                                image: AssetImage('assets/images/app_logo.png'),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 24),
-                        TextButton(
-                          onPressed: viewModel.canResend ? _resend : null,
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.buttonColor,
-                            disabledForegroundColor: AppColors.textDisabled,
-                          ),
-                          child: AppText.caption(
-                            viewModel.canResend
-                                ? AppTexts.resend
-                                : '${viewModel.timerSeconds}${AppTexts.secondsSuffix}',
-                            color: viewModel.canResend
-                                ? AppColors.buttonColor
-                                : AppColors.textDisabled,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                          const SizedBox(height: 32),
 
-            // Verify Button
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-              child: GestureDetector(
-                onTap: viewModel.isLoading ? null : _verify,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: viewModel.isLoading
-                          ? AppColors.textDisabled
-                          : AppColors.buttonColor,
-                      borderRadius: BorderRadius.circular(26),
-                      boxShadow: viewModel.isLoading
-                          ? []
-                          : [
-                              BoxShadow(
-                                color: AppColors.buttonColor.withValues(
-                                  alpha: 0.35,
+                          // TITLE
+                          const Text(
+                            'Verify OTP',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1E1E1E),
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // SUBTITLE
+                          Text(
+                            "Enter the 6-digit code sent to\n${widget.email}",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xFF757575),
+                              fontWeight: FontWeight.w500,
+                              height: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+
+                          // CARD
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 8),
                                 ),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (viewModel.isLoading) ...[
-                            const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                color: AppColors.white,
-                                strokeWidth: 2,
-                              ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            const AppText.button(
-                              'Verifying...',
-                              color: AppColors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                AnimatedBuilder(
+                                  animation: _shakeController,
+                                  builder: (context, child) {
+                                    final offset =
+                                        math.sin(_shakeController.value * math.pi * 6) *
+                                        8;
+                                    return Transform.translate(
+                                      offset: Offset(offset, 0),
+                                      child: child,
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: List.generate(
+                                      _controllers.length,
+                                      (index) => Expanded(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                            right: index == _controllers.length - 1
+                                                ? 0
+                                                : 8,
+                                          ),
+                                          child: _OtpDigitBox(
+                                            controller: _controllers[index],
+                                            focusNode: _focusNodes[index],
+                                            onChanged: (value) =>
+                                                _handleOtpChanged(index, value),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      "Didn't receive code? ",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFF757575),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: viewModel.canResend ? _resend : null,
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: const Color(0xFF005B5B),
+                                        disabledForegroundColor: const Color(0xFF9E9E9E),
+                                        padding: EdgeInsets.zero,
+                                        minimumSize: Size.zero,
+                                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      ),
+                                      child: Text(
+                                        viewModel.canResend
+                                            ? AppTexts.resend
+                                            : '${viewModel.timerSeconds}s',
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 32),
+                                // Verify Button
+                                SizedBox(
+                                  height: 56,
+                                  child: ElevatedButton(
+                                    onPressed: viewModel.isLoading ? null : _verify,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF005B5B),
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                    child: viewModel.isLoading
+                                        ? const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2.5,
+                                            ),
+                                          )
+                                        : const Text(
+                                            "Verify",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ] else ...[
-                            const AppText.button(
-                              AppTexts.verify,
-                              color: AppColors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ],
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -382,35 +385,31 @@ class _OtpDigitBox extends StatelessWidget {
     return TextField(
       controller: controller,
       focusNode: focusNode,
-      keyboardType: TextInputType.number,
+      keyboardType: TextInputType.phone, // Forces pure dial pad on Android/iOS
       textInputAction: TextInputAction.next,
       textAlign: TextAlign.center,
       style: const TextStyle(
-        color: AppColors.textPrimary,
-        fontSize: 16,
-        fontWeight: FontWeight.w800,
+        color: Color(0xFF1E1E1E),
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
       ),
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       decoration: InputDecoration(
-        counterText: AppTexts.empty,
+        counterText: '',
         filled: true,
         fillColor: const Color(0xFFF9FAFB),
-        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: AppColors.border.withValues(alpha: 0.8),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: AppColors.border.withValues(alpha: 0.8),
-          ),
+          borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.buttonColor),
+          borderSide: const BorderSide(color: Color(0xFF005B5B), width: 1.5),
         ),
       ),
       onChanged: (value) {

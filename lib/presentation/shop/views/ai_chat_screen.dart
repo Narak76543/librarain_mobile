@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../core/theme/app_color.dart';
-import '../../../core/theme/app_text_style.dart';
 import '../../../core/widgets/app_text.dart';
-import '../../../data/models/book_model.dart';
 import '../../profile/viewmodels/profile_viewmodel.dart';
 import '../viewmodels/ai_chat_viewmodel.dart';
 import '../viewmodels/shop_viewmodel.dart';
@@ -69,67 +67,65 @@ class _AiChatScreenState extends State<AiChatScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppGradients.background,
-        ),
+        decoration: const BoxDecoration(gradient: AppGradients.background),
         child: Stack(
-        children: [
-          Positioned(
-            top: -100,
-            left: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFFFE5E5).withValues(alpha: 0.5),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 100,
-            right: -100,
-            child: Container(
-              width: 400,
-              height: 400,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFE5F0FF).withValues(alpha: 0.5),
-              ),
-            ),
-          ),
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-            child: Container(color: Colors.transparent),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                _buildAppBar(),
-                Expanded(
-                  child: Consumer<AiChatViewModel>(
-                    builder: (context, viewModel, child) {
-                      return ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.only(top: 20, bottom: 20),
-                        itemCount: viewModel.messages.length,
-                        itemBuilder: (context, index) {
-                          final msg = viewModel.messages[index];
-                          return _buildMessageBubble(msg);
-                        },
-                      );
-                    },
-                  ),
+          children: [
+            Positioned(
+              top: -100,
+              left: -100,
+              child: Container(
+                width: 300,
+                height: 300,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFFFFE5E5).withValues(alpha: 0.5),
                 ),
-                _buildInputBar(),
-              ],
+              ),
             ),
-          ),
-        ],
+            Positioned(
+              bottom: 100,
+              right: -100,
+              child: Container(
+                width: 400,
+                height: 400,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFFE5F0FF).withValues(alpha: 0.5),
+                ),
+              ),
+            ),
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+              child: Container(color: Colors.transparent),
+            ),
+            SafeArea(
+              child: Column(
+                children: [
+                  _buildAppBar(),
+                  Expanded(
+                    child: Consumer<AiChatViewModel>(
+                      builder: (context, viewModel, child) {
+                        return ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.only(top: 20, bottom: 20),
+                          itemCount: viewModel.messages.length,
+                          itemBuilder: (context, index) {
+                            final msg = viewModel.messages[index];
+                            return _buildMessageBubble(msg);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  _buildInputBar(),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildAppBar() {
     return Padding(
@@ -138,7 +134,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColors.textPrimary,
+            ),
             onPressed: () => context.pop(),
           ),
           const AppText.titleSmall(
@@ -166,7 +165,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
           children: [
             Flexible(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   gradient: AppGradients.primary,
                   borderRadius: const BorderRadius.only(
@@ -201,8 +203,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     color: AppColors.primary.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
-                  )
-                ]
+                  ),
+                ],
               ),
               child: Consumer<ProfileViewModel>(
                 builder: (context, profileState, child) {
@@ -262,13 +264,17 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   color: AppColors.primary.withValues(alpha: 0.15),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
-                )
-              ]
+                ),
+              ],
             ),
             child: CircleAvatar(
               radius: 18,
               backgroundColor: AppColors.white,
-              child: const Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
+              child: const Icon(
+                Icons.auto_awesome,
+                color: AppColors.primary,
+                size: 20,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -283,13 +289,16 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   bottomLeft: Radius.circular(24),
                   bottomRight: Radius.circular(24),
                 ),
-                border: Border.all(color: AppColors.white.withValues(alpha: 0.9), width: 1.5),
+                border: Border.all(
+                  color: AppColors.white.withValues(alpha: 0.9),
+                  width: 1.5,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: 0.05),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
-                  )
+                  ),
                 ],
               ),
               child: message.isLoading
@@ -298,7 +307,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
                       child: SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2.5, color: AppColors.primary),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: AppColors.primary,
+                        ),
                       ),
                     )
                   : Column(
@@ -326,85 +338,120 @@ class _AiChatScreenState extends State<AiChatScreen> {
                             height: 1.5,
                           ),
                         ],
-                      if (message.books != null && message.books!.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          height: 180,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: message.books!.length,
-                            separatorBuilder: (context, index) => const SizedBox(width: 12),
-                            itemBuilder: (context, index) {
-                              final book = message.books![index];
-                              return Container(
-                                width: 120,
-                                decoration: BoxDecoration(
-                                  color: AppColors.white.withValues(alpha: 0.6),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: AppColors.white),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                      child: CachedNetworkImage(
-                                        imageUrl: book.coverUrl,
-                                        height: 110,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                        errorWidget: (context, url, error) => const Icon(Icons.book, size: 40),
-                                      ),
+                        if (message.books != null &&
+                            message.books!.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: 180,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: message.books!.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(width: 12),
+                              itemBuilder: (context, index) {
+                                final book = message.books![index];
+                                return Container(
+                                  width: 120,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white.withValues(
+                                      alpha: 0.6,
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            book.title,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                                          ),
-                                          Text(
-                                            '\$${double.tryParse(book.price)?.toStringAsFixed(2) ?? book.price}',
-                                            style: const TextStyle(fontSize: 11, color: AppColors.primary),
-                                          ),
-                                        ],
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: AppColors.white),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                              top: Radius.circular(12),
+                                            ),
+                                        child: CachedNetworkImage(
+                                          imageUrl: book.coverUrl,
+                                          height: 110,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(Icons.book, size: 40),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              if (message.filters != null) {
-                                context.read<ShopViewModel>().applyAiFilters(message.filters!);
-                              }
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => const ShopScreen()));
-                            },
-                            icon: const Icon(Icons.rocket_launch_rounded, color: AppColors.white, size: 18),
-                            label: const Text(
-                              'Go to Shop',
-                              style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.buttonColor,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              book.title,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.textPrimary,
+                                              ),
+                                            ),
+                                            Text(
+                                              '\$${double.tryParse(book.price)?.toStringAsFixed(2) ?? book.price}',
+                                              style: const TextStyle(
+                                                fontSize: 11,
+                                                color: AppColors.primary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                if (message.filters != null) {
+                                  context.read<ShopViewModel>().applyAiFilters(
+                                    message.filters!,
+                                  );
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const ShopScreen(),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.rocket_launch_rounded,
+                                color: AppColors.white,
+                                size: 18,
+                              ),
+                              label: const Text(
+                                'Go to Shop',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.buttonColor,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
+                    ),
             ),
           ),
         ],
@@ -439,13 +486,19 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      color: AppColors.textPrimary,
+                    ),
                     decoration: InputDecoration(
                       hintText: 'Ask me anything...',
-                      hintStyle: TextStyle(color: AppColors.textPrimary.withValues(alpha: 0.4)),
+                      hintStyle: TextStyle(
+                        color: AppColors.textPrimary.withValues(alpha: 0.4),
+                      ),
                       border: InputBorder.none,
                     ),
-                    onSubmitted: (_) => viewModel.isProcessing ? null : _submit(),
+                    onSubmitted: (_) =>
+                        viewModel.isProcessing ? null : _submit(),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -455,11 +508,19 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      gradient: viewModel.isProcessing ? null : AppGradients.primary,
-                      color: viewModel.isProcessing ? AppColors.textDisabled : null,
+                      gradient: viewModel.isProcessing
+                          ? null
+                          : AppGradients.primary,
+                      color: viewModel.isProcessing
+                          ? AppColors.textDisabled
+                          : null,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.arrow_upward_rounded, color: AppColors.white, size: 20),
+                    child: const Icon(
+                      Icons.arrow_upward_rounded,
+                      color: AppColors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
               ],

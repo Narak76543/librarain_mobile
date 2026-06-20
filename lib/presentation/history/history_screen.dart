@@ -191,7 +191,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         viewModel.orders; // To check if entirely empty vs just filter empty
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'History',
@@ -318,7 +318,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 48.0),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final order = orders[index];

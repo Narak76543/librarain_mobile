@@ -11,6 +11,7 @@ import '../../core/theme/app_color.dart';
 import '../../core/widgets/app_text.dart';
 import '../../data/models/user_profile_model.dart';
 import '../auth/viewmodels/auth_view_model.dart';
+import '../home/viewmodels/notification_viewmodel.dart';
 import 'viewmodels/profile_viewmodel.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -35,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted) return;
 
     context.read<ProfileViewModel>().clearProfile();
+    context.read<NotificationViewModel>().clearAll();
     context.go(AppRoutes.login);
   }
 

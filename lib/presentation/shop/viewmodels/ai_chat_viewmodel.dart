@@ -32,10 +32,7 @@ class AiChatViewModel extends ChangeNotifier {
     if (_isInitialized) return;
     _isInitialized = true;
     messages.add(
-      AiMessage(
-        text: 'Hi, $userName!\n**How can I help you?**',
-        isUser: false,
-      )
+      AiMessage(text: 'Hi, $userName!\n**How can I help you?**', isUser: false),
     );
     notifyListeners();
   }
@@ -57,22 +54,22 @@ class AiChatViewModel extends ChangeNotifier {
 
     addMessage(AiMessage(text: query, isUser: true));
     addMessage(AiMessage(text: '', isUser: false, isLoading: true));
-    
+
     isProcessing = true;
     notifyListeners();
 
     try {
       final aiResponse = await _aiService.handleQuery(query);
-      
+
       List<BookModel> topBooks = [];
-      
+
       if (aiResponse.type == 'book_search' && aiResponse.filters != null) {
         final filters = aiResponse.filters!;
         double? maxPrice;
         if (filters['max_price'] != null) {
           maxPrice = double.tryParse(filters['max_price'].toString());
         }
-        
+
         final booksMap = await _bookRepo.getBooksPaginated(
           search: filters['search'],
           category: filters['category'],
@@ -80,35 +77,44 @@ class AiChatViewModel extends ChangeNotifier {
           maxPrice: maxPrice,
           sort: filters['sort'],
         );
-        
-        final List<BookModel> booksList = List<BookModel>.from(booksMap['books'] ?? []);
+
+        final List<BookModel> booksList = List<BookModel>.from(
+          booksMap['books'] ?? [],
+        );
         topBooks = booksList.take(5).toList();
       }
 
       removeLastMessage(); // Remove loading bubble
-      
+
       if (aiResponse.type == 'book_search' && topBooks.isEmpty) {
-        addMessage(AiMessage(
-          text: aiResponse.message.isNotEmpty 
-            ? aiResponse.message + "\n\n(However, I couldn't find any matching books in the store.)" 
-            : "Sorry, I couldn't find any books matching your request. Try adjusting your search!",
-          isUser: false,
-        ));
+        addMessage(
+          AiMessage(
+            text: aiResponse.message.isNotEmpty
+                ? "${aiResponse.message}\n\n(However, I couldn't find any matching books in the store.)"
+                : "Sorry, I couldn't find any books matching your request. Try adjusting your search!",
+            isUser: false,
+          ),
+        );
       } else {
-        addMessage(AiMessage(
-          text: aiResponse.message,
-          isUser: false,
-          books: topBooks.isNotEmpty ? topBooks : null,
-          filters: aiResponse.filters,
-        ));
+        addMessage(
+          AiMessage(
+            text: aiResponse.message,
+            isUser: false,
+            books: topBooks.isNotEmpty ? topBooks : null,
+            filters: aiResponse.filters,
+          ),
+        );
       }
     } catch (e) {
       removeLastMessage(); // Remove loading bubble
-      
+
       String errorMessage = "Sorry, I encountered an error: $e";
-      if (e.toString().toLowerCase().contains('quota') || e.toString().contains('429')) {
+      if (e.toString().toLowerCase().contains('quota') ||
+          e.toString().contains('429')) {
         String waitTime = "a moment";
-        final match = RegExp(r'Please retry in ([0-9.]+)s').firstMatch(e.toString());
+        final match = RegExp(
+          r'Please retry in ([0-9.]+)s',
+        ).firstMatch(e.toString());
         if (match != null && match.groupCount >= 1) {
           final secondsStr = match.group(1);
           final seconds = double.tryParse(secondsStr ?? '');
@@ -116,13 +122,11 @@ class AiChatViewModel extends ChangeNotifier {
             waitTime = "${seconds.ceil()} seconds";
           }
         }
-        errorMessage = "I'm experiencing high traffic right now and reached my rate limit. Please wait $waitTime and try again.";
+        errorMessage =
+            "I'm experiencing high traffic right now and reached my rate limit. Please wait $waitTime and try again.";
       }
-      
-      addMessage(AiMessage(
-        text: errorMessage,
-        isUser: false,
-      ));
+
+      addMessage(AiMessage(text: errorMessage, isUser: false));
     } finally {
       isProcessing = false;
       notifyListeners();

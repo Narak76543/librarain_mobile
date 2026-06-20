@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+
+import '../../../core/network/api_config.dart';
 
 import '../../../core/constants/app_routes.dart';
+import '../../../core/di/injection.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/widgets/app_text.dart';
@@ -13,6 +18,7 @@ import '../../cart/viewmodels/cart_viewmodel.dart';
 import '../widgets/book_card.dart';
 import '../widgets/filter_bottom_sheet.dart';
 import '../widgets/shimmer_grid.dart';
+import 'live_scanner_screen.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -42,6 +48,31 @@ class _ShopScreenState extends State<ShopScreen> {
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _scanImage(BuildContext context) async {
+    try {
+      final text = await Navigator.push<String?>(
+        context,
+        MaterialPageRoute(builder: (_) => const LiveScannerScreen()),
+      );
+
+      if (!context.mounted) return;
+
+      if (text != null && text.trim().isNotEmpty) {
+        final cleanText = text.replaceAll('\n', ' ');
+        _searchController.text = cleanText;
+        context.read<ShopViewModel>().onSearchChanged(cleanText);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Scanned: $cleanText'), backgroundColor: AppColors.buttonColor),
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error opening scanner: $e')),
+      );
+    }
   }
 
   @override
@@ -143,7 +174,16 @@ class _ShopScreenState extends State<ShopScreen> {
                           onChanged: (val) => shopProvider.onSearchChanged(val),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () => _scanImage(context),
+                        icon: const Icon(Icons.qr_code_scanner_rounded),
+                        color: AppColors.buttonColor,
+                        iconSize: 24,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        constraints: const BoxConstraints(),
+                        splashRadius: 20,
+                      ),
+                      const SizedBox(width: 4),
                       GestureDetector(
                         onTap: () {
                           showModalBottomSheet(
@@ -391,3 +431,4 @@ class _ShopScreenState extends State<ShopScreen> {
     );
   }
 }
+

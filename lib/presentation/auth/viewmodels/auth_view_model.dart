@@ -44,6 +44,54 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> loginWithGoogle() async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      final result = await _authRepository.loginWithGoogle();
+
+      if (result) {
+        await _saveLoggedIn();
+        await NotificationService.initialize();
+      }
+
+      return result;
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = AppTexts.somethingWentWrong;
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> loginWithTelegram() async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      final result = await _authRepository.loginWithTelegram();
+
+      if (result) {
+        await _saveLoggedIn();
+        await NotificationService.initialize();
+      }
+
+      return result;
+    } on AuthException catch (e) {
+      _errorMessage = e.message;
+      return false;
+    } catch (e) {
+      _errorMessage = AppTexts.somethingWentWrong;
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<bool> register({
     required String fullName,
     required String email,
