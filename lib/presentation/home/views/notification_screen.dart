@@ -83,22 +83,19 @@ class NotificationScreen extends StatelessWidget {
             )
           : ListView.separated(
               itemCount: notifications.length,
-              separatorBuilder: (_, __) => const Divider(
-                height: 1,
-                color: AppColors.border,
-                indent: 76,
-              ),
+              separatorBuilder: (_, _) =>
+                  const Divider(height: 1, color: AppColors.border, indent: 76),
               itemBuilder: (context, index) {
                 final notification = notifications[index];
-                
+
                 return InkWell(
                   onTap: () {
                     viewModel.markAsRead(index);
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-                    color: notification.isRead 
-                        ? Colors.transparent 
+                    color: notification.isRead
+                        ? Colors.transparent
                         : AppColors.buttonColor.withValues(alpha: 0.03),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -139,7 +136,9 @@ class NotificationScreen extends StatelessWidget {
                                       ? FontWeight.w500
                                       : FontWeight.w700,
                                   color: notification.isRead
-                                      ? AppColors.textPrimary.withValues(alpha: 0.8)
+                                      ? AppColors.textPrimary.withValues(
+                                          alpha: 0.8,
+                                        )
                                       : AppColors.textPrimary,
                                 ),
                                 child: Text(notification.title),

@@ -414,10 +414,9 @@ class _ProfileField extends StatefulWidget {
     required this.label,
     required this.controller,
     this.keyboardType,
-    this.prefixText,
-    this.minLines,
-    this.maxLines = 1,
-  });
+  }) : prefixText = null,
+       minLines = null,
+       maxLines = 1;
 
   final String label;
   final TextEditingController controller;

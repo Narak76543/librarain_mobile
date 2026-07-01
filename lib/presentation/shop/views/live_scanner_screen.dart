@@ -15,13 +15,16 @@ class LiveScannerScreen extends StatefulWidget {
   State<LiveScannerScreen> createState() => _LiveScannerScreenState();
 }
 
-class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindingObserver {
+class _LiveScannerScreenState extends State<LiveScannerScreen>
+    with WidgetsBindingObserver {
   CameraController? _controller;
   List<CameraDescription> _cameras = [];
   bool _isProcessing = false;
   bool _isFlashOn = false;
-  final TextRecognizer _textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-  
+  final TextRecognizer _textRecognizer = TextRecognizer(
+    script: TextRecognitionScript.latin,
+  );
+
   // Custom painter needs these
   final double scanAreaSize = 250.0;
 
@@ -47,7 +50,9 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
         camera,
         ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: Platform.isAndroid ? ImageFormatGroup.nv21 : ImageFormatGroup.bgra8888,
+        imageFormatGroup: Platform.isAndroid
+            ? ImageFormatGroup.nv21
+            : ImageFormatGroup.bgra8888,
       );
 
       await _controller!.initialize();
@@ -83,7 +88,9 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
     if (_controller == null) return;
     try {
       _isFlashOn = !_isFlashOn;
-      await _controller!.setFlashMode(_isFlashOn ? FlashMode.torch : FlashMode.off);
+      await _controller!.setFlashMode(
+        _isFlashOn ? FlashMode.torch : FlashMode.off,
+      );
       setState(() {});
     } catch (e) {
       debugPrint('Error toggling flash: $e');
@@ -136,7 +143,7 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
       DeviceOrientation.portraitDown: 180,
       DeviceOrientation.landscapeRight: 270,
     };
-    
+
     // We only support portrait for simplicity
     InputImageRotation? rotation;
     if (Platform.isIOS) {
@@ -147,7 +154,8 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
       if (camera.lensDirection == CameraLensDirection.front) {
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
-        rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
+        rotationCompensation =
+            (sensorOrientation - rotationCompensation + 360) % 360;
       }
       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
     }
@@ -155,7 +163,11 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
 
     final format = InputImageFormatValue.fromRawValue(image.format.raw);
     // Validate format
-    if (format == null || (Platform.isAndroid && format != InputImageFormat.nv21 && format != InputImageFormat.yv12) || (Platform.isIOS && format != InputImageFormat.bgra8888)) {
+    if (format == null ||
+        (Platform.isAndroid &&
+            format != InputImageFormat.nv21 &&
+            format != InputImageFormat.yv12) ||
+        (Platform.isIOS && format != InputImageFormat.bgra8888)) {
       return null;
     }
 
@@ -174,8 +186,10 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
 
   Future<void> _processInputImage(InputImage inputImage) async {
     try {
-      final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
-      
+      final RecognizedText recognizedText = await _textRecognizer.processImage(
+        inputImage,
+      );
+
       // Filter out tiny artifacts, sort by area
       List<TextBlock> blocks = List.from(recognizedText.blocks);
       blocks.sort((a, b) {
@@ -186,7 +200,7 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
 
       // Get top 2 largest texts
       final text = blocks.take(2).map((b) => b.text).join(' ').trim();
-      
+
       if (text.isNotEmpty && text.length > 3) {
         // Stop camera, return result
         _controller?.stopImageStream();
@@ -207,7 +221,9 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
     if (_controller == null || !_controller!.value.isInitialized) {
       return const Scaffold(
         backgroundColor: Colors.black,
-        body: Center(child: CircularProgressIndicator(color: AppColors.buttonColor)),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.buttonColor),
+        ),
       );
     }
 
@@ -220,7 +236,7 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
         children: [
           // 1. Camera Preview
           CameraPreview(_controller!),
-          
+
           // 2. Scanner Overlay Mask
           CustomPaint(
             painter: _ScannerOverlayPainter(scanAreaSize: scanAreaSize),
@@ -232,12 +248,19 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
               children: [
                 // App Bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const SizedBox(width: 40), // Balance the close button
-                      const AppText.titleSmall('Librarain Scan', color: Colors.white, fontWeight: FontWeight.bold),
+                      const AppText.titleSmall(
+                        'Librarain Scan',
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.white),
                         onPressed: () => Navigator.pop(context),
@@ -245,7 +268,7 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
                     ],
                   ),
                 ),
-                
+
                 // Centered Scanner Box
                 const Spacer(),
                 Center(
@@ -255,12 +278,14 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
                     // We can draw corner borders here if needed, but the CustomPaint already makes a cutout.
                     // For ABA style, we draw colored corner braces.
                     child: CustomPaint(
-                      painter: _ScannerCornersPainter(color: AppColors.buttonColor),
+                      painter: _ScannerCornersPainter(
+                        color: AppColors.buttonColor,
+                      ),
                     ),
                   ),
                 ),
                 const Spacer(),
-                
+
                 // Bottom Controls
                 Padding(
                   padding: const EdgeInsets.only(bottom: 40.0),
@@ -274,7 +299,8 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
                       ),
                       const SizedBox(width: 24),
                       _buildBottomButton(
-                        icon: Icons.image_outlined, // Changed from QR icon to image icon
+                        icon: Icons
+                            .image_outlined, // Changed from QR icon to image icon
                         label: 'Upload Image',
                         onTap: _pickFromGallery,
                       ),
@@ -289,20 +315,28 @@ class _LiveScannerScreenState extends State<LiveScannerScreen> with WidgetsBindi
     );
   }
 
-  Widget _buildBottomButton({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildBottomButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.6),
+          color: Colors.black.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
           children: [
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(width: 8),
-            AppText.bodySmall(label, color: Colors.white, fontWeight: FontWeight.w600),
+            AppText.bodySmall(
+              label,
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ],
         ),
       ),
@@ -317,27 +351,30 @@ class _ScannerOverlayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withOpacity(0.7);
-    
+    final paint = Paint()..color = Colors.black.withValues(alpha: 0.7);
+
     // Draw outer background
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    
+
     // Calculate cutout rect
     final cutoutRect = Rect.fromCenter(
       center: Offset(size.width / 2, size.height / 2),
       width: scanAreaSize,
       height: scanAreaSize,
     );
-    
-    final rrect = RRect.fromRectAndRadius(cutoutRect, const Radius.circular(24));
-    
+
+    final rrect = RRect.fromRectAndRadius(
+      cutoutRect,
+      const Radius.circular(24),
+    );
+
     // Create path that covers whole screen but subtracts the rounded rect
     final path = Path.combine(
       PathOperation.difference,
       Path()..addRect(rect),
       Path()..addRRect(rrect),
     );
-    
+
     canvas.drawPath(path, paint);
   }
 
@@ -357,7 +394,7 @@ class _ScannerCornersPainter extends CustomPainter {
       ..strokeWidth = 4.0
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-      
+
     const double lineLength = 40.0;
     const double radius = 24.0; // Must match the cutout radius
 
@@ -366,7 +403,10 @@ class _ScannerCornersPainter extends CustomPainter {
       Path()
         ..moveTo(0, lineLength)
         ..lineTo(0, radius)
-        ..arcToPoint(const Offset(radius, 0), radius: const Radius.circular(radius))
+        ..arcToPoint(
+          const Offset(radius, 0),
+          radius: const Radius.circular(radius),
+        )
         ..lineTo(lineLength, 0),
       paint,
     );
@@ -376,7 +416,10 @@ class _ScannerCornersPainter extends CustomPainter {
       Path()
         ..moveTo(size.width - lineLength, 0)
         ..lineTo(size.width - radius, 0)
-        ..arcToPoint(Offset(size.width, radius), radius: const Radius.circular(radius))
+        ..arcToPoint(
+          Offset(size.width, radius),
+          radius: const Radius.circular(radius),
+        )
         ..lineTo(size.width, lineLength),
       paint,
     );
@@ -386,7 +429,11 @@ class _ScannerCornersPainter extends CustomPainter {
       Path()
         ..moveTo(0, size.height - lineLength)
         ..lineTo(0, size.height - radius)
-        ..arcToPoint(Offset(radius, size.height), radius: const Radius.circular(radius), clockwise: false)
+        ..arcToPoint(
+          Offset(radius, size.height),
+          radius: const Radius.circular(radius),
+          clockwise: false,
+        )
         ..lineTo(lineLength, size.height),
       paint,
     );
@@ -396,7 +443,11 @@ class _ScannerCornersPainter extends CustomPainter {
       Path()
         ..moveTo(size.width - lineLength, size.height)
         ..lineTo(size.width - radius, size.height)
-        ..arcToPoint(Offset(size.width, size.height - radius), radius: const Radius.circular(radius), clockwise: false)
+        ..arcToPoint(
+          Offset(size.width, size.height - radius),
+          radius: const Radius.circular(radius),
+          clockwise: false,
+        )
         ..lineTo(size.width, size.height - lineLength),
       paint,
     );

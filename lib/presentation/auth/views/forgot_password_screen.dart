@@ -59,7 +59,7 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
       _emailTouched = true;
     });
     _validateEmail();
-    
+
     if (_emailError != null || _emailController.text.isEmpty) return;
 
     final email = _emailController.text.trim();
@@ -92,25 +92,30 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppGradients.background,
-        ),
+        decoration: const BoxDecoration(gradient: AppGradients.background),
         child: SafeArea(
           child: Column(
             children: [
               // Custom Back Button AppBar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1E1E1E), size: 20),
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Color(0xFF1E1E1E),
+                        size: 20,
+                      ),
                       onPressed: () => context.pop(),
                     ),
                   ],
                 ),
               ),
-              
+
               Expanded(
                 child: Center(
                   child: SingleChildScrollView(
@@ -130,7 +135,9 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF005B5B).withValues(alpha: 0.1),
+                                  color: const Color(
+                                    0xFF005B5B,
+                                  ).withValues(alpha: 0.1),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -199,7 +206,9 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
                                 SizedBox(
                                   height: 56,
                                   child: ElevatedButton(
-                                    onPressed: viewModel.isLoading ? null : () => _submit('email'),
+                                    onPressed: viewModel.isLoading
+                                        ? null
+                                        : () => _submit('email'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF005B5B),
                                       foregroundColor: Colors.white,
@@ -232,7 +241,9 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
                                 SizedBox(
                                   height: 56,
                                   child: ElevatedButton(
-                                    onPressed: viewModel.isLoading ? null : () => _submit('telegram'),
+                                    onPressed: viewModel.isLoading
+                                        ? null
+                                        : () => _submit('telegram'),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFFF5F5F7),
                                       foregroundColor: const Color(0xFF1E1E1E),
@@ -246,14 +257,19 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView> {
                                             width: 24,
                                             height: 24,
                                             child: CircularProgressIndicator(
-                                              color: const Color(0xFF005B5B),
+                                              color: Color(0xFF005B5B),
                                               strokeWidth: 2.5,
                                             ),
                                           )
                                         : Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
-                                              Image.asset('assets/images/telegram.png', width: 22, height: 22),
+                                              Image.asset(
+                                                'assets/images/telegram.png',
+                                                width: 22,
+                                                height: 22,
+                                              ),
                                               const SizedBox(width: 10),
                                               const Text(
                                                 "Send OTP via Telegram",

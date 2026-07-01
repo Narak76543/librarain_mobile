@@ -54,7 +54,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF059669).withOpacity(0.1),
+                  color: const Color(0xFF059669).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: AppText.caption(
@@ -68,21 +68,19 @@ class _WishlistScreenState extends State<WishlistScreen> {
         ],
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppGradients.background,
-        ),
+        decoration: const BoxDecoration(gradient: AppGradients.background),
         child: SafeArea(
           child: provider.isLoading && provider.items.isEmpty
               ? _buildLoadingGrid()
               : provider.items.isEmpty
-                  ? EmptyState(
-                      icon: Icons.favorite_border,
-                      title: 'No saved books yet',
-                      subtitle: 'Tap the heart icon on any book to save it',
-                      buttonLabel: 'Browse Books',
-                      onButtonPressed: () => context.go(AppRoutes.main),
-                    )
-                  : _buildWishlistGrid(provider),
+              ? EmptyState(
+                  icon: Icons.favorite_border,
+                  title: 'No saved books yet',
+                  subtitle: 'Tap the heart icon on any book to save it',
+                  buttonLabel: 'Browse Books',
+                  onButtonPressed: () => context.go(AppRoutes.main),
+                )
+              : _buildWishlistGrid(provider),
         ),
       ),
     );
@@ -105,7 +103,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -174,7 +172,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),

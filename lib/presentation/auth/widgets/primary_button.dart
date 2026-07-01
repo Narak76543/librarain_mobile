@@ -24,8 +24,8 @@ class PrimaryButton extends StatelessWidget {
     final textColor = isOnDark && !isOutlined
         ? AppColors.primary
         : isOnDark
-            ? AppColors.white
-            : null;
+        ? AppColors.white
+        : null;
 
     final child = isLoading
         ? SizedBox(
@@ -68,13 +68,15 @@ class PrimaryButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         gradient: isOnDark ? null : AppGradients.primary,
         color: isOnDark ? AppColors.white : null,
-        boxShadow: isOnDark ? null : [
-          BoxShadow(
-            color: AppColors.primary400.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: isOnDark
+            ? null
+            : [
+                BoxShadow(
+                  color: AppColors.primary400.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
