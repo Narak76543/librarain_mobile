@@ -101,7 +101,8 @@ class AuthRepository {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile'],
-        serverClientId: '632874416504-30ue2elf9c0prf8g5fjd1k0lsqe28u6m.apps.googleusercontent.com',
+        serverClientId:
+            '632874416504-30ue2elf9c0prf8g5fjd1k0lsqe28u6m.apps.googleusercontent.com',
       );
 
       final GoogleSignInAccount? account = await googleSignIn.signIn();
@@ -140,42 +141,61 @@ class AuthRepository {
 
   Future<bool> loginWithTelegram() async {
     try {
-      final String loginToken = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(100000)}';
-      
-      final url = Uri.parse('https://t.me/${ApiConfig.telegramBotUsername}?start=login_$loginToken');
+      final String loginToken =
+          '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(100000)}';
+
+      debugPrint('[Telegram Login] Generated token: $loginToken');
+      debugPrint(
+        '[Telegram Login] Opening bot: https://t.me/${ApiConfig.telegramBotUsername}?start=login_$loginToken',
+      );
+
+      final url = Uri.parse(
+        'https://t.me/${ApiConfig.telegramBotUsername}?start=login_$loginToken',
+      );
       if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
         throw const AuthException('Could not open Telegram app');
       }
 
       // Start polling for the login status
-      for (int i = 0; i < 30; i++) { // Poll for up to 60 seconds
+      for (int i = 0; i < 30; i++) {
+        // Poll for up to 60 seconds
         await Future.delayed(const Duration(seconds: 2));
-        
+
+        debugPrint('[Telegram Login] Polling attempt ${i + 1}/30...');
+
         try {
           final response = await _dio.get<dynamic>(
             ApiConfig.telegramLoginStatus,
             queryParameters: {'token': loginToken},
           );
 
+          debugPrint('[Telegram Login] Poll response: ${response.statusCode}');
+
           if (response.statusCode == 200) {
+            debugPrint('[Telegram Login] Login successful!');
             await _saveAuthToken(response.data);
             return true;
           }
         } on DioException catch (e) {
+          debugPrint(
+            '[Telegram Login] Poll error: ${e.message} (${e.response?.statusCode})',
+          );
+
           if (e.response?.statusCode == 400) {
-             // Pending
-             continue;
+            // Pending
+            continue;
           }
-          if (e.type == DioExceptionType.connectionTimeout || 
-              e.type == DioExceptionType.receiveTimeout || 
+          if (e.type == DioExceptionType.connectionTimeout ||
+              e.type == DioExceptionType.receiveTimeout ||
               e.type == DioExceptionType.connectionError) {
-             // Network might be paused while app is in background, ignore and continue
-             continue;
+            // Network might be paused while app is in background, ignore and continue
+            continue;
           }
           rethrow;
         }
       }
-      
+
+      debugPrint('[Telegram Login] Login timed out after 60 seconds');
       throw const AuthException('Login timed out. Please try again.');
     } on AuthException {
       rethrow;

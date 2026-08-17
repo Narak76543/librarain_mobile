@@ -19,33 +19,21 @@ final appProviders = [
   ChangeNotifierProvider<NotificationViewModel>(
     create: (_) => NotificationViewModel(),
   ),
-  ChangeNotifierProvider<AiChatViewModel>(
-    create: (_) => AiChatViewModel(),
-  ),
-  ChangeNotifierProvider<HomeViewModel>(
-    create: (_) => HomeViewModel()..loadAll(),
-  ),
+  ChangeNotifierProvider<AiChatViewModel>(create: (_) => AiChatViewModel()),
+  ChangeNotifierProvider<HomeViewModel>(create: (_) => HomeViewModel()),
   ChangeNotifierProvider<AuthViewModel>(
     create: (_) => AuthViewModel(sl<AuthRepository>()),
   ),
   ChangeNotifierProvider<ProfileViewModel>(
     create: (_) => ProfileViewModel(sl<ProfileRepository>()),
   ),
-  ChangeNotifierProvider<CartViewModel>(
-    create: (_) => CartViewModel(),
-  ),
+  ChangeNotifierProvider<CartViewModel>(create: (_) => CartViewModel()),
   ChangeNotifierProvider<HistoryViewModel>(
     create: (_) => HistoryViewModel(sl<OrderRepository>()),
   ),
-  ChangeNotifierProvider<WishlistViewModel>(
-    create: (_) => WishlistViewModel(),
-  ),
-  ChangeNotifierProvider<OrderViewModel>(
-    create: (_) => OrderViewModel(),
-  ),
-  ChangeNotifierProvider<ShopViewModel>(
-    create: (_) => ShopViewModel(),
-  ),
+  ChangeNotifierProvider<WishlistViewModel>(create: (_) => WishlistViewModel()),
+  ChangeNotifierProvider<OrderViewModel>(create: (_) => OrderViewModel()),
+  ChangeNotifierProvider<ShopViewModel>(create: (_) => ShopViewModel()),
   ChangeNotifierProvider<BookDetailViewModel>(
     create: (_) => BookDetailViewModel(),
   ),

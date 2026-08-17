@@ -1,10 +1,10 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class ApiConfig {
   ApiConfig._();
 
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://172.16.49.115:8000',
-  );
+  static String get baseUrl =>
+      dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:8000';
 
   static const String register = '/api/v1/auth/register';
   static const String login = '/api/v1/auth/login';
@@ -35,8 +35,6 @@ class ApiConfig {
   static const double shopLng = 104.9282;
   static const String shopName = "Librarain HQ";
   static const String shopAddress = "123 Norodom Blvd, Phnom Penh";
-  static const String telegramBotUsername = String.fromEnvironment(
-    'TELEGRAM_BOT_USERNAME',
-    defaultValue: 'librarain_postman2_bot',
-  );
+  static String get telegramBotUsername =>
+      dotenv.env['TELEGRAM_BOT_USERNAME'] ?? 'librarain_postman2_bot';
 }
