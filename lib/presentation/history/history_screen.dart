@@ -78,6 +78,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'delivered':
+      case 'completed':
         return Colors.teal.withValues(alpha: 0.15);
       case 'processing':
       case 'pending':
@@ -94,6 +95,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Color _getStatusTextColor(String status) {
     switch (status.toLowerCase()) {
       case 'delivered':
+      case 'completed':
         return Colors.teal[700]!;
       case 'processing':
       case 'pending':

@@ -4,7 +4,7 @@ class ApiConfig {
   ApiConfig._();
 
   static String get baseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:8000';
+      dotenv.env['API_BASE_URL'] ?? 'http://192.168.1.15:8000';
 
   static const String register = '/api/v1/auth/register';
   static const String login = '/api/v1/auth/login';

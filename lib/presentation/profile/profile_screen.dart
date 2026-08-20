@@ -12,6 +12,7 @@ import '../../core/widgets/app_text.dart';
 import '../../data/models/user_profile_model.dart';
 import '../auth/viewmodels/auth_view_model.dart';
 import '../home/viewmodels/notification_viewmodel.dart';
+import '../cart/viewmodels/cart_viewmodel.dart';
 import 'viewmodels/profile_viewmodel.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -32,11 +33,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _logout() async {
+    context.read<ProfileViewModel>().clearProfile();
+    context.read<NotificationViewModel>().clearAll();
+    try {
+      await context.read<CartViewModel>().clearCart();
+    } catch (e) {
+      debugPrint('Error clearing cart on logout: $e');
+    }
     await context.read<AuthViewModel>().logout();
     if (!mounted) return;
 
-    context.read<ProfileViewModel>().clearProfile();
-    context.read<NotificationViewModel>().clearAll();
     context.go(AppRoutes.login);
   }
 
@@ -213,20 +219,10 @@ class _UserCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.verified_rounded,
-                          color: AppColors.primary,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 6),
-                        const AppText.bodySmall(
-                          'Premium Member',
-                          color: AppColors.buttonColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ],
+                    const AppText.bodySmall(
+                      'Member',
+                      color: AppColors.buttonColor,
+                      fontWeight: FontWeight.w500,
                     ),
                   ],
                 ),

@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -103,10 +103,22 @@ class _HomeScreenState extends State<HomeScreen> {
 class _HomeHeader extends StatelessWidget {
   const _HomeHeader();
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final profile = context.watch<ProfileViewModel>().profile;
     final displayName = profile?.displayName ?? 'Member';
+    final greeting = _getGreeting();
 
     return Row(
       children: [
@@ -117,12 +129,12 @@ class _HomeHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Row(
+              Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Flexible(
                     child: AppText.subTitle(
-                      'Good Morning',
+                      greeting,
                       color: AppColors.textPrimary,
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -555,40 +567,59 @@ class _BannerCarouselState extends State<_BannerCarousel> {
   ];
 
   int _currentIndex = 0;
+  late final PageController _pageController;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_pageController.hasClients) {
+        int nextIndex = _currentIndex + 1;
+        if (nextIndex >= _bannerImages.length) {
+          nextIndex = 0;
+        }
+        _pageController.animateToPage(
+          nextIndex,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CarouselSlider(
-          options: CarouselOptions(
-            height: 156,
-            viewportFraction: 1,
-            autoPlay: true,
-            autoPlayInterval: const Duration(seconds: 4),
-            autoPlayAnimationDuration: const Duration(milliseconds: 900),
-            autoPlayCurve: Curves.easeInOutCubic,
-            enlargeCenterPage: false,
-            enableInfiniteScroll: true,
-            onPageChanged: (index, reason) {
+        SizedBox(
+          height: 156,
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
               setState(() => _currentIndex = index);
             },
+            itemCount: _bannerImages.length,
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: Image.asset(
+                  _bannerImages[index],
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
           ),
-          items: _bannerImages.map((imagePath) {
-            return Builder(
-              builder: (context) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: Image.asset(
-                    imagePath,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                );
-              },
-            );
-          }).toList(),
         ),
         const SizedBox(height: 12),
         Row(
@@ -1334,7 +1365,7 @@ class _NewArrivalsSectionState extends State<_NewArrivalsSection> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 14,
                 mainAxisSpacing: 14,
-                childAspectRatio: 0.54,
+                childAspectRatio: 0.62,
               ),
               itemBuilder: (context, index) =>
                   _BookModelGridCard(book: books[index]),
@@ -1397,32 +1428,7 @@ class _BookModelGridCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppText.button(
-                          '\$${book.price}',
-                          color: AppColors.buttonColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: const BoxDecoration(
-                          color: AppColors.buttonColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.add_rounded,
-                          color: AppColors.white,
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
+
                 ],
               ),
             ),

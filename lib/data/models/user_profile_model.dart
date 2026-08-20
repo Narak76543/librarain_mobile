@@ -40,6 +40,11 @@ class UserProfileModel {
         .join(' ');
     if (localName.isNotEmpty) return localName;
 
+    if (email != null && email!.trim().isNotEmpty) {
+      final emailName = email!.trim().split('@').first;
+      if (emailName.isNotEmpty) return emailName;
+    }
+
     return 'Member';
   }
 

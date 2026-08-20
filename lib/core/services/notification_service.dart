@@ -166,10 +166,15 @@ class NotificationService {
     try {
       await DioClient.instance.dio.delete('/api/v1/users/me/fcm-token');
       await _messaging.deleteToken();
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('fcm_token');
     } catch (e) {
-      debugPrint('Failed to clear FCM token: $e');
+      debugPrint('Failed to delete FCM token on backend: $e');
+    } finally {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('fcm_token');
+      } catch (prefError) {
+        debugPrint('Failed to remove fcm_token from preferences: $prefError');
+      }
     }
   }
 }

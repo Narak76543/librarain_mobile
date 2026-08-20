@@ -95,18 +95,26 @@ class _BookCardState extends State<BookCard> {
                     right: 6,
                     child: WishlistHeart(bookId: widget.book.id),
                   ),
-                  if (widget.book.stock <= 5)
+                  if (widget.book.stock >= 0)
                     Positioned(
                       bottom: 8,
                       left: 8,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: widget.book.stock == 0 ? const Color(0xFFEF4444).withAlpha(220) : const Color(0xFFF59E0B).withAlpha(220),
+                          color: widget.book.stock == 0
+                              ? const Color(0xFFEF4444).withAlpha(220) // Red
+                              : widget.book.stock <= 5
+                                  ? const Color(0xFFF59E0B).withAlpha(220) // Orange
+                                  : const Color(0xFF10B981).withAlpha(220), // Green
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: AppText.caption(
-                          widget.book.stock == 0 ? 'OUT OF STOCK' : 'ONLY ${widget.book.stock} LEFT',
+                          widget.book.stock == 0
+                              ? 'OUT OF STOCK'
+                              : widget.book.stock <= 5
+                                  ? 'ONLY ${widget.book.stock} LEFT'
+                                  : '${widget.book.stock} IN STOCK',
                           color: AppColors.white,
                           fontSize: 9,
                           fontWeight: FontWeight.w800,

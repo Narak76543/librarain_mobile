@@ -24,11 +24,7 @@ GoRouter createAppRouter({required bool isLoggedIn}) {
   return GoRouter(
     initialLocation: isLoggedIn ? AppRoutes.main : AppRoutes.onboarding,
     routes: [
-      //new 
-      // GoRoute(
-      //   path: AppRoutes.profile,
-      //   builder: (context, state) => const OrderConfirmedScreen(),
-      // ),
+
       GoRoute(
         path: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),

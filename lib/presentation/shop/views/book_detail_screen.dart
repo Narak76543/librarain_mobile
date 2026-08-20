@@ -253,7 +253,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           _buildDivider(),
           _buildStatItem('${book.pages}', 'pages'),
           _buildDivider(),
-          _buildStatItem(book.purchases ?? '50M+', 'purchases'),
+          _buildStatItem('${book.stock}', 'stock'),
         ],
       ),
     );
@@ -300,20 +300,23 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   }
 
   Widget _buildBuyButton(BuildContext context, BookModel book) {
+    final isOutOfStock = book.stock <= 0;
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          context.read<CartViewModel>().addToCart(book);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${book.title} added to cart!'),
-              backgroundColor: AppColors.buttonColor,
-            ),
-          );
-        },
+        onPressed: isOutOfStock
+            ? null
+            : () {
+                context.read<CartViewModel>().addToCart(book);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${book.title} added to cart!'),
+                    backgroundColor: AppColors.buttonColor,
+                  ),
+                );
+              },
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.buttonColor,
+          backgroundColor: isOutOfStock ? AppColors.textDisabled : AppColors.buttonColor,
           foregroundColor: AppColors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -322,7 +325,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           elevation: 0,
         ),
         child: AppText.button(
-          'Buy USD \$${book.price}',
+          isOutOfStock ? 'OUT OF STOCK' : 'Buy USD \$${book.price}',
           color: AppColors.white,
           fontSize: 14,
         ),

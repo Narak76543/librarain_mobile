@@ -16,9 +16,9 @@ if (envFile.exists()) {
 }
 
 android {
-    namespace = "com.example.librarainy3s3"
+    namespace = "com.example.librarainy3s2"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -32,7 +32,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.librarainy3s3"
+        applicationId = "com.example.librarainy3s2"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

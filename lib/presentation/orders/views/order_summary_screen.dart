@@ -60,6 +60,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       case 'processing':
         return AppColors.warningLight;
       case 'delivered':
+      case 'completed':
         return AppColors.successLight;
       case 'cancelled':
         return AppColors.errorLight;
@@ -75,6 +76,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
       case 'processing':
         return AppColors.warning;
       case 'delivered':
+      case 'completed':
         return AppColors.success;
       case 'cancelled':
         return AppColors.error;
@@ -93,40 +95,40 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     final provider = context.watch<OrderViewModel>();
     final summary = provider.summary;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: AppColors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-            color: AppColors.textPrimary,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: const AppText.subTitle(
-          'Order Summary',
-          color: AppColors.textPrimary,
-          fontWeight: FontWeight.w600,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.shopping_bag_outlined,
-              color: AppColors.buttonColor,
-            ),
-            onPressed: () => context.push(AppRoutes.cart),
-          ),
-          const SizedBox(width: 8),
-        ],
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: AppGradients.background,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppGradients.background,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: AppColors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColors.textPrimary,
+            ),
+            onPressed: () => context.pop(),
+          ),
+          title: const AppText.subTitle(
+            'Order Summary',
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(
+                Icons.shopping_bag_outlined,
+                color: AppColors.buttonColor,
+              ),
+              onPressed: () => context.push(AppRoutes.cart),
+            ),
+            const SizedBox(width: 8),
+          ],
         ),
-        child: SafeArea(
+        body: SafeArea(
           child: provider.isLoading || summary == null
               ? const Center(
                   child: CircularProgressIndicator(color: AppColors.buttonColor),

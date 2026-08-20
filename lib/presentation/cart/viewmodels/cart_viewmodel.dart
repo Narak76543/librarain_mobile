@@ -133,6 +133,10 @@ class CartViewModel extends ChangeNotifier {
     try {
       await _cartRepository.clearCart();
       _items.clear();
+      _deliveryAddress = null;
+      _deliveryPartner = null;
+      _deliveryWay = 'Pick Up';
+      _paymentMethod = 'KHQR';
       _error = null;
     } on CartException catch (e) {
       _error = e.message;

@@ -3,6 +3,7 @@ import 'package:mobile_s2_flutter/core/constants/app_texts.dart';
 import 'package:mobile_s2_flutter/data/repositories/auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_s2_flutter/core/services/notification_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthViewModel extends ChangeNotifier {
   AuthViewModel(this._authRepository);
@@ -137,6 +138,17 @@ class AuthViewModel extends ChangeNotifier {
 
   Future<void> logout() async {
     await NotificationService.clearToken();
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+        serverClientId:
+            '632874416504-30ue2elf9c0prf8g5fjd1k0lsqe28u6m.apps.googleusercontent.com',
+      );
+      await googleSignIn.signOut();
+      await googleSignIn.disconnect();
+    } catch (e) {
+      debugPrint('Google Sign-In signOut/disconnect error: $e');
+    }
     final preferences = await SharedPreferences.getInstance();
     await preferences.remove('access_token');
     await preferences.remove('token');
